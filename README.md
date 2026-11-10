@@ -58,7 +58,7 @@ cd zarecomp-editor
 
 Portable output goes to `dist/`. `App/` contains the WinForms interface; `Engine/` contains save transactions, catalogue and nature suggestions; `Tests/` contains the regression harness; `vendor/PKHeX.Core/` is the pinned save-format dependency.
 
-Tests require a **disposable copy** of a Z-A `main` save and write fixtures to the test executable's `data/` directory (under `Tests/bin/`):
+Tests require a **disposable copy** of a Z-A `main` save and write fixtures to the test executable's `data/` directory (under `Tests/bin/`). The main suite expects a full six-Pokémon party; `--preserve` requires an occupied first party slot:
 
 ```powershell
 dotnet run --project Tests/ZaTool.Tests.csproj -c Release -- "C:/DisposableTestSave/main"
@@ -66,7 +66,7 @@ dotnet run --project Tests/ZaTool.Tests.csproj -c Release -- --preserve "C:/Disp
 dotnet run --project Tests/ZaTool.Tests.csproj -c Release -- --plus "C:/DisposableTestSave/main"
 ```
 
-No personal saves are bundled. CI compiles the application and test harness; it does not run private-save regression tests. See [contributing](CONTRIBUTING.md) and the historical [verification record](Tests/verification.txt) for scope and limits.
+No personal saves are bundled. CI compiles the application and test harness; it does not run private-save regression tests. See [contributing](https://github.com/eep0x10/zarecomp-editor/blob/main/CONTRIBUTING.md) and the historical [verification record](https://github.com/eep0x10/zarecomp-editor/blob/main/Tests/verification.txt) for scope and limits.
 
 ## Licence and acknowledgements
 
