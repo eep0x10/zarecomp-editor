@@ -14,6 +14,27 @@ public static class Catalog
     public static IReadOnlyList<Choice> Moves { get; } = Enumerable.Range(0, Strings.movelist.Length)
         .Select(i => new Choice(i, i == 0 ? "(Empty)" : Strings.movelist[i])).ToArray();
 
+    public static IReadOnlyList<Choice> Languages { get; } = new[] {1,2,3,4,5,7,8,9,10,11}.Select(i => new Choice(i, ((LanguageID)i).ToString())).ToArray();
+    public static IReadOnlyList<Choice> HeldItems { get; } = new SAV9ZA().HeldItems.ToArray().Prepend((ushort)0).Distinct().Select(i => new Choice(i, Strings.itemlist[i])).ToArray();
+    public static IReadOnlyList<Choice> MetLocations { get; } = new MetDataSource(Strings).GetLocationList(GameVersion.ZA, EntityContext.Gen9a)
+        .Where(c => c.Value != 0).Select(c => new Choice(c.Value, c.Text)).DistinctBy(c => c.Id).ToArray();
+    public static IReadOnlyList<Choice> Ribbons { get; } = Enumerable.Range(0, Math.Min(128,(int)RibbonIndex.MAX_COUNT)).Select(i => new Choice(i, ((RibbonIndex)i).ToString())).ToArray();
+    public static IReadOnlyList<Choice> PlusMoves(int species, int form)
+    {
+        if (!Forms(species).Any(f => f.Id == form))return [];
+        var pk=new PA9 {Species=(ushort)species,Form=(byte)form};
+        var allowed=new bool[Strings.movelist.Length];
+        LearnSource9ZA.Instance.GetAllMoves(allowed,pk,new EvoCriteria {Species=pk.Species,Form=pk.Form,LevelMax=100});
+        return PersonalTable.ZA[pk.Species,pk.Form].PlusMoveIndexes.ToArray().Where(m=>allowed[m]&&!MoveInfo.IsDummiedMove(pk,m)).Select(m=>new Choice(m,Strings.movelist[m])).ToArray();
+    }
+
+    public static int[] BaseStats(int species, int form)
+    {
+        if (!Forms(species).Any(f => f.Id == form)) throw new ArgumentException("Espécie/forma não disponível em Z-A.");
+        var pi = PersonalTable.ZA[(ushort)species,(byte)form];
+        return [pi.HP,pi.ATK,pi.DEF,pi.SPE,pi.SPA,pi.SPD];
+    }
+
     public static IReadOnlyList<Choice> Forms(int species)
     {
         if (species < 1 || species > PersonalTable.ZA.MaxSpeciesID) return [];

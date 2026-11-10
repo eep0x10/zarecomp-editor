@@ -20,9 +20,13 @@ public sealed record AddOptions
     public int[]? Moves { get; init; }
     public int[]? IVs { get; init; }
     public int[]? EVs { get; init; }
+    public PokemonPatch? Details { get; init; }
 }
 public sealed record AddResult(string SavePath, string BackupDirectory, string Location, PokemonSummary Pokemon, bool Legal, string LegalityReport, string Hash);
 public sealed record TeamPokemon(int Slot, int Species, int Form, string Name, int Level, bool Shiny, int Nature, int[] Moves, int[] BaseStats, int[] MoveCategories);
-public sealed record TeamEdit(int Slot, int? Level=null, int? Nature=null, bool? Shiny=null);
+public sealed record TeamEdit(int Slot, int? Level=null, int? Nature=null, bool? Shiny=null)
+{
+    public PokemonPatch? Details { get; init; }
+}
 public sealed record TeamEditResult(string SavePath, string BackupDirectory, string Hash, IReadOnlyList<TeamPokemon> Team, IReadOnlyList<string> Warnings);
 public sealed record NatureSuggestion(int Slot, int Nature, string Reason);

@@ -3,6 +3,10 @@ using ZaTool.Engine;
 using System.Security.Cryptography;
 using System.Text.Json;
 
+if (args.Length > 1 && args[0] == "--details")
+{
+    DetailedTests.Run(args[1]);return;
+}
 if (args.Length > 0 && args[0] == "--race")
 {
     try { new SaveService().Add(args[1],new AddOptions(),args[2]); Environment.Exit(0); }
@@ -53,7 +57,7 @@ var real = Path.GetFullPath(args[0]);
 var initialReal = File.ReadAllBytes(real);
 var service = new SaveService();
 var pristine = (SAV9ZA)SaveUtil.GetSaveFile(initialReal.ToArray())!;
-Console.WriteLine($"Real snapshot: party={pristine.PartyCount}, boxes={pristine.BoxCount}, unlocked={pristine.BoxesUnlocked}, revision={pristine.SaveRevision}");
+Console.WriteLine($"Input snapshot: party={pristine.PartyCount}, boxes={pristine.BoxCount}, unlocked={pristine.BoxesUnlocked}, revision={pristine.SaveRevision}");
 int passed = 0;
 void Check(bool ok, string label) { if (!ok) throw new Exception(label); passed++; Console.WriteLine("PASS " + label); }
 string Hash(byte[] bytes) => Convert.ToHexString(SHA256.HashData(bytes));
@@ -89,7 +93,7 @@ Check(invalidTeam&&Hash(File.ReadAllBytes(teamPath))==teamHash,"EditTeam invalid
 var path = Fixture("box-auto");
 var info = service.Inspect(path);
 Check(info.Hash == Hash(File.ReadAllBytes(path)), "Inspect hash matches encrypted original");
-Check(info.PartyCount == 6, "Real snapshot has full party");
+Check(info.PartyCount == 6, "Input snapshot has full party");
 var result = service.Add(path, new AddOptions { Species=4, Level=10, Shiny=true, Nature=15 }, info.Hash);
 var edited = (SAV9ZA)SaveUtil.GetSaveFile(File.ReadAllBytes(path).ToArray())!;
 var pk = edited.GetBoxSlotAtIndex(result.Pokemon.Index);
@@ -139,7 +143,7 @@ Check(NatureAdvisor.GetMoveCategory(1)==1 && NatureAdvisor.GetMoveCategory(53)==
 var template=service.InspectTeam(path)[0];
 Check(NatureAdvisor.Suggest(template with {Moves=[53,0,0,0],MoveCategories=[2,0,0,0]}).Nature==15,"Special moves suggest Modest");
 Check(NatureAdvisor.Suggest(template with {Moves=[1,0,0,0],MoveCategories=[1,0,0,0]}).Nature==3,"Physical moves suggest Adamant");
-Check(NatureAdvisor.Suggest(template with {Moves=[1,53,0,0],MoveCategories=[1,2,0,0]}).Nature is 11 or 14,"Mixed moves avoid reducing either attacking stat");
+Check(NatureAdvisor.Suggest(template with {Moves=[1,53,0,0],MoveCategories=[1,2,0,0],BaseStats=[80,100,90,100,100,80]}).Nature is 11 or 14,"Mixed moves avoid reducing either attacking stat");
 var make=typeof(SaveService).GetMethod("CreatePokemon",System.Reflection.BindingFlags.NonPublic|System.Reflection.BindingFlags.Static)!;
 foreach (var sample in new[] { (4,0), (120,0), (150,0), (384,0), (26,1), (670,5), (718,0), (1007,0) })
 {
@@ -166,5 +170,5 @@ Check(Catalog.Species.All(c=>PersonalTable.ZA.IsSpeciesInGame((ushort)c.Id)),"Ca
 Check(Catalog.Species.All(c=>Catalog.Forms(c.Id).All(f=>PersonalTable.ZA.IsPresentInGame((ushort)c.Id,(byte)f.Id)&&!FormInfo.IsBattleOnlyForm((ushort)c.Id,(byte)f.Id,9))),"Catalog forms exclude absent and battle-only");
 Check(Catalog.Genders(120,0).Single().Id==2,"Genderless catalog");
 Check(Catalog.Natures.Any(c=>c.Id==15 && c.Name.Contains("Modest")),"Modest nature discoverable");
-Check(Hash(initialReal)==Hash(File.ReadAllBytes(real)),"Live real save never modified by tests");
+Check(Hash(initialReal)==Hash(File.ReadAllBytes(real)),"Source save never modified by tests");
 Console.WriteLine($"SUCCESS {passed} checks. Data: {root}");

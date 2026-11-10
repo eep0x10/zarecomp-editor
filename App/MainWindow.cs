@@ -41,6 +41,7 @@ public sealed class MainWindow : Form
         browse.Click += async (_, _) => { using var dialog = new OpenFileDialog { Title = L.T("Choose save"), Filter = "main|main|*.*|*.*", CheckFileExists = true }; if (summary is not null) dialog.InitialDirectory = Path.GetDirectoryName(summary.Path); if (dialog.ShowDialog(this) == DialogResult.OK) await LoadSave(dialog.FileName); };
         find.Click += async (_, _) => await Discover(); candidates.SelectionChangeCommitted += async (_, _) => { if (candidates.SelectedItem is Candidate value) await LoadSave(value.Value.Path); };
         workspace.BoxRequested += async index => await LoadBox(index); workspace.DraftChanged += () => { UpdateActions(); if (!busy) { if (workspace.DraftCount > 0) Message("Changes are drafts. Click Save changes to write them."); else if (previousDraftCount > 0) Message("No pending changes."); } previousDraftCount = workspace.DraftCount; };
+        workspace.EditDetailsRequested += async (party, slot, original, draft) => await ShowDetails(party, slot, original, draft);
         save.Click += async (_, _) => await SaveChanges(); discard.Click += (_, _) => workspace.Discard(); backup.Click += (_, _) => { try { if (backupDirectory is not null) Process.Start(new ProcessStartInfo(backupDirectory) { UseShellExecute = true }); } catch (Exception ex) { Error(ex); } };
         add.Click += async (_, _) => await ShowAddDialog();
         DragEnter += (_, e) => e.Effect = !busy && e.Data?.GetDataPresent(DataFormats.FileDrop) == true ? DragDropEffects.Copy : DragDropEffects.None; DragDrop += async (_, e) => { if (!busy && e.Data?.GetData(DataFormats.FileDrop) is string[] files && files.Length > 0) await LoadSave(files[0]); };
@@ -101,5 +102,20 @@ public sealed class MainWindow : Form
             finally { SetBusy(false); }
         });
         dialog.ShowDialog(this); return Task.CompletedTask;
+    }
+    private async Task ShowDetails(bool party, int slot, TeamPokemon original, TeamEdit? draft)
+    {
+        if (busy || summary is null) return;
+        PokemonDetails snapshot;
+        SetBusy(true);
+        try
+        {
+            snapshot = await Task.Run(() => service.InspectPokemon(summary.Path, party, slot));
+            if (!snapshot.Hash.Equals(summary.Hash, StringComparison.OrdinalIgnoreCase)) throw new IOException("O save mudou desde a leitura. Reabra antes de editar.");
+        }
+        catch (Exception ex) { Error(ex); return; }
+        finally { SetBusy(false); }
+        using var dialog = new PokemonDetailsDialog(snapshot, PokemonPatchTools.Initial(snapshot, draft, original));
+        if (dialog.ShowDialog(this) == DialogResult.OK && dialog.Result is { } patch) workspace.ApplyDetails(party, slot, snapshot, patch);
     }
 }

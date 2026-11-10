@@ -39,6 +39,12 @@ if (Test-Path -LiteralPath $screenshots -PathType Container) {
     New-Item -ItemType Directory -Path $docsOutput -Force | Out-Null
     Copy-Item -LiteralPath $screenshots -Destination $docsOutput -Recurse -Force
 }
+$editingGuide = Join-Path $PSScriptRoot 'docs/EDITING.md'
+if (Test-Path -LiteralPath $editingGuide -PathType Leaf) {
+    $docsOutput = Join-Path $publishDirectory 'docs'
+    New-Item -ItemType Directory -Path $docsOutput -Force | Out-Null
+    Copy-Item -LiteralPath $editingGuide -Destination $docsOutput -Force
+}
 $executable = Join-Path $publishDirectory 'RecompPokemon.exe'
 if (-not (Test-Path -LiteralPath $executable -PathType Leaf)) { throw 'O executável publicado não foi encontrado.' }
 Write-Host "Aplicativo portátil: $executable"

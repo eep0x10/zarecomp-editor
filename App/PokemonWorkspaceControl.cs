@@ -8,6 +8,7 @@ internal sealed class PokemonWorkspaceControl : UserControl
     private readonly Label teamHeading = Label("", 11, true), boxHeading = Label("", 11, true), title = Label("", 18, true), info = Label("", 10), reason = Label("", 10), pending = Label("", 10);
     private readonly ComboBox boxSelector = new() { Dock = DockStyle.Fill, DropDownStyle = ComboBoxStyle.DropDownList };
     private readonly Button optimize = new DarkButton() { AutoSize = false, Height = 36, Dock = DockStyle.Top, Font = new Font("Segoe UI", 9) };
+    private readonly Button editDetails = new DarkButton() { Height = 34, Dock = DockStyle.Top };
     private readonly NumericUpDown level = new() { Minimum = 1, Maximum = 100, Dock = DockStyle.Fill };
     private readonly ComboBox nature = new() { Dock = DockStyle.Fill, DropDownStyle = ComboBoxStyle.DropDownList };
     private readonly CheckBox shiny = new() { AutoSize = true, Text = "★ Shiny" };
@@ -26,10 +27,12 @@ internal sealed class PokemonWorkspaceControl : UserControl
     private IReadOnlyList<TeamPokemon> team = [], currentBox = [];
     public event Action<int>? BoxRequested;
     public event Action? DraftChanged;
+    public event Action<bool, int, TeamPokemon, TeamEdit?>? EditDetailsRequested;
     public int DraftCount => drafts.Count;
     internal int CurrentBoxIndex => boxIndex;
-    public IReadOnlyList<TeamEdit> TeamEdits => drafts.Where(x => x.Key.Party).Select(x => x.Value).ToArray();
-    public IReadOnlyList<TeamEdit> BoxEdits => drafts.Where(x => !x.Key.Party).Select(x => x.Value).ToArray();
+    public IReadOnlyList<TeamEdit> TeamEdits => Export(true);
+    public IReadOnlyList<TeamEdit> BoxEdits => Export(false);
+    private IReadOnlyList<TeamEdit> Export(bool party) => drafts.Where(x => x.Key.Party == party).Select(x => x.Value with { Level = x.Value.Level == originals[x.Key].Level ? null : x.Value.Level, Nature = x.Value.Nature == originals[x.Key].Nature ? null : x.Value.Nature, Shiny = x.Value.Shiny == originals[x.Key].Shiny ? null : x.Value.Shiny }).ToArray();
 
     public PokemonWorkspaceControl()
     {
@@ -43,13 +46,14 @@ internal sealed class PokemonWorkspaceControl : UserControl
         boxHeader.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 40)); boxHeader.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 60)); boxHeader.Controls.Add(boxHeading, 0, 0); boxHeader.Controls.Add(boxSelector, 1, 0);
         middle.Controls.Add(boxHeader, 0, 0); middle.Controls.Add(boxGrid, 0, 1); middle.Controls.Add(pending, 0, 2);
         var details = new TableLayoutPanel { Dock = DockStyle.Top, AutoSize = true, ColumnCount = 1 }; details.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100)); right.Controls.Add(details);
-        foreach (Control control in new Control[] { title, preview, info, levelCaption, level, natureCaption, nature, shiny, recommendationCaption, reason }) { control.Margin = new Padding(4, 3, 4, 3); details.RowStyles.Add(new RowStyle(control == preview ? SizeType.Absolute : SizeType.AutoSize, control == preview ? 102 : 0)); details.Controls.Add(control); }
+        foreach (Control control in new Control[] { title, preview, info, levelCaption, level, natureCaption, nature, shiny, editDetails, recommendationCaption, reason }) { control.Margin = new Padding(4, 3, 4, 3); details.RowStyles.Add(new RowStyle(control == preview ? SizeType.Absolute : SizeType.AutoSize, control == preview ? 102 : 0)); details.Controls.Add(control); }
+        editDetails.Click += (_, _) => { if (selected is { } key && originals.TryGetValue(key, out var pokemon)) EditDetailsRequested?.Invoke(key.Party, key.Slot, pokemon, drafts.GetValueOrDefault(key)); };
         preview.MinimumSize = new Size(0, 96); preview.Height = 96;
         boxSelector.SelectedIndexChanged += (_, _) => { if (!filling && boxSelector.SelectedIndex >= 0) BoxRequested?.Invoke(boxSelector.SelectedIndex); };
         level.ValueChanged += (_, _) => EditSelected(); level.TextChanged += (_, _) => EditSelected(); nature.SelectedIndexChanged += (_, _) => EditSelected(); shiny.CheckedChanged += (_, _) => EditSelected();
         optimize.Click += (_, _) =>
         {
-            foreach (var pokemon in team) { var suggestion = NatureAdvisor.Suggest(pokemon, L.Language); recommendations[pokemon.Slot] = suggestion.Reason; Store((true, pokemon.Slot), Effective((true, pokemon.Slot)) with { Nature = suggestion.Nature }); }
+            foreach (var original in team) { var key = (true, original.Slot); var pokemon = DisplayPokemon(key); var suggestion = NatureAdvisor.Suggest(pokemon, L.Language); recommendations[pokemon.Slot] = suggestion.Reason; var before = Effective(key); Store(key, before with { Nature = suggestion.Nature, Details = before.Details is { } patch && suggestion.Nature != before.Nature ? patch with { Nature = null, StatNature = null } : before.Details }); }
             RefreshCards(); FillDetails(); Changed();
         };
         DarkTheme.Apply(this); ApplyLanguage();
@@ -72,10 +76,10 @@ internal sealed class PokemonWorkspaceControl : UserControl
     public void ApplyLanguage()
     {
         teamHeading.Text = L.T("Your team"); boxHeading.Text = L.T("Boxes"); optimize.Text = L.T("Optimize team"); levelCaption.Text = L.T("Level"); natureCaption.Text = L.T("Nature"); recommendationCaption.Text = L.T("Recommendation"); shiny.Text = "★ " + L.T("Shiny");
-        level.AccessibleName = L.T("Level"); nature.AccessibleName = L.T("Nature"); boxSelector.AccessibleName = L.T("Box");
+        level.AccessibleName = L.T("Level"); nature.AccessibleName = L.T("Nature"); boxSelector.AccessibleName = L.T("Box"); editDetails.Text = L.T("Edit details");
         filling = true; int old = boxSelector.SelectedIndex; for (int i = 0; i < boxSelector.Items.Count; i++) boxSelector.Items[i] = $"{L.T("Box")} {i + 1}"; boxSelector.SelectedIndex = old;
         nature.DataSource = Catalog.Natures.Select(x => new Choice(x.Id, L.Nature(x.Id))).ToArray(); filling = false;
-        foreach (int slot in recommendations.Keys.ToArray()) if (originals.TryGetValue((true, slot), out var pokemon)) recommendations[slot] = NatureAdvisor.Suggest(pokemon, L.Language).Reason;
+        foreach (int slot in recommendations.Keys.ToArray()) if (originals.ContainsKey((true, slot))) recommendations[slot] = NatureAdvisor.Suggest(DisplayPokemon((true, slot)), L.Language).Reason;
         Render(); Changed();
     }
     private void Render()
@@ -89,32 +93,48 @@ internal sealed class PokemonWorkspaceControl : UserControl
     }
     private void AddSlot(TableLayoutPanel grid, bool inParty, int slot, TeamPokemon? pokemon, int col, int row)
     {
-        var view = new SlotView(pokemon, inParty, () => Select((inParty, slot)), () => ToggleShiny((inParty, slot)));
+        var display = pokemon is null ? null : DisplayPokemon((inParty, slot));
+        var view = new SlotView(display, inParty, () => Select((inParty, slot)), () => ToggleShiny((inParty, slot)));
         grid.Controls.Add(view, col, row);
-        if (pokemon is not null) { views[(inParty, slot)] = view; LoadImage(view.Image, pokemon, Effective((inParty, slot)).Shiny ?? pokemon.Shiny); }
+        if (pokemon is not null) { views[(inParty, slot)] = view; LoadImage(view.Image, display!, Effective((inParty, slot)).Shiny ?? pokemon.Shiny); }
     }
     private void Select((bool Party, int Slot) key) { selected = key; RefreshCards(); FillDetails(); }
     private TeamEdit Effective((bool Party, int Slot) key) => drafts.TryGetValue(key, out var value) ? value : new TeamEdit(key.Slot, originals[key].Level, originals[key].Nature, originals[key].Shiny);
-    private void Store((bool Party, int Slot) key, TeamEdit edit) { var p = originals[key]; if (edit.Level == p.Level && edit.Nature == p.Nature && edit.Shiny == p.Shiny) drafts.Remove(key); else drafts[key] = edit; }
+    private TeamPokemon DisplayPokemon((bool Party, int Slot) key)
+    {
+        var original = originals[key]; var edit = Effective(key); var patch = edit.Details;
+        int species = patch?.Species ?? original.Species, form = patch?.Form ?? original.Form; int[] moves = patch?.Moves ?? original.Moves;
+        return original with { Species = species, Form = form, Name = species != original.Species ? Catalog.Species.FirstOrDefault(x => x.Id == species)?.Name ?? original.Name : original.Name, Level = edit.Level ?? original.Level, Nature = edit.Nature ?? original.Nature, Shiny = edit.Shiny ?? original.Shiny, Moves = moves, MoveCategories = moves.Select(NatureAdvisor.GetMoveCategory).ToArray(), BaseStats = Catalog.Forms(species).Any(x => x.Id == form) ? Catalog.BaseStats(species, form) : original.BaseStats };
+    }
+    private void Store((bool Party, int Slot) key, TeamEdit edit) { var p = originals[key]; if (edit.Level == p.Level && edit.Nature == p.Nature && edit.Shiny == p.Shiny && PokemonPatchTools.Empty(edit.Details)) drafts.Remove(key); else drafts[key] = edit; }
+    internal void ApplyDetails(bool party, int slot, PokemonDetails snapshot, PokemonPatch patch)
+    {
+        var key = (party, slot); if (!originals.TryGetValue(key, out var original)) return;
+        var values = PokemonPatchTools.Merge(snapshot.Values, patch);
+        Store(key, new TeamEdit(slot, values.Level ?? original.Level, values.StatNature ?? original.Nature, values.Shiny is ShinyStyle.Star or ShinyStyle.Square) { Details = PokemonPatchTools.Empty(patch) ? null : patch });
+        Render(); Changed();
+    }
     private void EditSelected()
     {
         if (filling || selected is not { } key || !originals.ContainsKey(key) || nature.SelectedItem is not Choice choice) return;
         bool previousShiny = Effective(key).Shiny ?? false;
         int enteredLevel = int.TryParse(level.Text, out int entered) && entered is >= 1 and <= 100 ? entered : (int)level.Value;
-        Store(key, new TeamEdit(key.Slot, enteredLevel, choice.Id, shiny.Checked)); RefreshCards();
-        if (previousShiny != shiny.Checked) { LoadImage(preview, originals[key], shiny.Checked); if (views.TryGetValue(key, out var view)) LoadImage(view.Image, originals[key], shiny.Checked); }
+        var before = Effective(key); var patch = before.Details;
+        if (patch is not null) { if (enteredLevel != before.Level) patch = patch with { Level = null }; if (choice.Id != before.Nature) patch = patch with { Nature = null, StatNature = null }; if (shiny.Checked != before.Shiny) patch = patch with { Shiny = null }; }
+        Store(key, new TeamEdit(key.Slot, enteredLevel, choice.Id, shiny.Checked) { Details = patch }); RefreshCards();
+        if (previousShiny != shiny.Checked) { LoadImage(preview, DisplayPokemon(key), shiny.Checked); if (views.TryGetValue(key, out var view)) LoadImage(view.Image, DisplayPokemon(key), shiny.Checked); }
         Changed();
     }
-    private void ToggleShiny((bool Party, int Slot) key) { var edit = Effective(key); Store(key, edit with { Shiny = !(edit.Shiny ?? false) }); Select(key); if (views.TryGetValue(key, out var view)) LoadImage(view.Image, originals[key], Effective(key).Shiny ?? false); Changed(); }
+    private void ToggleShiny((bool Party, int Slot) key) { var edit = Effective(key); Store(key, edit with { Shiny = !(edit.Shiny ?? false), Details = edit.Details is { } patch ? patch with { Shiny = null } : null }); Select(key); if (views.TryGetValue(key, out var view)) LoadImage(view.Image, DisplayPokemon(key), Effective(key).Shiny ?? false); Changed(); }
     private void RefreshCards() { foreach (var pair in views) pair.Value.Update(Effective(pair.Key), selected == pair.Key, drafts.ContainsKey(pair.Key)); }
     private void FillDetails()
     {
         filling = true;
-        bool valid = selected is { } key && originals.ContainsKey(key); level.Enabled = nature.Enabled = shiny.Enabled = valid;
+        bool valid = selected is { } key && originals.ContainsKey(key); level.Enabled = nature.Enabled = shiny.Enabled = editDetails.Enabled = valid;
         if (!valid) { title.Text = L.T("Select a Pokémon"); info.Text = L.T("Choose a Pokémon to edit. Clicking an empty slot never creates one."); reason.Text = L.T("Optimize previews heuristic nature recommendations based on stats and moves. There is no universally best nature."); preview.Image?.Dispose(); preview.Image = null; }
         else
         {
-            var id = selected!.Value; var pokemon = originals[id]; var edit = Effective(id);
+            var id = selected!.Value; var pokemon = DisplayPokemon(id); var edit = Effective(id);
             title.Text = pokemon.Name; info.Text = $"#{pokemon.Species:0000}  ·  {(id.Party ? L.T("Team") : L.T("Box") + " " + (pokemon.Slot / 30 + 1))}\n{L.T("Form")}: {L.T(Catalog.Forms(pokemon.Species).FirstOrDefault(x => x.Id == pokemon.Form)?.Name ?? "Default")}";
             level.Value = Math.Clamp(edit.Level ?? pokemon.Level, 1, 100); shiny.Checked = edit.Shiny ?? pokemon.Shiny; nature.SelectedItem = nature.Items.Cast<Choice>().FirstOrDefault(x => x.Id == edit.Nature);
             reason.Text = id.Party && recommendations.TryGetValue(pokemon.Slot, out var explanation) ? explanation : L.T("Optimize previews heuristic nature recommendations based on stats and moves. There is no universally best nature.");

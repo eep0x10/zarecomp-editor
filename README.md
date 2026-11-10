@@ -28,12 +28,18 @@ Click **+**, choose the species, form, level, nature and shiny status, then choo
 
 ![Add Pokémon dialog configured for a shiny level 10 Charmander](docs/screenshots/add-pokemon.png)
 
+### Customise the details
+
+Open **Edit details** for identity, attributes, moves, origin and advanced metadata. The same field groups are available when adding a Pokémon.
+
+![Detailed editor with separate IVs, EVs, Hyper Training and friendship](docs/screenshots/attributes.png)
+
 ## Quick start
 
 1. Download the portable ZIP from [Releases](https://github.com/eep0x10/zarecomp-editor/releases/latest), then extract it into a writable folder.
 2. Close ZA Recomp and open `RecompPokemon.exe`.
 3. Use save discovery or select your save's **`main`** file. A common location is `<ZA Recomp folder>/save/save_0/main`; some distributions use a `PORT` subfolder. Check trainer and modification date if several copies appear.
-4. Select a party or box Pokémon, change its level, nature or shiny status, then save. The star changes the draft until you save.
+4. Select a party or box Pokémon. Use the quick level/nature/shiny controls or **Edit details** for deeper customisation, then save. Both return changes to the draft until you save.
 5. Use **+** to add a Pokémon. Automatic placement uses an empty party slot first, then an empty slot in an unlocked box.
 
 Keep your own backup too. This editor supports Z-A saves; it does not convert saves from other games.
@@ -43,14 +49,16 @@ Keep your own backup too. This editor supports Z-A saves; it does not convert sa
 | Capability | What you can do |
 | --- | --- |
 | Box browser | Browse a 30-slot box grid beside your current six-slot party |
-| Edit existing Pokémon | Change level, nature and shiny status with a preview |
-| Add Pokémon | Choose supported species/form, level, nature and shiny; optionally set nickname, gender, ball, moves, IVs and EVs |
+| Edit existing Pokémon | Quick level/nature/shiny controls plus a detailed editor for identity, stats, moves, origin and advanced fields |
+| Add Pokémon | Customise supported species/form, nickname, gender, shiny style, nature/Mint, IVs/EVs, Hyper Training, moves/Plus, item and origin metadata |
 | Optimize | Preview suggested party natures, with a reason for each suggestion |
 | Languages | Switch the interface between PT-BR, English and Spanish without losing pending edits |
 | Portable storage | Settings and cached artwork stay beside the executable |
 | Save protection | Folder backups, SHA-256 manifests, stale-file checks, validated writes and atomic replacement |
 
 Catalogue names and PKHeX reports currently remain in English. The dark interface requests Windows Desktop Acrylic where supported; opaque surfaces remain the fallback.
+
+See the [detailed editing guide](docs/EDITING.md) for field groups, drafts and Z-A-specific limits. PP/history and technical identifiers are handled according to their actual format semantics; not every stored byte is an editable gameplay feature.
 
 ### What Optimize means
 
@@ -86,6 +94,7 @@ Tests require a **disposable copy** of a Z-A `main` save and write fixtures to t
 dotnet run --project Tests/ZaTool.Tests.csproj -c Release -- "C:/DisposableTestSave/main"
 dotnet run --project Tests/ZaTool.Tests.csproj -c Release -- --preserve "C:/DisposableTestSave/main"
 dotnet run --project Tests/ZaTool.Tests.csproj -c Release -- --plus "C:/DisposableTestSave/main"
+dotnet run --project Tests/ZaTool.Tests.csproj -c Release -- --details "C:/DisposableTestSave/main"
 ```
 
 No personal saves are bundled. CI compiles the application and test harness; it does not run private-save regression tests. See [contributing](https://github.com/eep0x10/zarecomp-editor/blob/main/CONTRIBUTING.md) and the historical [verification record](https://github.com/eep0x10/zarecomp-editor/blob/main/Tests/verification.txt) for scope and limits.

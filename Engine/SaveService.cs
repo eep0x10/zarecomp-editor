@@ -5,7 +5,7 @@ using PKHeX.Core;
 
 namespace ZaTool.Engine;
 
-public sealed class SaveService
+public sealed partial class SaveService
 {
     private static readonly object WriteGate = new();
     private static readonly HashSet<uint> MutableBlocks = [0x0D66012C, 0x3AA1A9AD, 0x2D87BE5C];
@@ -79,6 +79,7 @@ public sealed class SaveService
             if (!party && index < 0) throw new InvalidOperationException("As caixas estão cheias. Nenhum Pokémon foi sobrescrito.");
             var before = save.Clone() as SAV9ZA ?? throw new InvalidDataException();
             var pokemon = CreatePokemon(save, options);
+            if (options.Details != null) ApplyDetails(save, pokemon, options.Details);
             if (party) save.SetPartySlotAtIndex(pokemon, index);
             else save.SetBoxSlotAtIndex(pokemon, index);
             VerifyChanges(before, save, party, index, pokemon);
@@ -124,7 +125,7 @@ public sealed class SaveService
                 if (edit.Slot < 0 || edit.Slot >= (item.Party ? save.PartyCount : AccessibleBoxes(save) * 30)) throw new ArgumentException("Posição inválida ou bloqueada.");
                 if (edit.Level is < 1 or > 100) throw new ArgumentException("Nível deve estar entre 1 e 100.");
                 if (edit.Nature is < 0 or > 24) throw new ArgumentException("Natureza inválida.");
-                if (edit.Level == null && edit.Nature == null && edit.Shiny == null) throw new ArgumentException("Informe uma alteração para cada posição selecionada.");
+                if (edit.Level == null && edit.Nature == null && edit.Shiny == null && !HasDetails(edit.Details)) throw new ArgumentException("Informe uma alteração para cada posição selecionada.");
             }
             var expected = new Dictionary<(bool Party, int Index), PA9>(); var warnings = new List<string>();
             foreach (var item in edits)
@@ -135,7 +136,7 @@ public sealed class SaveService
                 if (!pk.ChecksumValid) throw new InvalidDataException("Pokémon tem checksum inválido.");
                 if (edit.Level is int level) pk.CurrentLevel = (byte)level;
                 if (edit.Nature is int nature) pk.Nature = pk.StatAlignment = (Nature)nature;
-                if (edit.Shiny is true) SetStarShiny(pk);
+                if (edit.Shiny is true && !pk.IsShiny) SetStarShiny(pk);
                 else if (edit.Shiny is false && pk.IsShiny) pk.PID ^= 0x10000000;
                 if (edit.Level != null || edit.Nature != null)
                 {
@@ -143,10 +144,16 @@ public sealed class SaveService
                     pk.ResetPartyStats();
                     pk.Stat_HPCurrent = Math.Min(hp, pk.Stat_HPMax); pk.Status_Condition = status;
                 }
+                if (edit.Details != null || edit.Level != null)
+                {
+                    var effectivePatch=edit.Details??new PokemonPatch();
+                    if(effectivePatch.Level==null&&edit.Level!=null)effectivePatch=effectivePatch with {Level=edit.Level};
+                    ApplyDetails(save,pk,effectivePatch);
+                }
                 pk.RefreshChecksum(); expected[(item.Party, edit.Slot)] = pk;
                 if (item.Party) save.SetPartySlotAtIndex(pk, edit.Slot, EntityImportSettings.None);
                 else save.SetBoxSlotAtIndex(pk, edit.Slot, EntityImportSettings.None);
-                if (edit.Shiny != null) save.Zukan.SetDex(pk);
+                if (edit.Shiny != null || edit.Details != null) save.Zukan.SetDex(pk);
                 string label = item.Party ? $"Equipe {edit.Slot + 1}" : $"Caixa {edit.Slot / 30 + 1}, posição {edit.Slot % 30 + 1}";
                 if (pk.CurrentLevel < pk.MetLevel) warnings.Add($"{label}: nível abaixo do nível original de encontro; legalidade não garantida.");
                 if (!new LegalityAnalysis(pk).Valid) warnings.Add($"{label}: PKHeX sinaliza legalidade; edição não garante uso online.");

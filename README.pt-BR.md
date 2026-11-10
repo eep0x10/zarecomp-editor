@@ -24,6 +24,12 @@ Clique em **+**, escolha espécie, forma, nível, natureza e shiny, e defina o d
 
 ![Formulário de adição configurado para Charmander shiny nível 10](docs/screenshots/add-pokemon.png)
 
+### Personalize os detalhes
+
+Abra **Editar detalhes** para identidade, atributos, golpes, origem e dados avançados. Os mesmos grupos estão disponíveis na adição.
+
+![Editor detalhado com IVs, EVs, Hyper Training e amizade separados](docs/screenshots/attributes.png)
+
 Ferramenta desktop **portable** para adicionar e editar Pokémon em saves de **Pokémon Legends: Z-A no ZA Recomp**. Interface em português, inglês e espanhol, sem instalador, conta, servidor ou envio de saves. Windows x64; o executável publicado inclui o runtime. Pode ser colocado em qualquer pasta ou pendrive. As preferências ficam em um pequeno arquivo ao lado do executável; não requer instalação do .NET.
 
 Tema escuro com caixa em grade, equipe lateral e editor à direita. O aplicativo solicita o efeito Desktop Acrylic ao Windows compatível e mantém superfícies escuras legíveis como fallback; a transparência do cliente não é garantida. A edição não depende desse efeito.
@@ -32,11 +38,13 @@ Tema escuro com caixa em grade, equipe lateral e editor à direita. O aplicativo
 
 1. Feche o ZA Recomp.
 2. Abra `RecompPokemon.exe`. Use a descoberta de saves ou selecione o arquivo `main`.
-3. Confira treinador, equipe lateral e caixa aberta. Clique em um Pokémon para editar nível, natureza e shiny no painel da direita. A estrela alterna shiny no rascunho; use **Salvar alterações** para gravar.
-4. Para criar outro Pokémon, clique em **+**. Escolha a espécie compatível, forma, nível, shiny e natureza. Os detalhes opcionais incluem apelido, gênero, bola, golpes, IVs e EVs.
+3. Confira treinador, equipe lateral e caixa aberta. Clique em um Pokémon para editar nível, natureza e shiny no painel da direita, ou abra **Editar detalhes** para identidade, atributos, golpes, origem e campos avançados. Tudo fica em rascunho; use **Salvar alterações** para gravar.
+4. Para criar outro Pokémon, clique em **+**. Personalize espécie/forma compatível, apelido, gênero, nível, estilo shiny, natureza/Mint, IVs/EVs, Hyper Training, golpes/Plus, item e dados de origem.
 5. Escolha o destino e clique em adicionar. O modo automático usa a equipe se houver espaço; caso contrário, uma caixa com espaço vazio.
 
 O seletor superior muda a interface entre Português (Brasil), English e Español sem descartar as alterações pendentes. As preferências permanecem ao lado do executável.
+
+Consulte o [guia de edição detalhada](docs/EDITING.md) para os grupos de campos e limites de Z-A. Dados técnicos e históricos são preservados ou exibidos conforme seu significado; não há edição hexadecimal nem criação de ovos.
 
 ## Optimize
 

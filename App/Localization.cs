@@ -1,6 +1,6 @@
 namespace ZaTool.App;
 
-internal static class L
+internal static partial class L
 {
     public static string Language { get; set; } = "pt-BR";
     private static readonly Dictionary<string, (string Pt, string Es)> Strings = new()
@@ -47,7 +47,7 @@ internal static class L
         ["Trainer"] = ("Treinador", "Entrenador"), ["Free slots"] = ("Espaços livres", "Espacios libres"), ["Pending"] = ("Pendentes", "Pendientes"), ["Default"] = ("Padrão", "Normal"),
         ["Nature recommendations are drafts. Review them and save the team when ready."] = ("Recomendações são rascunhos. Revise e salve a equipe quando estiver pronto.", "Las recomendaciones son borradores. Revísalas y guarda el equipo cuando quieras."),
     };
-    public static string T(string key) => Language == "en" ? key : Strings.TryGetValue(key, out var value) ? Language == "es" ? value.Es : value.Pt : key;
+    public static string T(string key) => Language == "en" ? key : Strings.TryGetValue(key, out var value) || DetailStrings.TryGetValue(key, out value) ? Language == "es" ? value.Es : value.Pt : key;
     public static string Status(string source)
     {
         bool externalReport = false;
@@ -70,7 +70,7 @@ internal static class L
     {
         if (Language == "pt-BR") return text;
         // Engine messages are translated here; paths, names and external legality reports stay intact.
-        foreach (var pair in BackendMessages.OrderByDescending(x => x.Key.Length)) text = text.Replace(pair.Key, Language == "es" ? pair.Value.Es : pair.Value.En, StringComparison.Ordinal);
+        foreach (var pair in BackendMessages.Concat(DetailBackendMessages).OrderByDescending(x => x.Key.Length)) text = text.Replace(pair.Key, Language == "es" ? pair.Value.Es : pair.Value.En, StringComparison.Ordinal);
         return text;
     }
     private static readonly Dictionary<string, (string En, string Es)> BackendMessages = new()
