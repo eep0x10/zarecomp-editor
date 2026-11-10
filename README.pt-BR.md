@@ -1,50 +1,83 @@
-# Recomp Pokémon
+# ZA Recomp Editor — Português (Brasil)
 
-[Baixar para Windows](https://github.com/eep0x10/zarecomp-editor/releases/latest) · [English](README.md) · [Español](README.es.md)
+**Editor portable de saves de Pokémon Legends: Z-A para o ZA Recomp.** Navegue pelas boxes, edite Pokémon existentes e adicione Pokémon personalizados com backup automático. O aplicativo se chama **Recomp Pokémon**.
 
-## Conheça a interface
+[Baixar para Windows](https://github.com/eep0x10/zarecomp-editor/releases/latest) · [English — README principal](README.md) · [Español](README.es.md) · [Guia detalhado](docs/EDITING.md#português)
 
-Capturas reais do programa usando um save sintético de demonstração.
+Windows x64, sem instalador nem instalação separada do .NET. Extraia o ZIP em uma pasta gravável ou pendrive. Preferências e cache ficam ao lado do executável. Não inclui arquivos do jogo nem saves pessoais.
 
-### Navegue pelas boxes
+## Comece pelo seu save
 
-A equipe fica à esquerda, a box aberta no centro e o preview do Pokémon selecionado à direita.
+1. Baixe o ZIP portable em [Releases](https://github.com/eep0x10/zarecomp-editor/releases/latest) e extraia-o.
+2. Feche o ZA Recomp e abra `RecompPokemon.exe`.
+3. Use a busca ou selecione o arquivo **`main`**. Caminhos comuns: `<pasta do ZA Recomp>/save/save_0/main` ou `<pasta do ZA Recomp>/PORT/save/save_0/main`. Confira treinador e data se aparecerem várias cópias.
 
-![Box em grade com equipe e preview do Pokémon](docs/screenshots/boxes.png)
+A equipe fica à esquerda, a box com 30 posições no centro e o Pokémon selecionado à direita.
 
-### Edite sua equipe
+![Navegador de boxes com equipe e Pokémon selecionado](docs/screenshots/boxes.png)
 
-Clique em um membro para editar nível, natureza e shiny. As mudanças ficam em rascunho até você salvar.
+As capturas mostram o aplicativo real usando um save sintético de demonstração.
 
-![Pokémon da equipe selecionado com controles de nível, natureza e shiny](docs/screenshots/party.png)
+## Edite um Pokémon existente
 
-### Adicione um Pokémon
+1. Selecione um Pokémon da equipe ou de uma box. Use os controles rápidos ou abra **Editar detalhes**.
+2. Revise as cinco abas e clique em **Aplicar ao rascunho**. Isso **não** grava o save. **Cancelar** mantém o rascunho anterior intacto.
+3. Revise os rascunhos e use **Salvar alterações** para validar e gravar o lote inteiro com backup. **Descartar rascunhos** abandona as mudanças pendentes.
 
-Clique em **+**, escolha espécie, forma, nível, natureza e shiny, e defina o destino automático, equipe ou box. As outras abas oferecem detalhes opcionais.
+| Aba | Conteúdo |
+| --- | --- |
+| Identidade | Espécie/forma, apelido, gênero, nível, natureza original e efeito de Mint, estilo shiny, bola, item e favorito |
+| Atributos | IVs, EVs, Hyper Training, amizade e marcações coloridas |
+| Golpes | Quatro posições e registros Plus; PP e histórico de relearn são somente leitura |
+| Origem | Treinador original, IDs brutos, idioma, dados de encontro e obediência |
+| Avançado | Alpha/tamanho, título já possuído, dados técnicos e relatório PKHeX original |
 
-![Formulário de adição configurado para Charmander shiny nível 10](docs/screenshots/add-pokemon.png)
+<details>
+<summary>Veja as cinco abas de edição</summary>
 
-### Personalize os detalhes
+**Identidade** — natureza original e efeito de Mint são escolhas separadas.
 
-Abra **Editar detalhes** para identidade, atributos, golpes, origem e dados avançados. Os mesmos grupos estão disponíveis na adição.
+![Pokémon existente: aba Identidade](docs/screenshots/details.png)
 
-![Editor detalhado com IVs, EVs, Hyper Training e amizade separados](docs/screenshots/attributes.png)
+**Atributos** — IVs, EVs e Hyper Training separados, com total de EVs visível.
 
-Ferramenta desktop **portable** para adicionar e editar Pokémon em saves de **Pokémon Legends: Z-A no ZA Recomp**. Interface em português, inglês e espanhol, sem instalador, conta, servidor ou envio de saves. Windows x64; o executável publicado inclui o runtime. Pode ser colocado em qualquer pasta ou pendrive. As preferências ficam em um pequeno arquivo ao lado do executável; não requer instalação do .NET.
+![Pokémon existente: aba Atributos](docs/screenshots/attributes.png)
 
-Tema escuro com caixa em grade, equipe lateral e editor à direita. O aplicativo solicita o efeito Desktop Acrylic ao Windows compatível e mantém superfícies escuras legíveis como fallback; a transparência do cliente não é garantida. A edição não depende desse efeito.
+**Golpes** — escolha golpes compatíveis e confira os registros Plus.
 
-## Uso
+![Pokémon existente: aba Golpes](docs/screenshots/moves.png)
 
-1. Feche o ZA Recomp.
-2. Abra `RecompPokemon.exe`. Use a descoberta de saves ou selecione o arquivo `main`.
-3. Confira treinador, equipe lateral e caixa aberta. Clique em um Pokémon para editar nível, natureza e shiny no painel da direita, ou abra **Editar detalhes** para identidade, atributos, golpes, origem e campos avançados. Tudo fica em rascunho; use **Salvar alterações** para gravar.
-4. Para criar outro Pokémon, clique em **+**. Personalize espécie/forma compatível, apelido, gênero, nível, estilo shiny, natureza/Mint, IVs/EVs, Hyper Training, golpes/Plus, item e dados de origem.
-5. Escolha o destino e clique em adicionar. O modo automático usa a equipe se houver espaço; caso contrário, uma caixa com espaço vazio.
+**Origem** — confira os dados do treinador e do encontro antes de alterar.
 
-O seletor superior muda a interface entre Português (Brasil), English e Español sem descartar as alterações pendentes. As preferências permanecem ao lado do executável.
+![Pokémon existente: aba Origem](docs/screenshots/origin.png)
 
-Consulte o [guia de edição detalhada](docs/EDITING.md) para os grupos de campos e limites de Z-A. Dados técnicos e históricos são preservados ou exibidos conforme seu significado; não há edição hexadecimal nem criação de ovos.
+**Avançado** — consulte dados técnicos preservados e opções de tamanho/título.
+
+![Pokémon existente: aba Avançado](docs/screenshots/advanced.png)
+
+</details>
+
+## Adicione um Pokémon personalizado
+
+1. Salve ou descarte os rascunhos existentes e clique em **+ Adicionar Pokémon**.
+2. Escolha espécie, forma, nível, natureza original, estilo shiny e bola. As mesmas cinco abas oferecem personalização: **marque um campo opcional para substituir seu valor automático**; deixe-o desmarcado para manter a geração automática.
+3. Escolha o destino. **Automático** usa primeiro uma posição vazia da equipe e depois uma box desbloqueada. **Equipe** exige espaço; **Boxes** usa uma posição disponível sem substituir outro Pokémon.
+4. Clique em **Adicionar Pokémon**. Essa ação **grava imediatamente com backup**; não cria um rascunho na janela principal. Cancelar o diálogo não grava nada.
+
+![Adicionar Pokémon: escolhas de identidade e substituições opcionais](docs/screenshots/add-pokemon.png)
+
+<details>
+<summary>Veja os atributos opcionais da adição</summary>
+
+Ative apenas os IVs, EVs, Hyper Training e demais opções que quiser definir. Campo desmarcado não substitui o valor automático; os controles desativados não mostram uma prévia dos valores gerados.
+
+![Adicionar Pokémon: substituições opcionais de atributos](docs/screenshots/add-attributes.png)
+
+</details>
+
+O seletor de idioma alterna entre PT-BR, inglês e espanhol sem perder rascunhos. Catálogo e relatórios PKHeX permanecem em inglês. O tema escuro solicita Desktop Acrylic ao Windows compatível, com superfícies opacas como alternativa; a edição independe do efeito.
+
+Consulte o [guia detalhado](docs/EDITING.md#português) para limites de campos e diferenças entre editar e adicionar. Não há editor hexadecimal, criação de ovos nem conversão de outros jogos.
 
 ## Optimize
 
@@ -60,7 +93,7 @@ Para restaurar, feche o jogo e a ferramenta e copie o `main` do backup desejado 
 
 ## Compatibilidade
 
-A lista inclui espécies e formas persistentes presentes nas tabelas de Z-A da versão incorporada do PKHeX.Core. Uma forma usada apenas durante batalha não é um Pokémon armazenável separado. O programa valida a estrutura do save; isso não garante que todo Pokémon personalizado corresponda a um encontro possível no jogo. A análise do PKHeX aparece no resultado. Combinações como Charmander shiny nível 10 podem ser marcadas como fora dos encontros conhecidos. Alterar nível ou natureza recalcula os atributos, preservando status e HP anterior limitado ao novo máximo; alterar apenas shiny preserva esses valores.
+A lista inclui espécies e formas persistentes presentes nas tabelas de Z-A da versão incorporada do PKHeX.Core. Por política do editor, são oferecidas formas persistentes, sem gravar formas temporárias de batalha nas boxes. O programa valida a estrutura do save; isso não garante que todo Pokémon personalizado corresponda a um encontro possível no jogo. A análise do PKHeX aparece no resultado. Alterar nível ou natureza recalcula os atributos, preservando status e HP anterior limitado ao novo máximo; alterar apenas shiny preserva esses valores.
 
 As imagens são obtidas de recursos públicos da PokéAPI e ficam em cache junto ao aplicativo. A edição funciona sem internet; sem imagem disponível, o programa mantém nome e forma visíveis. Somente IDs públicos de espécies/formas são usados nas consultas: os arquivos de save, nomes de treinador e apelidos não são enviados.
 

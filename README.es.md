@@ -1,48 +1,83 @@
 # ZA Recomp Editor — Español
 
-Editor portable de partidas de **Pokémon Legends: Z-A para ZA Recomp**, con cajas en cuadrícula, equipo lateral y panel de edición. La aplicación se llama **Recomp Pokémon**.
+**Editor portable de partidas de Pokémon Legends: Z-A para ZA Recomp.** Explora cajas, edita Pokémon existentes y añade Pokémon personalizados con copias de seguridad automáticas. La aplicación se llama **Recomp Pokémon**.
 
-[Descargar para Windows](https://github.com/eep0x10/zarecomp-editor/releases/latest) · [English](README.md) · [Português](README.pt-BR.md)
+[Descargar para Windows](https://github.com/eep0x10/zarecomp-editor/releases/latest) · [English — README principal](README.md) · [Português (Brasil)](README.pt-BR.md) · [Guía detallada](docs/EDITING.md#español)
 
-## Conoce la interfaz
+Windows x64, sin instalador ni instalación separada de .NET. Extrae el ZIP en una carpeta escribible o memoria USB. Preferencias y caché se guardan junto al ejecutable. No incluye archivos del juego ni partidas personales.
 
-Capturas reales de la aplicación con una partida sintética de demostración.
+## Empieza con tu partida
 
-### Explora las cajas
-
-El equipo permanece a la izquierda, la caja abierta en el centro y el Pokémon seleccionado a la derecha.
-
-![Caja en cuadrícula con equipo y vista previa del Pokémon](docs/screenshots/boxes.png)
-
-### Edita tu equipo
-
-Selecciona un miembro para cambiar nivel, naturaleza y shiny. Los cambios siguen como borrador hasta guardarlos.
-
-![Miembro del equipo con controles de nivel, naturaleza y shiny](docs/screenshots/party.png)
-
-### Añade un Pokémon
-
-Pulsa **+**, elige especie, forma, nivel, naturaleza y shiny, y selecciona destino automático, equipo o caja. Las otras pestañas ofrecen detalles opcionales.
-
-![Diálogo para añadir un Charmander shiny de nivel 10](docs/screenshots/add-pokemon.png)
-
-### Personaliza los detalles
-
-Abre **Editar detalles** para identidad, atributos, movimientos, origen y datos avanzados. Los mismos grupos están disponibles al añadir.
-
-![Editor detallado con IVs, EVs, Hyper Training y amistad por separado](docs/screenshots/attributes.png)
-
-## Primeros pasos
-
-1. Descarga el ZIP portable de Releases y extráelo en una carpeta con permiso de escritura. Windows x64; no necesitas instalar .NET.
+1. Descarga el ZIP portable de [Releases](https://github.com/eep0x10/zarecomp-editor/releases/latest) y extráelo.
 2. Cierra ZA Recomp y abre `RecompPokemon.exe`.
-3. Busca las partidas o selecciona `main`. Ubicación habitual: `<carpeta de ZA Recomp>/save/save_0/main`; algunas distribuciones usan `PORT`. Comprueba entrenador y fecha si aparecen varias copias.
-4. Selecciona un Pokémon del equipo o una caja para cambiar nivel, naturaleza y shiny, o abre **Editar detalles** para identidad, estadísticas, movimientos, origen y campos avanzados. Todo permanece como borrador hasta guardar.
-5. Pulsa **+** para personalizar especie/forma compatible, apodo, género, nivel, estilo shiny, naturaleza/Mint, IVs/EVs, Hyper Training, movimientos/Plus, objeto y origen. Automático utiliza primero el equipo si queda espacio y después una caja desbloqueada con espacio.
+3. Busca una partida o selecciona **`main`**. Rutas habituales: `<carpeta de ZA Recomp>/save/save_0/main` o `<carpeta de ZA Recomp>/PORT/save/save_0/main`. Comprueba entrenador y fecha si aparecen varias copias.
 
-Consulta la [guía de edición detallada](docs/EDITING.md) para campos y límites de Z-A. Los datos técnicos e históricos se preservan o muestran según su significado; no hay editor hexadecimal ni creación de huevos.
+El equipo queda a la izquierda, una caja de 30 posiciones en el centro y el Pokémon seleccionado a la derecha.
 
-Añadir no sobrescribe posiciones ocupadas. No convierte partidas de otros juegos. La interfaz cambia entre PT-BR, inglés y español sin perder borradores; el catálogo y los informes PKHeX siguen en inglés. Tema oscuro con Acrylic solicitado a Windows compatible y superficies opacas como alternativa.
+![Explorador de cajas con equipo y Pokémon seleccionado](docs/screenshots/boxes.png)
+
+Las capturas muestran la aplicación real usando una partida sintética de demostración.
+
+## Edita un Pokémon existente
+
+1. Selecciona un Pokémon del equipo o una caja. Usa los controles rápidos o abre **Editar detalles**.
+2. Revisa las cinco pestañas y pulsa **Aplicar al borrador**. Esto **no** escribe la partida. **Cancelar** mantiene intacto el borrador anterior.
+3. Revisa los borradores y pulsa **Guardar cambios** para validar y escribir el lote completo con copia de seguridad. **Descartar borradores** abandona los cambios pendientes.
+
+| Pestaña | Contenido |
+| --- | --- |
+| Identidad | Especie/forma, apodo, género, nivel, naturaleza original y efecto de Mint, estilo shiny, bola, objeto y favorito |
+| Atributos | IVs, EVs, Hyper Training, amistad y marcas de colores |
+| Movimientos | Cuatro posiciones y registros Plus; PP e historial de relearn son de solo lectura |
+| Origen | Entrenador original, IDs internos, idioma, datos del encuentro y obediencia |
+| Avanzado | Alpha/tamaño, título ya obtenido, datos técnicos e informe PKHeX original |
+
+<details>
+<summary>Ver las cinco pestañas de edición</summary>
+
+**Identidad** — naturaleza original y efecto de Mint son elecciones separadas.
+
+![Pokémon existente: pestaña Identidad](docs/screenshots/details.png)
+
+**Atributos** — IVs, EVs e Hyper Training separados, con el total de EVs visible.
+
+![Pokémon existente: pestaña Atributos](docs/screenshots/attributes.png)
+
+**Movimientos** — elige movimientos compatibles y revisa los registros Plus.
+
+![Pokémon existente: pestaña Movimientos](docs/screenshots/moves.png)
+
+**Origen** — revisa la identidad del entrenador y los datos del encuentro antes de cambiarlos.
+
+![Pokémon existente: pestaña Origen](docs/screenshots/origin.png)
+
+**Avanzado** — consulta datos técnicos preservados y opciones de tamaño/título.
+
+![Pokémon existente: pestaña Avanzado](docs/screenshots/advanced.png)
+
+</details>
+
+## Añade un Pokémon personalizado
+
+1. Guarda o descarta los borradores existentes y pulsa **+ Añadir Pokémon**.
+2. Elige especie, forma, nivel, naturaleza original, estilo shiny y bola. Las mismas cinco pestañas ofrecen personalización: **marca un campo opcional para reemplazar su valor automático**; déjalo sin marcar para mantener la generación automática.
+3. Elige el destino. **Automático** ocupa primero un hueco del equipo y después una caja desbloqueada. **Equipo** necesita espacio; **Cajas** utiliza una posición disponible sin sobrescribir otro Pokémon.
+4. Pulsa **Añadir Pokémon**. Esta acción **escribe inmediatamente con copia de seguridad**; no crea un borrador en la ventana principal. Cancelar el diálogo no escribe nada.
+
+![Añadir Pokémon: identidad y reemplazos opcionales](docs/screenshots/add-pokemon.png)
+
+<details>
+<summary>Ver atributos opcionales al añadir</summary>
+
+Activa solo los IVs, EVs, Hyper Training u otras opciones que quieras definir. Un campo sin marcar no reemplaza el valor automático; los controles desactivados no muestran una vista previa de los valores generados.
+
+![Añadir Pokémon: reemplazos opcionales de atributos](docs/screenshots/add-attributes.png)
+
+</details>
+
+La interfaz cambia entre PT-BR, inglés y español sin perder borradores; el catálogo y los informes PKHeX siguen en inglés. Tema oscuro con Acrylic solicitado a Windows compatible y superficies opacas como alternativa.
+
+Consulta la [guía detallada](docs/EDITING.md#español) para campos y límites. No hay editor hexadecimal, creación de huevos ni conversión de otros juegos.
 
 ## Optimize y límites
 

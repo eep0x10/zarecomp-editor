@@ -1,48 +1,81 @@
 # ZA Recomp Editor
 
-**A portable Pokémon Legends: Z-A save editor for ZA Recomp.** Browse boxes, edit your party and add Pokémon through a dark desktop interface with automatic backups.
+**A portable Pokémon Legends: Z-A save editor for ZA Recomp.** Browse boxes, edit existing Pokémon and create custom additions with automatic backups.
 
-[Download for Windows](https://github.com/eep0x10/zarecomp-editor/releases/latest) · [Português (Brasil)](README.pt-BR.md) · [Español](README.es.md) · [Report an issue](https://github.com/eep0x10/zarecomp-editor/issues)
+[Download for Windows](https://github.com/eep0x10/zarecomp-editor/releases/latest) · [Português (Brasil)](README.pt-BR.md) · [Español](README.es.md) · [Detailed editing guide](docs/EDITING.md) · [Report an issue](https://github.com/eep0x10/zarecomp-editor/issues)
 
-The application is called **Recomp Pokémon**. Windows x64, no installer or separate .NET installation required. No game files are included.
+The application is called **Recomp Pokémon**. Windows x64, no installer or separate .NET installation required. No game files or personal saves are included.
 
-## See it in action
+## Start with your save
 
-Real application screenshots using a synthetic demonstration save.
-
-### Browse your boxes
-
-Your party stays visible on the left while you browse a 30-slot box and inspect a selected Pokémon on the right.
-
-![Box grid with the current party and Pokémon preview](docs/screenshots/boxes.png)
-
-### Edit your party
-
-Select a team member to edit its level, nature and shiny status. Changes stay in a draft until you save.
-
-![Selected party Pokémon with level, nature and shiny controls](docs/screenshots/party.png)
-
-### Add a Pokémon
-
-Click **+**, choose the species, form, level, nature and shiny status, then choose automatic placement, party or box. The additional tabs expose optional details.
-
-![Add Pokémon dialog configured for a shiny level 10 Charmander](docs/screenshots/add-pokemon.png)
-
-### Customise the details
-
-Open **Edit details** for identity, attributes, moves, origin and advanced metadata. The same field groups are available when adding a Pokémon.
-
-![Detailed editor with separate IVs, EVs, Hyper Training and friendship](docs/screenshots/attributes.png)
-
-## Quick start
-
-1. Download the portable ZIP from [Releases](https://github.com/eep0x10/zarecomp-editor/releases/latest), then extract it into a writable folder.
+1. Download the portable ZIP from [Releases](https://github.com/eep0x10/zarecomp-editor/releases/latest) and extract it into a writable folder.
 2. Close ZA Recomp and open `RecompPokemon.exe`.
-3. Use save discovery or select your save's **`main`** file. A common location is `<ZA Recomp folder>/save/save_0/main`; some distributions use a `PORT` subfolder. Check trainer and modification date if several copies appear.
-4. Select a party or box Pokémon. Use the quick level/nature/shiny controls or **Edit details** for deeper customisation, then save. Both return changes to the draft until you save.
-5. Use **+** to add a Pokémon. Automatic placement uses an empty party slot first, then an empty slot in an unlocked box.
+3. Find a save or select its **`main`** file. Typical paths are `<ZA Recomp folder>/save/save_0/main` and `<ZA Recomp folder>/PORT/save/save_0/main`. Check the trainer and modification date if several copies appear.
 
-Keep your own backup too. This editor supports Z-A saves; it does not convert saves from other games.
+Your party stays on the left, a 30-slot box fills the centre, and the selected Pokémon appears on the right.
+
+![Box browser with the party and selected Pokémon](docs/screenshots/boxes.png)
+
+All screenshots below show the real application with a synthetic demonstration save.
+
+## Edit an existing Pokémon
+
+1. Select a Pokémon from the party or a box. Use the quick controls or open **Edit details**.
+2. Review the five tabs, then choose **Apply to draft**. This does **not** write the save. **Cancel** leaves the previous draft intact.
+3. Review other Pokémon or adjust your drafts, then choose **Save changes** to validate and write the whole batch with a backup. **Discard drafts** abandons pending edits.
+
+| Tab | What it contains |
+| --- | --- |
+| Identity | Species/form, nickname, gender, level, original nature and Mint effect, shiny style, ball, held item and favourite |
+| Attributes | IVs, EVs, Hyper Training, friendship and coloured markings |
+| Moves | Four move slots and Plus records; stored PP/relearn information is read-only |
+| Origin | Original trainer, raw trainer IDs, language, encounter data and obedience |
+| Advanced | Alpha/size, an already-owned title, technical metadata and the original PKHeX report |
+
+<details>
+<summary>See all five editing tabs</summary>
+
+**Identity** — original nature and the effective Mint nature are separate choices.
+
+![Existing Pokémon: Identity tab](docs/screenshots/details.png)
+
+**Attributes** — IVs, EVs and Hyper Training remain separate, with a visible EV total.
+
+![Existing Pokémon: Attributes tab](docs/screenshots/attributes.png)
+
+**Moves** — choose compatible moves and review registered Plus moves.
+
+![Existing Pokémon: Moves tab](docs/screenshots/moves.png)
+
+**Origin** — review trainer identity and encounter metadata before changing them.
+
+![Existing Pokémon: Origin tab](docs/screenshots/origin.png)
+
+**Advanced** — inspect preserved technical data and supported size/title settings.
+
+![Existing Pokémon: Advanced tab](docs/screenshots/advanced.png)
+
+</details>
+
+## Add a custom Pokémon
+
+1. Save or discard existing drafts, then click **+ Add Pokémon**.
+2. Set species, form, level, original nature, shiny style and ball. The same five tabs expose optional customisation: **tick an optional field to override its automatic value**; leave it unticked to let generation choose it.
+3. Choose the destination. **Automatic** fills an empty party slot first, then an empty slot in an unlocked box. **Team** requires party space; **Boxes** uses an available box slot without overwriting a Pokémon.
+4. Click **Add Pokémon**. This action **writes immediately with a backup**; it does not create a main-window draft. Cancelling the dialog writes nothing.
+
+![Add Pokémon: required identity choices and optional overrides](docs/screenshots/add-pokemon.png)
+
+<details>
+<summary>See optional attributes when adding</summary>
+
+Enable only the IV, EV, Hyper Training or other options you want to supply. An unticked field contributes no override; its disabled controls are not a preview of the generated values.
+
+![Add Pokémon: optional attribute overrides](docs/screenshots/add-attributes.png)
+
+</details>
+
+Keep your own backup too. This editor supports Z-A saves; it does not convert saves from other games. See the [detailed guide](docs/EDITING.md) for field limits, draft behaviour and examples of preserved data.
 
 ## Features
 
