@@ -15,4 +15,3 @@ Command: dotnet run --project Tests/ZaTool.Tests.csproj -- --plus <copied-main>
 Before fix: Pikachu species25 level10 shiny Modest, encounter metLevel6, five PlusMoveSufficientLevelMissing_0 errors for moves39/45/84/98/86.
 Fix: CreatePokemon applies natural Plus move flags for selected level after final moves, plus base-form Plus learnset for changed Rotom/Hoopa forms consistent with PKHeX verifier.
 After fix: zero PlusMove issues in memory and after SaveService.Add atomic write/reopen on independent fixture; expected species25/lv10/shiny/Modest preserved. Overall legality was True in the observed focal run, not a universal guarantee.
-Read-only sprite diagnosis on original snapshot: global box slot2 is Scatterbug species664 form6; global slot1 is Pidgey species16 form0.

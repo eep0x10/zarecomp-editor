@@ -58,7 +58,7 @@ cd zarecomp-editor
 
 Portable output goes to `dist/`. `App/` contains the WinForms interface; `Engine/` contains save transactions, catalogue and nature suggestions; `Tests/` contains the regression harness; `vendor/PKHeX.Core/` is the pinned save-format dependency.
 
-Tests require a **disposable copy** of a Z-A `main` save and write fixtures beside that copy:
+Tests require a **disposable copy** of a Z-A `main` save and write fixtures to the test executable's `data/` directory (under `Tests/bin/`):
 
 ```powershell
 dotnet run --project Tests/ZaTool.Tests.csproj -c Release -- "C:/DisposableTestSave/main"
