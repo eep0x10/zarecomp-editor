@@ -1,0 +1,18 @@
+Backend verification (executed on copied main; no real save edits)
+Command: work/za-save/dotnet/dotnet.exe run --project work/za-tool/Tests/ZaTool.Tests.csproj -- <copied-main>
+Result: SUCCESS 52 checks, 2026-11-10 00:12 UTC.
+Coverage: Add party/box, Charmander shiny level10 Modest, SHA/encrypted roundtrip, integral folder backup and manifest, invalid forms/moves/stats/corruption/full storage/stalehash no mutation, physical locked box restrictions, two-process conflict, team edits, box edits preserve party, mixed transaction and batch rejection, categories and nature recommendations, sample generation species/forms.
+Additional files: Catalog.cs, SaveService.cs; Tests/Program.cs and ZaTool.Tests.csproj.
+Limitations: no assertion of game loading or universal online legality; generated encounter edits can fail PKHeX legality, returned to caller. InspectBox/BoxCount show only accessible boxes. IV/EV/base stat order HP Atk Def Spe SpA SpD. EditTeam/EditBox preserve trainer, nickname, moves, IV/EV, HP (capped to new max), status and unrelated slots.
+No original game main or backup was written by tests; test input must be supplied explicitly as a copied main.
+Focused follow-up executed after review:
+Command: dotnet run --project Tests/ZaTool.Tests.csproj -- --preserve <copied-main>
+Result: SUCCESS 3 focused preservation cases (level/nature, shiny-only, HP clamp); copies only.
+Assertions: injured HP remains 1 when raising level/changing nature; existing status and spent PP remain unchanged; shiny-only preserves those fields and produces star XOR1; lowering level caps HP at recalculated max while status/PP remain unchanged.
+Production code unchanged after the 52-check run. Focused follow-up rebuilt Engine and Tests successfully.
+Focused Plus move regression (executed after GUI integration finding):
+Command: dotnet run --project Tests/ZaTool.Tests.csproj -- --plus <copied-main>
+Before fix: Pikachu species25 level10 shiny Modest, encounter metLevel6, five PlusMoveSufficientLevelMissing_0 errors for moves39/45/84/98/86.
+Fix: CreatePokemon applies natural Plus move flags for selected level after final moves, plus base-form Plus learnset for changed Rotom/Hoopa forms consistent with PKHeX verifier.
+After fix: zero PlusMove issues in memory and after SaveService.Add atomic write/reopen on independent fixture; expected species25/lv10/shiny/Modest preserved. Overall legality was True in the observed focal run, not a universal guarantee.
+Read-only sprite diagnosis on original snapshot: global box slot2 is Scatterbug species664 form6; global slot1 is Pidgey species16 form0.
