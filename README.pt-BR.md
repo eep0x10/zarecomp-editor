@@ -2,6 +2,28 @@
 
 [Baixar para Windows](https://github.com/eep0x10/zarecomp-editor/releases/latest) · [English](README.md) · [Español](README.es.md)
 
+## Conheça a interface
+
+Capturas reais do programa usando um save sintético de demonstração.
+
+### Navegue pelas boxes
+
+A equipe fica à esquerda, a box aberta no centro e o preview do Pokémon selecionado à direita.
+
+![Box em grade com equipe e preview do Pokémon](docs/screenshots/boxes.png)
+
+### Edite sua equipe
+
+Clique em um membro para editar nível, natureza e shiny. As mudanças ficam em rascunho até você salvar.
+
+![Pokémon da equipe selecionado com controles de nível, natureza e shiny](docs/screenshots/party.png)
+
+### Adicione um Pokémon
+
+Clique em **+**, escolha espécie, forma, nível, natureza e shiny, e defina o destino automático, equipe ou box. As outras abas oferecem detalhes opcionais.
+
+![Formulário de adição configurado para Charmander shiny nível 10](docs/screenshots/add-pokemon.png)
+
 Ferramenta desktop **portable** para adicionar e editar Pokémon em saves de **Pokémon Legends: Z-A no ZA Recomp**. Interface em português, inglês e espanhol, sem instalador, conta, servidor ou envio de saves. Windows x64; o executável publicado inclui o runtime. Pode ser colocado em qualquer pasta ou pendrive. As preferências ficam em um pequeno arquivo ao lado do executável; não requer instalação do .NET.
 
 Tema escuro com caixa em grade, equipe lateral e editor à direita. O aplicativo solicita o efeito Desktop Acrylic ao Windows compatível e mantém superfícies escuras legíveis como fallback; a transparência do cliente não é garantida. A edição não depende desse efeito.

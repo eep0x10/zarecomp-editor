@@ -4,6 +4,28 @@ Editor portable de partidas de **Pokémon Legends: Z-A para ZA Recomp**, con caj
 
 [Descargar para Windows](https://github.com/eep0x10/zarecomp-editor/releases/latest) · [English](README.md) · [Português](README.pt-BR.md)
 
+## Conoce la interfaz
+
+Capturas reales de la aplicación con una partida sintética de demostración.
+
+### Explora las cajas
+
+El equipo permanece a la izquierda, la caja abierta en el centro y el Pokémon seleccionado a la derecha.
+
+![Caja en cuadrícula con equipo y vista previa del Pokémon](docs/screenshots/boxes.png)
+
+### Edita tu equipo
+
+Selecciona un miembro para cambiar nivel, naturaleza y shiny. Los cambios siguen como borrador hasta guardarlos.
+
+![Miembro del equipo con controles de nivel, naturaleza y shiny](docs/screenshots/party.png)
+
+### Añade un Pokémon
+
+Pulsa **+**, elige especie, forma, nivel, naturaleza y shiny, y selecciona destino automático, equipo o caja. Las otras pestañas ofrecen detalles opcionales.
+
+![Diálogo para añadir un Charmander shiny de nivel 10](docs/screenshots/add-pokemon.png)
+
 ## Primeros pasos
 
 1. Descarga el ZIP portable de Releases y extráelo en una carpeta con permiso de escritura. Windows x64; no necesitas instalar .NET.

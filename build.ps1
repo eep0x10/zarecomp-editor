@@ -33,6 +33,12 @@ foreach ($name in @('README.md', 'README.pt-BR.md', 'README.es.md', 'LICENSE', '
         Copy-Item -LiteralPath $document -Destination (Join-Path $publishDirectory $name) -Force
     }
 }
+$screenshots = Join-Path $PSScriptRoot 'docs/screenshots'
+if (Test-Path -LiteralPath $screenshots -PathType Container) {
+    $docsOutput = Join-Path $publishDirectory 'docs'
+    New-Item -ItemType Directory -Path $docsOutput -Force | Out-Null
+    Copy-Item -LiteralPath $screenshots -Destination $docsOutput -Recurse -Force
+}
 $executable = Join-Path $publishDirectory 'RecompPokemon.exe'
 if (-not (Test-Path -LiteralPath $executable -PathType Leaf)) { throw 'O executável publicado não foi encontrado.' }
 Write-Host "Aplicativo portátil: $executable"

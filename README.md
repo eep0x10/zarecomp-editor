@@ -6,6 +6,28 @@
 
 The application is called **Recomp Pokémon**. Windows x64, no installer or separate .NET installation required. No game files are included.
 
+## See it in action
+
+Real application screenshots using a synthetic demonstration save.
+
+### Browse your boxes
+
+Your party stays visible on the left while you browse a 30-slot box and inspect a selected Pokémon on the right.
+
+![Box grid with the current party and Pokémon preview](docs/screenshots/boxes.png)
+
+### Edit your party
+
+Select a team member to edit its level, nature and shiny status. Changes stay in a draft until you save.
+
+![Selected party Pokémon with level, nature and shiny controls](docs/screenshots/party.png)
+
+### Add a Pokémon
+
+Click **+**, choose the species, form, level, nature and shiny status, then choose automatic placement, party or box. The additional tabs expose optional details.
+
+![Add Pokémon dialog configured for a shiny level 10 Charmander](docs/screenshots/add-pokemon.png)
+
 ## Quick start
 
 1. Download the portable ZIP from [Releases](https://github.com/eep0x10/zarecomp-editor/releases/latest), then extract it into a writable folder.
