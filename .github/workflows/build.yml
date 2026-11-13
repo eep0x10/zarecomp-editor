@@ -45,6 +45,11 @@ jobs:
         run: |
           dotnet run --project HostTests/HostTests.csproj -- --generated
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Run deterministic artwork regression checks
+        shell: pwsh
+        run: |
+          dotnet run --project HostTests/HostTests.csproj --no-build -- --sprites
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Upload portable build
         uses: actions/upload-artifact@v4
         with:
