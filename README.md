@@ -1,6 +1,6 @@
 # ZA Recomp Editor
 
-**A portable Pokémon Legends: Z-A save workbench for ZA Recomp.** Browse your party and boxes, edit detailed Pokémon data and create custom additions in one dark acrylic workspace. The Windows EXE opens a private local browser interface.
+**A portable Pokémon Legends: Z-A save workbench for ZA Recomp — version 2.0.3.** Browse your party and boxes, edit detailed Pokémon data and create custom additions in one dark acrylic workspace. The Windows EXE opens a private local browser interface.
 
 [Download for Windows](https://github.com/eep0x10/zarecomp-editor/releases/latest) · [Português (Brasil)](README.pt-BR.md) · [Español](README.es.md) · [Editing guide](docs/EDITING.md) · [Report an issue](https://github.com/eep0x10/zarecomp-editor/issues)
 
@@ -12,20 +12,20 @@ Windows x64. No installer, Node.js or separate .NET installation is required for
 2. Run **RecompPokemon.exe**. It opens your default browser at a temporary `127.0.0.1` address; the application stays on your computer.
 3. Choose a discovered save or enter the full path to its **main** file in the inline save selector. Typical locations are `<ZA Recomp>/save/save_0/main` and `<ZA Recomp>/PORT/save/save_0/main`. Check the trainer and modification date when several copies exist.
 
-![The local workbench with party, 30-slot box and inline Pokémon editor](docs/screenshots/web/workbench-desktop.jpg)
+![Version 2.0.3: party, 30-slot box and inline Pokémon editor](docs/screenshots/web/current-desktop.jpg)
 
-Screenshots use a synthetic demonstration save. They are real application captures; the earlier design proposals are labelled separately in the design documentation.
+The screenshots below are real captures of build 2.0.3 using a synthetic demonstration save. Older captures and design proposals remain historical evidence, not previews of the current release.
 
 <details>
 <summary>Creation and the narrow-screen layout</summary>
 
 Creation reuses the inspector and the primary action stays visible:
 
-![Inline custom Pokémon creation](docs/screenshots/web/workbench-add.jpg)
+![Version 2.0.3: custom Pokémon creation in the same inspector](docs/screenshots/web/current-add.jpg)
 
 The same workspace reflows without horizontal page overflow:
 
-<img src="docs/screenshots/web/workbench-narrow.jpg" alt="Narrow-screen workbench with inline box disclosure and editor" width="390">
+<img src="docs/screenshots/web/current-narrow.jpg" alt="Version 2.0.3 narrow-screen workbench with inline editor" width="390">
 
 </details>
 
@@ -36,20 +36,24 @@ Your six-slot party stays on the left, a 30-slot box occupies the centre, and th
 | Field group | What you can edit or inspect |
 | --- | --- |
 | Profile | Species/persistent form, nickname, gender, level, original nature, Mint effect, shiny style, Poké Ball, held item and favourite |
-| Attributes | Six IVs, six EVs, Hyper Training, friendship and coloured markings |
+| Attributes | Six IVs, six EVs and Hyper Training |
 | Moves | Four current moves and registered Plus moves; stored PP/history are read-only |
 | Origin | Original trainer, raw trainer IDs, language, encounter level/location/date and obedience |
 | Advanced | Alpha, size scalars, an already-owned title, technical metadata and PKHeX report |
 
 All edit controls update a **draft**, not the file. **Save with backup** validates and commits the pending party/box edits together. **Discard drafts** abandons pending edits; confirmation and recovery stay inline. Keep the workbench open while editing and save before reloading or closing the browser.
 
-All 25 selectable capture balls have bundled item images. Original and Mint nature controls show the increased/decreased stat or a neutral effect. Size presets synchronize native Z-A/HOME scalars. The all-31/all-0 IV presets clear Hyper Training. Marking Alpha sets Scale 255 and raises enough IVs to reach at least three perfect stats without reducing the other IVs. Encounter constraints still apply; changing a flag does not replace an existing Pokémon's history.
+All 25 selectable capture balls have bundled PNG images available offline. Original and Mint nature controls show **+10% / −10%** stat effects or a neutral effect. Size presets synchronize native Z-A/HOME scalars. The all-31/all-0 IV presets clear Hyper Training. One click on Alpha previews compatibility, sets Scale 255 and raises enough IVs to reach at least three perfect stats without reducing the other IVs. Encounter constraints still apply; changing a flag does not replace an existing Pokémon's history.
 
-![Capture-ball images and nature effects — synthetic save](docs/screenshots/web/controls-2.0.1-desktop.jpg)
+![Version 2.0.3: detailed controls, ball images and nature effects — synthetic save](docs/screenshots/web/current-details.jpg)
 
 ## Add a custom Pokémon
 
-**+ Add Pokémon** opens an inline grid of every species in the supported Z-A catalog, with images and name/number search. **Choose Pokémon** reopens the selection; creation reuses the same inspector. Choose species/form, level, nature, shiny style and ball, then customize any optional details. **Automatic** preserves generated values; enable an optional override only when you want to supply it.
+**+ Add Pokémon** opens the species picker directly: all **364 species** in the current Engine catalog, in National Pokédex ID order, with images loaded as cards approach the visible area. Search by name or exact numeric ID (for example, `25` or `#25`). Use touch/click or keyboard arrows, Home/End and Enter; Escape returns to the editor. Missing artwork does not remove a species from the catalog.
+
+![Version 2.0.3: complete species picker with name and ID search](docs/screenshots/web/current-species.jpg)
+
+Choosing a species opens its first supported form in the same inspector. **Choose Pokémon** reopens the picker. Changing species preserves your other creation details and resets moves and Plus records to **Automatic** for the new species. Choose level, nature, shiny style and ball, then customize optional details. **Automatic** preserves generated values; enable an optional override only when you want to supply it.
 
 Choose **Automatic**, **Party** or **Boxes** as destination. Automatic fills an empty party slot first, then an empty slot in an unlocked box. Existing Pokémon are never overwritten. Resolve edit drafts before adding; **Add with backup writes immediately**, separately from the edit-draft batch. Cancel creation inline to leave the save unchanged.
 
@@ -71,7 +75,7 @@ Always close the game first. Process checks cover known recomp executable names,
 
 The host binds only to `127.0.0.1`, uses a per-launch secret and exact local Origin/Host checks, and never uploads save bytes, trainer names or nicknames. Browser refresh can reconnect through an HttpOnly same-origin session cookie; no credential is stored in localStorage. The random port and secret change when the launcher restarts. Preferences and optional artwork cache stay beside the EXE. Do not share a runtime URL or private runtime diagnostics.
 
-Optional artwork is requested from PokéAPI/GitHub using public species/form/shiny identifiers. Those hosts receive ordinary HTTP connection information. The core editor works offline once launched; uncached artwork may be unavailable. Closing the browser lets the host expire after an inactivity grace period; use its explicit exit control for an orderly stop.
+Optional Pokémon artwork is requested from PokéAPI/GitHub using public species/form/shiny identifiers. Those hosts receive ordinary HTTP connection information. The resolver keeps exact visible form and shiny identity: it tries artwork, HOME and standard PNG sources without substituting another form or normal colour for shiny. Successful images use the `cache/pokemon/v2` namespace; a recovered request updates all visible copies of that same image. Unavailable artwork is shown explicitly, with bounded retry. The core editor and bundled ball images work offline; uncached Pokémon artwork may be unavailable. Full image availability is not guaranteed. Closing the browser lets the host expire after an inactivity grace period; use its explicit exit control for an orderly stop.
 
 A local **interactive OpenAPI reference** is available at `/api-docs`, with the schema at `/openapi/v1.json`. API writes enforce the same Engine rules as the interface. See [host verification and limits](WebHost/VERIFICATION.md).
 
@@ -93,9 +97,10 @@ Tests must use disposable copies of a Z-A save, never a personal save. The Engin
 dotnet run --project Tests/ZaTool.Tests.csproj -c Release -- --details "C:/DisposableTestSave/main"
 dotnet run --project HostTests/HostTests.csproj -- "C:/DisposableTestSave/main"
 dotnet run --project HostTests/HostTests.csproj -- --generated
+dotnet run --project HostTests/HostTests.csproj -- --sprites
 ```
 
-The detailed Engine suite covers editing, creation, preservation and Alpha dependencies. Host tests cover the HTTP boundary and save receipts. `--generated` constructs an encrypted synthetic save in test code, without game assets or a private input. CI builds the frontend/host and runs those generated-save HTTP tests. Browser evidence and untested fault-injection cases are documented rather than inferred from successful compilation.
+The current harness contains **40 generated-save HTTP checks** and **32 deterministic sprite checks**. `--generated` constructs an encrypted synthetic save in test code, without game assets or a private input; `--sprites` uses mock HTTP and generated PNGs. CI builds the frontend/host and runs both modes. Optional `--sprites-live` also probes external artwork (24 live retrieval checks in the recorded sprite review); network results can change. The detailed Engine suite previously passed 67 checks; that historical result is not a claim that it was rerun for every release. See the [harness guide](HostTests/README.md) for commands and limits. Browser evidence and untested fault-injection cases are documented rather than inferred from successful compilation.
 
 ## Licence and acknowledgements
 

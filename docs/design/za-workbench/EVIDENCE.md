@@ -69,3 +69,5 @@ Executed: frontend build and nine helper checks passed; backend40HTTP+32sprite c
 Captures: [desktop picker](../../screenshots/web/species-picker-2.0.2.jpg), [narrow picker](../../screenshots/web/species-picker-2.0.2-narrow.jpg). Synthetic data only.
 
 2.0.3: species grid/search now use a copied array sorted by National Pokédex ID (the number printed on cards). Four focused shuffled-input/filter/non-mutation checks and frontend build passed. Layout/controls are unchanged.
+
+Documentation refresh: five current-*.jpg captures show the shipped2.0.3 build with synthetic data. Desktop captures use1440×1000; narrow capture uses390px with375px content width. All temporary viewport overrides and QA tabs/host were cleaned up; fixture hash remained unchanged. Repository and staged offline documentation passed116 relative-link/asset checks. The linked distribution guides are now copied by scripts/Copy-DistributionDocs.ps1, which was parsed and executed. Runtime source and executable are unchanged from commit5ae7530; documentation/packaging scripts and screenshots were refreshed separately.

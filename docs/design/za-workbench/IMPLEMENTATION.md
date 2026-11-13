@@ -1,3 +1,5 @@
+> **Historical implementation plan.** The web migration and portable publication were completed; see [executed evidence](EVIDENCE.md) and the current [release](https://github.com/eep0x10/zarecomp-editor/releases/latest). Original unchecked boxes below record the planning checkpoint, not current pending work.
+
 # ZA web workbench implementation plan
 
 > Executors use the approved visual proposal and implement each slice with concrete evidence; preserve concurrent file ownership.

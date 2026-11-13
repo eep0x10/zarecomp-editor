@@ -3,6 +3,7 @@
 ## 2.0.3 — 2026-11-13
 
 - Order the species grid and search results by the National Pokédex number already shown on each card, rather than alphabetically.
+- Refresh the three language READMEs, editing/build/test guides and real screenshots for the current feature set. Portable documentation now includes its linked guides for offline use. This documentation refresh does not change the 2.0.3 executable.
 
 ## 2.0.2 — 2026-11-13
 

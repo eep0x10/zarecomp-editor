@@ -1,4 +1,14 @@
-# Local host verification — 2026-11-13
+# Current verification status — 2.0.3
+
+The current shipped app is **2.0.3**. [Windows CI](https://github.com/eep0x10/zarecomp-editor/actions/runs/43469969015) passed the portable build, **40 generated-save HTTP checks** and **32 deterministic artwork checks**. Species-list coverage and the readonly forms endpoint were added after the original 39-check suite. The latest grid sorts all 364 current catalog species by their National Pokédex numbers.
+
+Root separately verified the shipped EXE startup, embedded frontend/forms API, complete grid order, search order, archive/source integrity and public download hash. Earlier browser tests exercised editing/creation/backups, Alpha, form artwork recovery, keyboard/touch and 390px reflow on synthetic data. See [workbench evidence](../docs/design/za-workbench/EVIDENCE.md) and [sprite review](SPRITE-REVIEW.md) for exact versions, executed scopes and limits. This does not establish real-game/online acceptance or portability on every Windows machine.
+
+## Historical first-host verification
+
+The following records the original 2.0.0/2.0.1 checkpoint. Its version/counts and statements about what was not tested refer to that checkpoint, rather than the current release.
+
+# Original local host verification — 2026-11-13
 
 **2.0.1 follow-up:** sprite resolution and cache behavior below were superseded by the [sprite review](SPRITE-REVIEW.md). Exact artwork now returns an explicit 404 when unavailable, never a 1×1 placeholder. The generated HTTP harness passed all 39 checks again; sprite suites added 32 deterministic and 24 live retrieval checks.
 

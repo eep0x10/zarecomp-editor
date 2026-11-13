@@ -44,25 +44,8 @@ $publishArguments = @(
 & dotnet @publishArguments
 if ($LASTEXITCODE -ne 0) { throw 'Falha ao publicar o aplicativo.' }
 
-# Copy only distribution documents; never copy save folders or local test fixtures.
-foreach ($name in @('README.md', 'README.pt-BR.md', 'README.es.md', 'LICENSE', 'THIRD_PARTY_NOTICES.md', 'WEB-THIRD-PARTY-NOTICES.txt', 'DOTNET-LICENSE.txt', 'DOTNET-ThirdPartyNotices.txt')) {
-    $document = Join-Path $PSScriptRoot $name
-    if (Test-Path -LiteralPath $document -PathType Leaf) {
-        Copy-Item -LiteralPath $document -Destination (Join-Path $publishDirectory $name) -Force
-    }
-}
-$screenshots = Join-Path $PSScriptRoot 'docs/screenshots'
-if (Test-Path -LiteralPath $screenshots -PathType Container) {
-    $docsOutput = Join-Path $publishDirectory 'docs'
-    New-Item -ItemType Directory -Path $docsOutput -Force | Out-Null
-    Copy-Item -LiteralPath $screenshots -Destination $docsOutput -Recurse -Force
-}
-$editingGuide = Join-Path $PSScriptRoot 'docs/EDITING.md'
-if (Test-Path -LiteralPath $editingGuide -PathType Leaf) {
-    $docsOutput = Join-Path $publishDirectory 'docs'
-    New-Item -ItemType Directory -Path $docsOutput -Force | Out-Null
-    Copy-Item -LiteralPath $editingGuide -Destination $docsOutput -Force
-}
+# Keep linked guides and screenshots available in offline portable builds.
+& (Join-Path $PSScriptRoot 'scripts/Copy-DistributionDocs.ps1') -OutputDirectory $publishDirectory
 $executable = Join-Path $publishDirectory 'RecompPokemon.exe'
 if (-not (Test-Path -LiteralPath $executable -PathType Leaf)) { throw 'O executável publicado não foi encontrado.' }
 Write-Host "Aplicativo portátil: $executable"

@@ -1,33 +1,36 @@
 # ZA Workbench client
 
-React/TypeScript client for the embedded local .NET host. Build-time Node is separate from the portable application runtime.
+React/TypeScript client for the embedded local .NET 10 host, version 2.0.3. Node.js 24/npm are build tools; portable users run the self-contained Windows EXE.
+
+From the repository root:
 
 ```powershell
 npm ci --prefix WebClient
 npm run build --prefix WebClient
 ```
 
-The production build writes `WebHost/wwwroot`; rebuild/publish the host afterward because it embeds those files. Development server proxy defaults to loopback port 5075; use the embedded host for authenticated integration evidence.
+The production build writes `WebHost/wwwroot`. Finish the frontend build before building/publishing the host: those files are embedded at compilation. `./build.ps1` performs both stages and creates `dist/RecompPokemon.exe`. The development proxy defaults to loopback port 5075; use the embedded host for authenticated integration verification.
 
-## Design and interaction record
+## Current interaction contract
 
-Approved direction: [A workbench](../docs/design/za-workbench/README.md), with existing generated laboratory/background and proportional emblem assets. One workspace replaces native edit/add dialogs. The first representative slice covers open → select → draft level/ball/IV/Alpha changes → switch selection → validate → explicit backup commit. No browser dialogs are used.
+- Party, 30-slot box and inspector form one workspace. Narrow layouts use a party strip and inline box disclosure. Edit drafts survive selection changes; creation uses a separate buffer and write action. Resolve edit drafts before adding.
+- Add opens the species picker directly: the full Engine catalog (364 species), sorted by National Pokédex ID. Search matches names or an exact numeric ID, with an optional `#`. Cards support touch/click, arrows, Home/End, Enter and Escape. A shared visibility observer loads images near the visible area; catalog entries do not depend on image availability.
+- Choosing a species loads its first supported form and valid gender. It preserves other creation details and resets `moves`/`plusMoves` to automatic generation. Metadata requests are cancellable and responses are revision-checked before applying.
+- All 25 ball PNGs are bundled. Nature and Mint controls show +10% / −10% or neutral. Alpha immediately previews compatibility while retaining the Engine's original-encounter constraints.
+- Sprite blobs are authenticated, keyed by species/form/shiny and decoded before success. Concurrent consumers share requests; a recovered request updates every subscribed copy. Failed requests are not successful cache entries. The host resolves exact visible identity and stores successful images under `cache/pokemon/v2`; unavailable images have explicit feedback and bounded retry.
+- PT-BR, English and Spanish strings stay aligned. Move/nature catalog names and upstream PKHeX reports remain English. Inter, Lucide and frontend assets are bundled; no runtime CDN is required. Optional Pokémon artwork still depends on cached images or external PokéAPI/GitHub availability.
+- Anime.js scopes own selection, creation and feedback motion, with `scope.revert()` cleanup and reduced-motion support. Business state never waits for animation callbacks.
 
-- Party and 30-slot box retain their spatial relationship to the inline inspector. Narrow layout uses a party strip and an inline box disclosure.
-- Warm amber indicates selection/shiny; teal indicates writes/backup. Inter Variable fonts and Lucide icons are bundled locally. Source sprites are authenticated blobs from the local host, cached and revoked when the page leaves.
-- Drafts are indexed by party/global-box slot. Selection and box changes preserve drafts. Create is a separate buffer and commit action; unresolved edit drafts block creation writes.
-- The runtime token is extracted from the fragment and immediately removed from browser history; it stays in module memory. The host's HttpOnly cookie supports reload without persisting the token in browser storage.
-- Anime.js 4.5 scopes own preview/selection, creation and feedback effects, with `scope.revert()` cleanup. Reduced-motion changes cancel nonessential motion. No business state waits for an animation callback.
-- Selection, metadata, box and validation requests are cancellable. Validation responses are revision-checked. Mutation fields are disabled while committing. Confirmed/uncertain writes have separate outcomes; uncertain writes retain buffers and require explicit reconciliation.
+## Local session and writes
 
-## Evidence status
+The runtime token is extracted from the URL fragment and removed from browser history. It stays in module memory; an HttpOnly same-origin cookie permits refresh. Only the non-secret session ID is stored in `history.state`, never tokens, paths or drafts. Reload clears unsaved buffers; inline warnings explain pending changes.
 
-TypeScript and Vite production build passed. Parent CUA verified the first slice at 1488×1058: layout, opening, selection, retained drafts, preview, backup save/reload and decoded sprites passed. Initial 390px check found no horizontal page overflow but small touch targets; the focused correction raises editing/control targets to 44px and gives the fixed footer additional scroll clearance. Its 390px retake passed, reported by the parent CUA reviewer: numeric targets at least 44px, Hyper Training label hit area 44×67px, save targets 44px, page scroll width 375px within a 390px viewport. These are implementation checks, distinct from the generated proposal images. Profile, attributes, moves, origin and advanced groups are implemented; the expanded flow and final interaction/motion/keyboard review remain pending.
+Selection, metadata, box and validation requests are cancellable. Mutation fields are disabled during commits. Confirmed and uncertain writes remain distinct: an uncertain result preserves buffers for explicit reconciliation, while a refresh failure after a confirmed commit retains the backup receipt. Background refresh does not replay selection entrance motion.
 
-Official animation API reviewed: [React integration](https://animejs.com/documentation/getting-started/using-with-react/) and [scopes](https://animejs.com/documentation/scope/).
+## Verification and visual evidence
 
-Session refresh uses only the non-secret session ID in `history.state` and resumes it through GET; expired IDs fall back to the launch save path supplied by the host. Browser history never stores a token, save path or draft. Reload intentionally clears unsaved in-memory drafts and the workspace displays an inline warning while any draft/create buffer exists.
+Run the frontend build above and the [host/sprite harnesses](../HostTests/README.md) for the surface changed. Actual desktop and 390px browser interactions are required for UI changes; compilation and PNG retrieval alone do not prove browser behaviour.
 
-The final source now includes the five complete field groups, creation automatic/custom overrides, existing native domain-message translations for English/Spanish, read-only metadata and original PKHeX reports, API developer access and an explicit local-host stop action. Suggestions project only supported DTO properties and load current base stats when identity changes. Known/unknown mutation outcomes remain distinct; a post-commit refresh failure keeps the confirmed backup receipt. Background refresh does not replay the selection entrance; selection motion is keyed to actual loaded details.
+Current release screenshots use a synthetic save in build 2.0.3: [desktop](../docs/screenshots/web/current-desktop.jpg), [species picker](../docs/screenshots/web/current-species.jpg), [details](../docs/screenshots/web/current-details.jpg), [creation](../docs/screenshots/web/current-add.jpg), [narrow layout](../docs/screenshots/web/current-narrow.jpg). They show the captured states, not exhaustive coverage of every species, image or device.
 
-Final integration evidence and current screenshots are recorded in [workbench evidence](../docs/design/za-workbench/EVIDENCE.md). The final narrow check also measured the Add and receipt-close targets at44px. Release verification remains a separate packaging step.
+Earlier [design proposals](../docs/design/za-workbench/README.md) and [implementation evidence](../docs/design/za-workbench/EVIDENCE.md) are historical records. Their dated checks and pending items describe those stages, not an aggregate current-release verdict.

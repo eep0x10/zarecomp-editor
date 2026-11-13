@@ -1,4 +1,6 @@
-# ZA workbench redesign — visual proposal
+# ZA workbench redesign — historical visual proposal
+
+**Current status:** implemented and shipped through 2.0.3. Current usage and actual screenshots are in the [main README](../../../README.md); executed evidence is in [EVIDENCE.md](EVIDENCE.md). The proposal below is retained as design history, including its original unverified statements.
 
 2026-11-13. Baseline: 1.1.1, commit 3ad3232. Status: **A explicitly approved; implementation authorized with 1:1 visual fidelity requested**. Images are generated static design concepts using synthetic data, not screenshots or functional prototypes. See [implementation plan](IMPLEMENTATION.md) for current work and proof requirements.
 
