@@ -1,6 +1,14 @@
 # Generated .NET files; embedded vendor resources and *.bin remain versioned.
 /App/bin/
 /App/obj/
+/WebHost/bin/
+/WebHost/obj/
+/WebHost/wwwroot/
+/HostTests/bin/
+/HostTests/obj/
+/WebClient/node_modules/
+/WebClient/dist/
+*.tsbuildinfo
 /Engine/bin/
 /Engine/obj/
 /Tests/bin/
@@ -44,5 +52,6 @@ Thumbs.db
 __pycache__/
 *.pyc
 *.settings.json
+*.runtime.json
 /cache/
 /.learning/

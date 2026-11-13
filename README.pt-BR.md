@@ -1,116 +1,66 @@
 # ZA Recomp Editor — Português (Brasil)
 
-**Editor portable de saves de Pokémon Legends: Z-A para o ZA Recomp.** Navegue pelas boxes, edite Pokémon existentes e adicione Pokémon personalizados com backup automático. O aplicativo se chama **Recomp Pokémon**.
+**Editor portátil de saves de Pokémon Legends: Z-A para o ZA Recomp.** Equipe, boxes, criação e edição detalhada em uma única bancada web, com tema escuro, acrílico e backup automático.
 
-[Baixar para Windows](https://github.com/eep0x10/zarecomp-editor/releases/latest) · [English — README principal](README.md) · [Español](README.es.md) · [Guia detalhado](docs/EDITING.md#português)
+[Baixar para Windows](https://github.com/eep0x10/zarecomp-editor/releases/latest) · [English](README.md) · [Español](README.es.md) · [Guia detalhado](docs/EDITING.md)
 
-Windows x64, sem instalador nem instalação separada do .NET. Extraia o ZIP em uma pasta gravável ou pendrive. Preferências e cache ficam ao lado do executável. Não inclui arquivos do jogo nem saves pessoais.
+Windows x64. Extraia o ZIP em uma pasta gravável e abra **RecompPokemon.exe**. O EXE abre o navegador em um endereço local temporário `127.0.0.1`; você não precisa instalar Node.js, .NET ou um servidor. Não inclui jogo nem saves pessoais.
 
-## Comece pelo seu save
+![Bancada real com equipe, box e edição inline](docs/screenshots/web/workbench-desktop.jpg)
 
-1. Baixe o ZIP portable em [Releases](https://github.com/eep0x10/zarecomp-editor/releases/latest) e extraia-o.
-2. Feche o ZA Recomp e abra `RecompPokemon.exe`.
-3. Use a busca ou selecione o arquivo **`main`**. Caminhos comuns: `<pasta do ZA Recomp>/save/save_0/main` ou `<pasta do ZA Recomp>/PORT/save/save_0/main`. Confira treinador e data se aparecerem várias cópias.
-
-A equipe fica à esquerda, a box com 30 posições no centro e o Pokémon selecionado à direita.
-
-![Navegador de boxes com equipe e Pokémon selecionado](docs/screenshots/boxes.png)
-
-As capturas mostram o aplicativo real usando um save sintético de demonstração.
-
-## Edite um Pokémon existente
-
-Os atalhos **Pokébola**, **IVs**, **Tamanho** e **Alpha** levam diretamente aos controles. Há presets de tamanho e botões para IVs 31 ou 0, que removem Hyper Training. Marcar **Definir como Alpha** ajusta a escala para 255 e completa pelo menos três IVs 31; os dados de encontro continuam sendo validados.
-
-1. Selecione um Pokémon da equipe ou de uma box. Use os controles rápidos ou abra **Editar detalhes**.
-2. Revise as cinco abas e clique em **Aplicar ao rascunho**. Isso **não** grava o save. **Cancelar** mantém o rascunho anterior intacto.
-3. Revise os rascunhos e use **Salvar alterações** para validar e gravar o lote inteiro com backup. **Descartar rascunhos** abandona as mudanças pendentes.
-
-| Aba | Conteúdo |
-| --- | --- |
-| Identidade | Espécie/forma, apelido, gênero, nível, natureza original e efeito de Mint, estilo shiny, bola, item e favorito |
-| Atributos | IVs, EVs, Hyper Training, amizade e marcações coloridas |
-| Golpes | Quatro posições e registros Plus; PP e histórico de relearn são somente leitura |
-| Origem | Treinador original, IDs brutos, idioma, dados de encontro e obediência |
-| Avançado | Alpha/tamanho, título já possuído, dados técnicos e relatório PKHeX original |
+A captura usa um save sintético de demonstração. As propostas visuais anteriores estão identificadas como conceitos, separadas das capturas reais.
 
 <details>
-<summary>Veja as cinco abas de edição</summary>
+<summary>Veja como adicionar com detalhes</summary>
 
-**Identidade** — natureza original e efeito de Mint são escolhas separadas.
-
-![Pokémon existente: aba Identidade](docs/screenshots/details.png)
-
-**Atributos** — IVs, EVs e Hyper Training separados, com total de EVs visível.
-
-![Pokémon existente: aba Atributos](docs/screenshots/attributes.png)
-
-**Golpes** — escolha golpes compatíveis e confira os registros Plus.
-
-![Pokémon existente: aba Golpes](docs/screenshots/moves.png)
-
-**Origem** — confira os dados do treinador e do encontro antes de alterar.
-
-![Pokémon existente: aba Origem](docs/screenshots/origin.png)
-
-**Avançado** — consulte dados técnicos preservados e opções de tamanho/título.
-
-![Pokémon existente: aba Avançado](docs/screenshots/advanced.png)
+![Criação personalizada na mesma bancada](docs/screenshots/web/workbench-add.jpg)
 
 </details>
 
-## Adicione um Pokémon personalizado
+## Abrir seu save
 
-1. Salve ou descarte os rascunhos existentes e clique em **+ Adicionar Pokémon**.
-2. Escolha espécie, forma, nível, natureza original, estilo shiny e bola. As mesmas cinco abas oferecem personalização: **marque um campo opcional para substituir seu valor automático**; deixe-o desmarcado para manter a geração automática.
-3. Escolha o destino. **Automático** usa primeiro uma posição vazia da equipe e depois uma box desbloqueada. **Equipe** exige espaço; **Boxes** usa uma posição disponível sem substituir outro Pokémon.
-4. Clique em **Adicionar Pokémon**. Essa ação **grava imediatamente com backup**; não cria um rascunho na janela principal. Cancelar o diálogo não grava nada.
+Feche o ZA Recomp. No seletor de save, use a busca ou informe o caminho completo do arquivo **main**. Locais comuns: `<pasta do ZA Recomp>/save/save_0/main` ou `<pasta do ZA Recomp>/PORT/save/save_0/main`. Confira treinador e data se houver várias cópias. A seleção e os avisos ficam na própria página, sem abrir diálogos.
 
-![Adicionar Pokémon: escolhas de identidade e substituições opcionais](docs/screenshots/add-pokemon.png)
+## Editar equipe e boxes
 
-<details>
-<summary>Veja os atributos opcionais da adição</summary>
+A equipe fica à esquerda, a box com 30 posições no centro e o editor à direita. Selecione um Pokémon e altere os campos; trocar a seleção mantém os rascunhos. As seções **Perfil, Atributos, Golpes, Origem e Avançado** ficam no mesmo painel.
 
-Ative apenas os IVs, EVs, Hyper Training e demais opções que quiser definir. Campo desmarcado não substitui o valor automático; os controles desativados não mostram uma prévia dos valores gerados.
+- **Perfil:** espécie/forma persistente, apelido, gênero, nível, natureza original/Mint, estilo shiny, Pokébola, item e favorito.
+- **Atributos:** IVs, EVs, Hyper Training, amizade e marcações. IVs 0–31; EVs até 252 por atributo e 510 no total.
+- **Golpes:** quatro posições e registros Plus; PP e histórico são somente leitura.
+- **Origem:** treinador, IDs brutos, idioma, local/nível/data de encontro e obediência.
+- **Avançado:** Alpha, tamanho, título já possuído e dados técnicos/relatório para consulta.
 
-![Adicionar Pokémon: substituições opcionais de atributos](docs/screenshots/add-attributes.png)
+**Salvar com backup** valida e grava os rascunhos da equipe e das boxes em uma operação. **Descartar rascunhos** abandona as alterações pendentes, com confirmação inline. Salve antes de atualizar ou fechar a aba: rascunhos não são arquivos gravados automaticamente.
 
-</details>
+Marcar **Alpha** ajusta Escala para 255 e completa pelo menos três IVs 31, preservando os demais IVs. O encontro original precisa ser compatível. Presets de tamanho sincronizam os escalares nativos/HOME; os botões de IVs 31/0 removem Hyper Training.
 
-O seletor de idioma alterna entre PT-BR, inglês e espanhol sem perder rascunhos. Catálogo e relatórios PKHeX permanecem em inglês. O tema escuro solicita Desktop Acrylic ao Windows compatível, com superfícies opacas como alternativa; a edição independe do efeito.
+## Adicionar Pokémon personalizado
 
-Consulte o [guia detalhado](docs/EDITING.md#português) para limites de campos e diferenças entre editar e adicionar. Não há editor hexadecimal, criação de ovos nem conversão de outros jogos.
+**+ Adicionar Pokémon** reutiliza o painel de edição. Escolha espécie/forma, nível, natureza, shiny e Pokébola; ative os campos opcionais que quiser personalizar. Campo **Automático** mantém a geração do motor, não significa zero ou IV perfeito.
 
-## Criar um Alpha
+Destino **Automático** usa primeiro uma vaga na equipe e depois uma box desbloqueada. Equipe exige vaga; Boxes usa uma posição livre sem substituir outro Pokémon. Resolva os rascunhos de edição antes de adicionar. **Adicionar com backup grava imediatamente**, em uma operação separada do lote de rascunhos. Cancelar a criação não grava nada.
 
-Em **Adicionar Pokémon**, use **Alpha**, marque a personalização **Alpha** e depois **Definir como Alpha**. Escolha espécie e nível com encontro compatível (Charmander: nível 25 ou maior).
+A criação Alpha procura um encontro compatível com espécie/forma/nível. Charmander Alpha exige nível 25 ou maior; Mewtwo não tem template Alpha nos dados incorporados. Combinações indisponíveis são recusadas antes da gravação.
 
-![Adicionar um Alpha com tamanho ajustado automaticamente](docs/screenshots/add-alpha.png)
+## Optimize e idiomas
 
-## Optimize
+Optimize sugere **somente naturezas**, com motivo e revisão em rascunho. Não muda IVs, EVs, golpes ou nível. Não há uma natureza competitiva universalmente melhor; função da equipe, Mega Evolução e mecânicas de Z-A influenciam a escolha.
 
-O botão sugere naturezas para a equipe e mostra o motivo antes de gravar. A recomendação usa os golpes físicos/especiais e atributos-base do Pokémon; perfis de suporte consideram as defesas. Não altera IVs, EVs, golpes ou nível. É um ponto de partida ajustável, não uma simulação de partidas nem uma classificação universal do metagame. Função da equipe, Mega Evolução, oponentes e tempos de recarga de Z-A podem mudar a melhor escolha.
+Interface em **PT-BR, inglês e espanhol**. Nomes de golpes/natures e relatórios PKHeX permanecem em inglês. O acrílico tem alternativa opaca; a interface respeita movimento reduzido. Em telas estreitas, a equipe vira faixa e as boxes se expandem dentro da mesma página.
 
-O arquivo geralmente está em `<pasta do ZA Recomp>/save/save_0/main`; em alguns pacotes, a pasta do programa se chama `PORT`. O botão de busca procura locais comuns. Se houver várias cópias, confira a data e o treinador. A ferramenta não converte saves de outros jogos para Z-A.
+## Backups e privacidade
 
-## Proteção dos dados
+Cada gravação cria uma cópia integral da pasta do save em `ZA-Tool-Backups/<data>-<id>/`, com manifesto SHA-256, validação, conferência de hash e substituição atômica. O recibo mostra a pasta do backup. Adições usam IDs de operação para evitar duplicação por reenvio. Save alterado externamente ou resultado de gravação incerto exige conferência, sem retentativa automática.
 
-Antes de gravar, a ferramenta cria uma cópia integral da pasta do save em uma pasta irmã `ZA-Tool-Backups/<data>-<id>/`, com manifesto SHA-256. Reabre o resultado, confere atributos e Pokémon anteriores e só então substitui o arquivo selecionado. Adicionar não substitui posições ocupadas; editar altera os Pokémon selecionados. Recusa save alterado desde a seleção, formato incompatível e espaço indisponível. Feche sempre o jogo: a detecção de processos conhecidos não reconhece todo executável renomeado.
+Para restaurar: feche jogo e editor, preserve o arquivo atual separadamente e copie o **main** do backup desejado para o lugar do editado. Feche sempre o jogo antes de salvar; a detecção não reconhece todo executável renomeado. Validação de campos não garante aceitação no jogo ou online.
 
-Para restaurar, feche o jogo e a ferramenta e copie o `main` do backup desejado para o lugar do arquivo editado. Guarde os backups fora de pastas sincronizadas ou temporárias se quiser conservar uma cópia duradoura.
+O servidor escuta apenas no próprio computador e usa uma credencial temporária por execução. Saves, treinador e apelidos não são enviados. Preferências/cache ficam junto ao EXE. Imagens opcionais usam PokéAPI/GitHub com IDs públicos; esses hosts recebem os dados normais da conexão HTTP. Sem internet, a edição continua, mas imagens não armazenadas podem faltar. Não compartilhe URLs de sessão ou diagnósticos privados de execução.
 
-## Compatibilidade
-
-A lista inclui espécies e formas persistentes presentes nas tabelas de Z-A da versão incorporada do PKHeX.Core. Por política do editor, são oferecidas formas persistentes, sem gravar formas temporárias de batalha nas boxes. O programa valida a estrutura do save; isso não garante que todo Pokémon personalizado corresponda a um encontro possível no jogo. A análise do PKHeX aparece no resultado. Alterar nível ou natureza recalcula os atributos, preservando status e HP anterior limitado ao novo máximo; alterar apenas shiny preserva esses valores.
-
-As imagens são obtidas de recursos públicos da PokéAPI e ficam em cache junto ao aplicativo. A edição funciona sem internet; sem imagem disponível, o programa mantém nome e forma visíveis. Somente IDs públicos de espécies/formas são usados nas consultas: os arquivos de save, nomes de treinador e apelidos não são enviados.
-
-Este aplicativo edita apenas Z-A. Não modifica o executável do recomp e não inclui arquivos do jogo. Não é afiliado à Nintendo, Game Freak, The Pokémon Company ou ao projeto PKHeX.
+A referência interativa da API local fica em `/api-docs`, e o esquema em `/openapi/v1.json`. São ferramentas de desenvolvimento; as gravações seguem as mesmas regras do editor.
 
 ## Código e licença
 
-Distribuído sob GPL-3.0-or-later, com código correspondente no pacote de fontes. Usa PKHeX.Core de [kwsch/PKHeX](https://github.com/kwsch/PKHeX), commit `96e33e7432d900e5345afdfd117eabfac43f5bbd`. Consulte `LICENSE` e os avisos de terceiros. O runtime .NET tem sua própria licença e avisos distribuídos junto ao aplicativo. Classes dos golpes vêm do [CSV público da PokéAPI](https://github.com/PokeAPI/pokeapi/blob/master/data/v2/csv/moves.csv), snapshot SHA-256 `8aafd37bf78f19471495c05b201545180f50f0a08a2a2a844d69f9837dd39ac9`. Os dados e imagens Pokémon mantêm os direitos de seus titulares; não são cobertos pela licença do código deste aplicativo.
+Para compilar: Windows, SDK .NET 10 x64 e Node.js 24/npm; execute `./build.ps1`. O script compila a interface, incorpora os assets e gera `dist/RecompPokemon.exe`. Esses requisitos são apenas para desenvolvimento. Consulte os [comandos de testes](README.md#build-from-source), usando cópias descartáveis de saves.
 
-Os nomes do catálogo e relatórios PKHeX permanecem em inglês. Preferências e cache precisam de uma pasta gravável para persistir; os hosts de imagens recebem os dados normais de conexão HTTP.
-
-Para compilar as fontes: instale o SDK .NET 10 x64 e execute `./build.ps1`; saída em `dist/`. Veja comandos de testes no [README principal](README.md#build-from-source). Use somente cópias descartáveis e não publique saves em issues. Consulte os [avisos de terceiros](THIRD_PARTY_NOTICES.md).
+Código GPL-3.0-or-later e PKHeX.Core com fontes correspondentes. Consulte [avisos de terceiros](THIRD_PARTY_NOTICES.md) e [licenças do frontend](WEB-THIRD-PARTY-NOTICES.txt). Assets e marcas Pokémon pertencem aos titulares. Projeto independente, sem afiliação à Nintendo, Game Freak, The Pokémon Company, ZA Recomp ou PKHeX.

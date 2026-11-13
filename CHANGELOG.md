@@ -1,5 +1,18 @@
 # Changelog
 
+## 2.0.0 — 2026-11-13
+
+- Replace the primary WinForms workflow with a portable EXE launching a single local-browser workspace: party, 30-slot boxes, inline creation and detailed inspector.
+- Add the approved dark acrylic Pokémon presentation, generated laboratory/emblem assets, bundled fonts and responsive inline box disclosure.
+- Preserve Engine validation/backups/atomic writes; add authenticated loopback API, coherent hashes, operation receipts and local interactive OpenAPI documentation.
+- Add HTTP boundary regression tests and document runtime privacy, lifecycle and fault-injection limits.
+
+## 1.1.1 — 2026-11-13
+
+- Add direct Poké Ball, IV, size and Alpha controls; synchronize native/HOME size presets and clear Hyper Training with IV presets.
+- Select compatible Alpha creation encounters and reconcile required Alpha Plus records for evolved encounter species.
+- Improve documentation and real synthetic-save screenshots.
+
 ## 1.1.0 — 2026-11-10
 
 - Add a shared detailed editor for existing party/box Pokémon and custom creation, with identity, attributes, moves, origin and advanced tabs.

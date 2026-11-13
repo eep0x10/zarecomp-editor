@@ -1,108 +1,64 @@
 # ZA Recomp Editor — Español
 
-**Editor portable de partidas de Pokémon Legends: Z-A para ZA Recomp.** Explora cajas, edita Pokémon existentes y añade Pokémon personalizados con copias de seguridad automáticas. La aplicación se llama **Recomp Pokémon**.
+**Editor portátil de partidas de Pokémon Legends: Z-A para ZA Recomp.** Equipo, cajas, creación y edición detallada en una única interfaz web local, oscura y acrílica, con copia de seguridad automática.
 
-[Descargar para Windows](https://github.com/eep0x10/zarecomp-editor/releases/latest) · [English — README principal](README.md) · [Português (Brasil)](README.pt-BR.md) · [Guía detallada](docs/EDITING.md#español)
+[Descargar para Windows](https://github.com/eep0x10/zarecomp-editor/releases/latest) · [English](README.md) · [Português](README.pt-BR.md) · [Guía detallada](docs/EDITING.md)
 
-Windows x64, sin instalador ni instalación separada de .NET. Extrae el ZIP en una carpeta escribible o memoria USB. Preferencias y caché se guardan junto al ejecutable. No incluye archivos del juego ni partidas personales.
+Windows x64. Extrae el ZIP en una carpeta con permiso de escritura y abre **RecompPokemon.exe**. El EXE abre el navegador en una dirección temporal `127.0.0.1`; no necesitas instalar Node.js, .NET ni un servidor. No incluye archivos del juego ni partidas personales.
 
-## Empieza con tu partida
+![Interfaz real con equipo, caja y editor integrado](docs/screenshots/web/workbench-desktop.jpg)
 
-1. Descarga el ZIP portable de [Releases](https://github.com/eep0x10/zarecomp-editor/releases/latest) y extráelo.
-2. Cierra ZA Recomp y abre `RecompPokemon.exe`.
-3. Busca una partida o selecciona **`main`**. Rutas habituales: `<carpeta de ZA Recomp>/save/save_0/main` o `<carpeta de ZA Recomp>/PORT/save/save_0/main`. Comprueba entrenador y fecha si aparecen varias copias.
-
-El equipo queda a la izquierda, una caja de 30 posiciones en el centro y el Pokémon seleccionado a la derecha.
-
-![Explorador de cajas con equipo y Pokémon seleccionado](docs/screenshots/boxes.png)
-
-Las capturas muestran la aplicación real usando una partida sintética de demostración.
-
-## Edita un Pokémon existente
-
-Los accesos **Poké Ball**, **IVs**, **Tamaño** y **Alpha** llevan a sus controles. Hay tamaños predefinidos y botones de IVs 31 o 0 que eliminan Hyper Training. **Definir como Alpha** ajusta la escala a 255 y completa al menos tres IVs 31; los datos del encuentro siguen sujetos a validación.
-
-1. Selecciona un Pokémon del equipo o una caja. Usa los controles rápidos o abre **Editar detalles**.
-2. Revisa las cinco pestañas y pulsa **Aplicar al borrador**. Esto **no** escribe la partida. **Cancelar** mantiene intacto el borrador anterior.
-3. Revisa los borradores y pulsa **Guardar cambios** para validar y escribir el lote completo con copia de seguridad. **Descartar borradores** abandona los cambios pendientes.
-
-| Pestaña | Contenido |
-| --- | --- |
-| Identidad | Especie/forma, apodo, género, nivel, naturaleza original y efecto de Mint, estilo shiny, bola, objeto y favorito |
-| Atributos | IVs, EVs, Hyper Training, amistad y marcas de colores |
-| Movimientos | Cuatro posiciones y registros Plus; PP e historial de relearn son de solo lectura |
-| Origen | Entrenador original, IDs internos, idioma, datos del encuentro y obediencia |
-| Avanzado | Alpha/tamaño, título ya obtenido, datos técnicos e informe PKHeX original |
+La captura utiliza una partida sintética de demostración. Las propuestas de diseño están identificadas por separado y no son capturas funcionales.
 
 <details>
-<summary>Ver las cinco pestañas de edición</summary>
+<summary>Creación personalizada en el mismo panel</summary>
 
-**Identidad** — naturaleza original y efecto de Mint son elecciones separadas.
-
-![Pokémon existente: pestaña Identidad](docs/screenshots/details.png)
-
-**Atributos** — IVs, EVs e Hyper Training separados, con el total de EVs visible.
-
-![Pokémon existente: pestaña Atributos](docs/screenshots/attributes.png)
-
-**Movimientos** — elige movimientos compatibles y revisa los registros Plus.
-
-![Pokémon existente: pestaña Movimientos](docs/screenshots/moves.png)
-
-**Origen** — revisa la identidad del entrenador y los datos del encuentro antes de cambiarlos.
-
-![Pokémon existente: pestaña Origen](docs/screenshots/origin.png)
-
-**Avanzado** — consulta datos técnicos preservados y opciones de tamaño/título.
-
-![Pokémon existente: pestaña Avanzado](docs/screenshots/advanced.png)
+![Creación integrada con opciones detalladas](docs/screenshots/web/workbench-add.jpg)
 
 </details>
 
-## Añade un Pokémon personalizado
+## Abrir y editar
 
-1. Guarda o descarta los borradores existentes y pulsa **+ Añadir Pokémon**.
-2. Elige especie, forma, nivel, naturaleza original, estilo shiny y bola. Las mismas cinco pestañas ofrecen personalización: **marca un campo opcional para reemplazar su valor automático**; déjalo sin marcar para mantener la generación automática.
-3. Elige el destino. **Automático** ocupa primero un hueco del equipo y después una caja desbloqueada. **Equipo** necesita espacio; **Cajas** utiliza una posición disponible sin sobrescribir otro Pokémon.
-4. Pulsa **Añadir Pokémon**. Esta acción **escribe inmediatamente con copia de seguridad**; no crea un borrador en la ventana principal. Cancelar el diálogo no escribe nada.
+Cierra ZA Recomp. Busca una partida o escribe la ruta absoluta de su archivo **main** en el selector integrado. Rutas habituales: `<ZA Recomp>/save/save_0/main` y `<ZA Recomp>/PORT/save/save_0/main`. Comprueba entrenador y fecha cuando haya varias copias.
 
-![Añadir Pokémon: identidad y reemplazos opcionales](docs/screenshots/add-pokemon.png)
+Selecciona un Pokémon del equipo o de una caja; el editor aparece a la derecha. Cambiar de selección conserva los borradores. **Perfil, Atributos, Movimientos, Origen y Avanzado** permanecen en el mismo panel:
 
-<details>
-<summary>Ver atributos opcionales al añadir</summary>
+- Identidad, forma persistente, apodo, género, nivel, naturaleza original/menta, tipo variocolor, Poké Ball, objeto y favorito.
+- IVs, EVs, Hyper Training, amistad y marcas; IV0–31, EV hasta252 por estadística y510 en total.
+- Cuatro movimientos y registros Plus; PP e historial de reaprendizaje son de solo lectura.
+- Entrenador original, identificadores, idioma y datos del encuentro/obediencia.
+- Alfa, escala, título ya obtenido y datos técnicos/informe para consulta.
 
-Activa solo los IVs, EVs, Hyper Training u otras opciones que quieras definir. Un campo sin marcar no reemplaza el valor automático; los controles desactivados no muestran una vista previa de los valores generados.
+**Guardar con copia** valida y escribe los borradores del equipo y cajas en una transacción. **Descartar borradores** abandona los cambios pendientes mediante confirmación integrada. Guarda antes de recargar o cerrar la pestaña; los borradores no se escriben automáticamente.
 
-![Añadir Pokémon: reemplazos opcionales de atributos](docs/screenshots/add-attributes.png)
+Marcar **Alfa** fija Escala255 y completa al menos tres IVs31 sin reducir los demás IVs. El encuentro original debe ser compatible. Los tamaños predefinidos sincronizan los escalares nativos/HOME; los botones IV31/0 eliminan Hyper Training.
 
-</details>
+## Añadir Pokémon personalizado
 
-La interfaz cambia entre PT-BR, inglés y español sin perder borradores; el catálogo y los informes PKHeX siguen en inglés. Tema oscuro con Acrylic solicitado a Windows compatible y superficies opacas como alternativa.
+**+ Añadir Pokémon** utiliza el mismo editor. Elige especie/forma, nivel, naturaleza, tipo variocolor y bola; activa las opciones que quieras personalizar. **Automático** conserva los valores generados, no significa cero o IVs perfectos.
 
-Consulta la [guía detallada](docs/EDITING.md#español) para campos y límites. No hay editor hexadecimal, creación de huevos ni conversión de otros juegos.
+El destino automático ocupa primero una plaza libre del equipo y después una caja desbloqueada. Nunca sobrescribe Pokémon existentes. Resuelve los borradores de edición antes de añadir. **Añadir con copia escribe inmediatamente**, separado del lote de borradores. Cancelar la creación no escribe nada.
 
-## Crear un Alfa
+La creación Alfa busca un encuentro compatible con especie/forma/nivel. Charmander necesita nivel25 o superior; Mewtwo no tiene plantilla Alfa en los datos incluidos. Una combinación imposible se rechaza antes de escribir.
 
-En **Añadir Pokémon**, usa **Alfa**, activa el campo opcional y marca **Definir como Alfa**. Elige una especie/forma y nivel compatibles (Charmander necesita nivel 25 o superior).
+## Optimize e idiomas
 
-![Añadir un Alfa con tamaño ajustado automáticamente](docs/screenshots/add-alpha.png)
+Optimize propone **solo naturalezas**, con motivos y revisión editable. No cambia IVs, EVs, movimientos ni niveles. El papel del equipo, la megaevolución y las mecánicas de Z-A afectan a la mejor elección.
 
-## Optimize y límites
+Interfaz en PT-BR, inglés y español. Movimientos/naturalezas del catálogo e informes PKHeX permanecen en inglés. Se respeta movimiento reducido; el acrílico tiene alternativa opaca. En pantallas estrechas, el equipo se convierte en una franja y las cajas se expanden dentro de la misma página.
 
-Optimize recomienda **solo naturalezas** según estadísticas base y movimientos físicos/especiales, con explicación y vista previa editable. No cambia movimientos, IVs, EVs ni niveles. La mejor naturaleza depende del papel en el equipo, Mega Evolución, rivales y mecánicas de Z-A.
+## Copias y privacidad
 
-La validación no garantiza encuentros legítimos ni aceptación online. Revisa el análisis PKHeX tras crear un Pokémon. Cierra siempre el juego: la detección reconoce nombres de procesos conocidos, no todos los ejecutables renombrados.
+Cada escritura crea una copia completa de la carpeta del guardado en `ZA-Tool-Backups/<fecha>-<id>/`, con manifiesto SHA-256, validación y reemplazo atómico. Se muestra el recibo de la copia. Los IDs de operación evitan duplicar una adición reenviada. Un archivo modificado externamente o resultado incierto exige comprobar el estado, sin reintento automático.
 
-## Copias de seguridad
+Para restaurar: cierra juego/editor, conserva el archivo actual aparte y copia **main** desde la copia elegida. Cierra siempre el juego antes de guardar; no se detecta todo ejecutable renombrado. La validación no garantiza aceptación por el juego ni compatibilidad online.
 
-Antes de escribir, se copia la carpeta de la partida a una carpeta hermana `ZA-Tool-Backups/<fecha>-<id>/`, con manifiesto SHA-256. Se comprueban cambios externos y se valida el resultado antes de reemplazar `main`.
+El host escucha solo en el propio equipo y utiliza una credencial temporal. No se envían partidas, nombres de entrenador ni apodos. Preferencias/cache permanecen junto al EXE. Las imágenes opcionales usan IDs públicos de PokéAPI/GitHub; esos servicios reciben información HTTP normal. La edición funciona sin conexión, aunque pueden faltar imágenes no almacenadas. No compartas URLs de sesión ni diagnósticos privados.
 
-Para restaurar, cierra juego y editor, conserva el archivo actual por separado y copia el `main` de la copia elegida sobre el editado. Abre el juego para comprobarlo. Conserva también una copia duradera fuera de carpetas temporales o sincronizadas.
+La referencia interactiva de la API local está en `/api-docs`, con esquema `/openapi/v1.json`. Las escrituras aplican las mismas reglas del editor.
 
-## Privacidad y desarrollo
+## Desarrollo y licencia
 
-La edición funciona sin conexión. Las imágenes opcionales usan recursos públicos de PokéAPI y caché local; solo se consultan IDs de especie/forma, sin subir partidas, entrenador ni apodos. Los servidores reciben datos habituales de conexión HTTP. Preferencias y caché se guardan junto al ejecutable y necesitan una carpeta escribible para persistir.
+Para compilar: Windows, SDK .NET10 x64 y Node.js24/npm; ejecuta `./build.ps1`. Se genera `dist/RecompPokemon.exe` con los assets incorporados. Los usuarios del ZIP no necesitan estas herramientas. Consulta [pruebas y fuentes](README.md#build-from-source) y usa copias desechables.
 
-Para compilar, instala el SDK .NET 10 en Windows y ejecuta `./build.ps1`; salida en `dist/`. Consulta pruebas y arquitectura en el [README principal](README.md#build-from-source). Usa solo copias desechables y nunca publiques partidas en issues.
-
-Código [GPL-3.0-or-later](LICENSE), con PKHeX.Core incluido y [avisos de terceros](THIRD_PARTY_NOTICES.md). Herramienta independiente, sin afiliación con los titulares de Pokémon, ZA Recomp o PKHeX. No incluye archivos del juego.
+Código GPL-3.0-or-later con fuentes correspondientes de PKHeX.Core. Consulta [avisos de terceros](THIRD_PARTY_NOTICES.md) y [licencias del frontend](WEB-THIRD-PARTY-NOTICES.txt). Los recursos y marcas Pokémon pertenecen a sus titulares. Proyecto independiente, sin afiliación a Nintendo, Game Freak, The Pokémon Company, ZA Recomp o PKHeX.

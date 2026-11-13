@@ -1,51 +1,46 @@
 # Detailed Pokémon editing
 
-[Main README — English](../README.md) · [Português](#português) · [Español](#español)
+[Main README](../README.md) · [Português](#português) · [Español](#español)
 
-The editor offers the same **five tabs** for an existing Pokémon and a new addition, but the final action is different:
+Version2 uses one local-browser workspace. The same inspector handles existing Pokémon and creation; the final write actions remain distinct. No application dialogs are required.
 
-| Workflow | What the dialog does | When the save changes |
+| Workflow | Before writing | When the save changes |
 | --- | --- | --- |
-| **Edit details** | **Apply to draft** returns edits to the main window; **Cancel** preserves the previous draft | **Save changes** validates and writes the pending batch with a backup |
-| **+ Add Pokémon** | Required choices plus optional overrides describe a new Pokémon | **Add Pokémon** validates and writes immediately with a backup; **Cancel** writes nothing |
+| Edit existing Pokémon | Changes update an in-memory draft per party/box slot; selecting another slot preserves it | **Save with backup** validates and writes the pending batch |
+| Add Pokémon | Required choices plus enabled optional overrides describe a new Pokémon in the same inspector | **Add with backup** validates and writes immediately; cancel creation writes nothing |
 
-Close ZA Recomp before either write. Choose the intended `main` file and confirm the trainer before working. The screenshots below use a synthetic demonstration save in the real application.
+Close ZA Recomp before either write. Confirm the selected main file and trainer. Examples and screenshots use synthetic data; no game or personal save is bundled.
 
 ## Edit an existing Pokémon
 
-1. Select an occupied party or box slot, then open **Edit details**. Existing drafts for that Pokémon appear in the controls.
-2. Change only what you intend to edit. Review the Identity, Attributes, Moves, Origin and Advanced tabs; fields not changed remain untouched, apart from dependent values described below.
-3. Choose **Apply to draft**. The dialog closes and the pending changes remain in the main window. This is not a disk write and does not create a backup yet.
-4. Review other Pokémon or adjust the quick controls. Drafts can span the party and boxes. Use **Save changes** to commit the whole batch with one backup, or **Discard drafts** to abandon it.
+1. Select an occupied party/box slot. Its values appear in the inline inspector.
+2. Edit the quick identity controls or the Profile, Attributes, Moves, Origin and Advanced groups. Fields not changed remain untouched apart from dependent values documented below.
+3. Select other Pokémon or boxes as needed. A pending count and marked slots show which records have drafts.
+4. Use **Validate draft** for an Engine preview without a disk write. A field error preserves your values for correction.
+5. **Save with backup** commits the complete pending batch; **Discard drafts** abandons pending edits through an inline confirmation.
 
-**Cancel** in the detail dialog discards only changes made during that dialog visit. It leaves the earlier main-window draft intact. A failed save does not partially apply a mixed party/box batch. If the file changed externally, reopen it instead of overwriting the newer file.
+There is no separate Apply dialog. Save before reloading or closing the browser: drafts are temporary editing state, not automatic writes. A stale file must be reopened after resolving the old drafts. If the transport fails during a commit or the host reports an unknown outcome, inspect/reload the result and backup before starting another write. Do not infer that an error means nothing was written.
 
-Changing species or form edits the existing record; it does not generate a replacement encounter. Gender, moves and other dependent data must still fit the chosen species/form. The engine reconciles the ability slot, default species name, obsolete form argument and Plus records where required. Nicknames are retained unless you change/reset them. Existing HP is kept up to the new maximum, status is preserved, and recalculated attributes reflect the new level/IVs/EVs/Hyper Training/nature.
-
-The quick **Nature** control retains its original behaviour of setting both original and effective nature. Use the detailed editor to keep those values separate.
+Changing species/form edits the existing record, not its encounter history. The Engine reconciles supported dependent data, preserves existing HP up to the new maximum and retains status. Original nature and effective Mint nature are separate controls; changing one is not permission to silently replace the other.
 
 ## Add a custom Pokémon
 
-1. Save or discard pending main-window drafts, then click **+ Add Pokémon**.
-2. In **Identity**, choose species, form, level, original nature, shiny style and ball. These are direct choices.
-3. To supply an optional value, tick its checkbox before editing it. **Unticked means automatic**, not zero, perfect IVs, or the number currently shown in a disabled control. Unchecked fields do not contribute an override.
-4. Choose **Automatic**, **Team** or **Boxes**. Automatic uses an empty party slot first and then an unlocked box. Team fails if all six slots are occupied. A preferred box is tried first; another unlocked box can be used if it is full. No occupied Pokémon is overwritten.
-5. Choose **Add Pokémon**. The engine generates a base record, applies the enabled overrides, validates the result, backs up the save folder and writes the addition immediately. Review the reported result and PKHeX findings. It is not added to the main-window draft queue.
+Resolve existing edit drafts, then select **+ Add Pokémon** or a free position. Creation reuses the inspector without obscuring your collection. Choose species, persistent form, level, original nature, shiny style and ball. Enable optional fields only when overriding the generated value; **Automatic** is not zero or perfect IVs and disabled fields are not a generated preview.
 
-Cancel the dialog to abandon the unsubmitted addition without writing. The same field groups are available, but inspection data such as an existing Pokémon's handler, tracker, ribbons and original PKHeX report appears only when editing an existing record.
+Choose **Automatic**, **Party** or **Boxes**, plus a preferred unlocked box if desired. Automatic uses party space first, then a box. A full preferred box may fall back to another unlocked box; no occupied Pokémon is overwritten. **Add with backup** is an immediate backed-up write, separate from edit drafts. Cancel creation inline to abandon it.
 
-![Add Pokémon: identity choices and optional overrides](screenshots/add-pokemon.png)
+Preview before committing to inspect the generated values and PKHeX findings. Existing-record metadata such as tracker, handler, ribbons and original report is read-only; creation does not invent raw identifiers, egg history or ribbons.
+
+## Five field groups and limits
 
 <details>
-<summary>Example: optional attributes when adding</summary>
+<summary>Real workbench examples: moves and origin</summary>
 
-Enable IVs or EVs only when you want to provide the whole labelled stat group. For a natural/generated result, leave those options unticked. Hyper Training is a separate set of flags, not a substitute for entering IVs.
+![Current moves and Plus records](screenshots/web/workbench-moves.jpg)
 
-![Add Pokémon: optional IV, EV and Hyper Training controls](screenshots/add-attributes.png)
+![Trainer and encounter metadata](screenshots/web/workbench-origin.jpg)
 
 </details>
-
-## Five tabs and their limits
 
 | Tab | Editable values | Important limits |
 | --- | --- | --- |
@@ -55,34 +50,9 @@ Enable IVs or EVs only when you want to provide the whole labelled stat group. F
 | **Origin** | Original trainer name/gender, TID16/SID16, language, encounter level/location/date and obedience level | Trainer name up to 12 UTF-16 units; IDs 0–65535; encounter level 1–100; date 2000–2099; valid native Z-A location; obedience depends on encounter/current level and ownership |
 | **Advanced** | Alpha flag, supported height/weight/scale scalars and an already-owned affixed title | Scalar values 0–255; Alpha needs consistent encounter data, size, IVs and Plus records; affixing a title does not award a new ribbon |
 
-The stat controls are labelled individually. Internally their order is **HP, Attack, Defense, Speed, Special Attack, Special Defense**. Hyper Training preserves the actual stored IV and adds a separate flag. Disable a flag before changing its IV to 31 or lowering the Pokémon below level 50.
+The internal stat order is **HP, Attack, Defense, Speed, Special Attack, Special Defense**. Hyper Training is a separate flag and requires level50 with IV below31 for that stat. The IV31/0 presets explicitly remove Hyper Training. EV total is shown and capped at510.
 
-An empty nickname with nickname use disabled restores the species name. Favourite and coloured markings are organisation metadata; they do not improve battle attributes.
-
-<details>
-<summary>See all five tabs for an existing Pokémon</summary>
-
-**Identity:** separate original nature from the Mint effect and choose a supported persistent form.
-
-![Existing Pokémon: Identity](screenshots/details.png)
-
-**Attributes:** review IVs, EVs, Hyper Training, friendship and markings independently.
-
-![Existing Pokémon: Attributes](screenshots/attributes.png)
-
-**Moves:** choose the four moves and review the permitted Plus records.
-
-![Existing Pokémon: Moves](screenshots/moves.png)
-
-**Origin:** trainer identity and encounter metadata are distinct from ordinary battle attributes.
-
-![Existing Pokémon: Origin](screenshots/origin.png)
-
-**Advanced:** inspect technical identifiers and the original legality report alongside supported metadata.
-
-![Existing Pokémon: Advanced](screenshots/advanced.png)
-
-</details>
+An empty nickname with nickname use disabled restores the species name. Favourite and coloured markings are organisation metadata. Existing ribbons can be affixed as a title; selecting a title does not grant it.
 
 ## Z-A mechanics and preserved data
 
@@ -108,28 +78,16 @@ After saving or adding, keep the automatic backup until you have checked the res
 
 ## Português
 
-[README em português](../README.pt-BR.md) · [English guide](#detailed-pokémon-editing)
+A versão2 mantém tudo na mesma página: selecionar um Pokémon abre o editor inline, e mudar de seleção preserva os rascunhos. **Validar rascunho** não grava. **Salvar com backup** confirma o lote de edições; **Descartar rascunhos** pede confirmação inline. Salve antes de recarregar/fechar o navegador.
 
-**Editar existente:** selecione o Pokémon da equipe ou box, abra **Editar detalhes** e revise Identidade, Atributos, Golpes, Origem e Avançado. **Aplicar ao rascunho** não grava o save. **Cancelar** mantém o rascunho anterior; **Descartar rascunhos** abandona as mudanças pendentes na janela principal. **Salvar alterações** valida e grava o lote inteiro com backup, sem aplicar parcialmente um lote inválido.
+**Adicionar Pokémon** reutiliza o painel e **Adicionar com backup grava imediatamente**. Resolva rascunhos anteriores. Campo automático mantém o valor gerado; ative apenas as substituições desejadas. Equipe/box precisam de espaço livre. Nenhum Pokémon ocupado é substituído.
 
-**Adicionar personalizado:** salve ou descarte os rascunhos antes de clicar em **+ Adicionar Pokémon**. Escolha os campos básicos e marque apenas os opcionais que quiser definir. Campo desmarcado mantém o valor automático; o número desativado não é uma prévia do resultado. **Adicionar Pokémon grava imediatamente com backup**, sem criar um rascunho. Automático usa primeiro a equipe e depois uma box desbloqueada; posições ocupadas nunca são substituídas. Cancelar não grava nada.
-
-Natureza original e efeito de Mint são separados. IVs vão de 0 a 31; EVs de 0 a 252 por atributo e até 510 no total. Hyper Training exige nível 50 e um IV abaixo de 31 no atributo marcado. Alterar atributos recalcula os valores sem curar silenciosamente: HP anterior é limitado ao novo máximo e status é preservado. Marcações e favorito são dados de organização.
-
-PP/PP Ups e relearn são somente leitura; não são edição de recarga ou PP infinito. Itens incluem Mega Stones, mas o editor oferece formas persistentes. Alpha depende do encontro, tamanho, IVs e Plus; os valores de tamanho são escalares, não metros ou quilos. Título só pode usar uma fita/marca já existente. IDs brutos TID16/SID16 não são o número moderno de seis dígitos; dados técnicos, origem do jogo, ovos e histórico de handler são para consulta. A data de encontro validada vai de 2000 a 2099.
-
-O relatório da aba Avançado é do Pokémon original, antes do rascunho. Validação estrutural e backup não garantem encontro legítimo, funcionamento de toda combinação no jogo ou aceitação online. Feche sempre o jogo, confira o resultado e conserve o backup.
+Natureza original/Mint e IVs/Hyper Training são separados. Alpha depende de encontro compatível; marcar ajusta escala255 e pelo menos três IVs31. Altura/peso nativos ficam em0; HOME mantém ambos iguais à escala. Golpes/natures e relatórios permanecem em inglês. Campos técnicos, PP/histórico, habilidade, ovos e ribbons concedidos são de consulta. Uma falha durante a gravação exige conferir o resultado e o backup antes de tentar novamente.
 
 ## Español
 
-[README en español](../README.es.md) · [English guide](#detailed-pokémon-editing)
+La versión2 mantiene todo en la misma página. Seleccionar un Pokémon abre el editor integrado; cambiar de selección conserva los borradores. **Validar borrador** no escribe. **Guardar con copia** confirma el lote de ediciones; **Descartar borradores** pide confirmación integrada. Guarda antes de recargar/cerrar el navegador.
 
-**Editar existente:** selecciona el Pokémon del equipo o caja, abre **Editar detalles** y revisa Identidad, Atributos, Movimientos, Origen y Avanzado. **Aplicar al borrador** no escribe la partida. **Cancelar** mantiene el borrador anterior; **Descartar borradores** abandona los cambios pendientes de la ventana principal. **Guardar cambios** valida y escribe el lote completo con copia de seguridad, sin aplicar parcialmente un lote inválido.
+**Añadir Pokémon** reutiliza el panel y **Añadir con copia escribe inmediatamente**. Resuelve los borradores anteriores. Automático conserva valores generados; activa solo las opciones deseadas. Se necesita espacio libre y nunca se sobrescriben Pokémon ocupados.
 
-**Añadir personalizado:** guarda o descarta los borradores antes de pulsar **+ Añadir Pokémon**. Elige los campos básicos y marca solo los opcionales que quieras definir. Sin marcar se mantiene el valor automático; un número desactivado no es una vista previa del resultado. **Añadir Pokémon escribe inmediatamente con copia de seguridad**, sin crear un borrador. Automático utiliza primero el equipo y después una caja desbloqueada; nunca sobrescribe posiciones ocupadas. Cancelar no escribe nada.
-
-Naturaleza original y efecto de Mint son valores separados. IVs: 0–31; EVs: 0–252 por estadística y hasta 510 en total. Hyper Training requiere nivel 50 y un IV menor de 31 en la estadística marcada. Recalcular atributos conserva el estado y los PS anteriores hasta el nuevo máximo, sin curación oculta. Las marcas de colores y el favorito son datos de organización.
-
-PP/PP Ups y relearn son de solo lectura; no hay edición de recargas o PP ilimitados. Los objetos incluyen Megapiedras, pero el editor ofrece formas persistentes. Alpha depende del encuentro, tamaño, IVs y Plus; los tamaños son escalares, no metros ni kilos. Un título solo puede usar una cinta/marca ya obtenida. TID16/SID16 no son el número moderno de seis dígitos; los identificadores técnicos, juego de origen, huevos e historial del handler son para consulta. La fecha de encuentro validada va de 2000 a 2099.
-
-El informe de Avanzado corresponde al Pokémon original, antes del borrador. La validación y las copias de seguridad no garantizan encuentros legítimos, funcionamiento de toda combinación en el juego ni aceptación online. Cierra siempre el juego, comprueba el resultado y conserva la copia.
+Naturaleza original/menta e IVs/Hyper Training son distintos. Alfa requiere encuentro compatible y fija escala255 y al menos tres IVs31. Altura/peso nativos quedan en0; HOME iguala ambos a escala. Movimientos/naturalezas e informes permanecen en inglés. Datos técnicos, PP/historial, habilidad, huevos y cintas otorgadas son de consulta. Un fallo durante escritura exige comprobar resultado y copia antes de reintentar.
