@@ -40,7 +40,7 @@ Marcar **Alpha** ajusta Escala para 255 e completa pelo menos três IVs 31, pres
 
 ## Adicionar Pokémon personalizado
 
-**+ Adicionar Pokémon** reutiliza o painel de edição. Escolha espécie/forma, nível, natureza, shiny e Pokébola; ative os campos opcionais que quiser personalizar. Campo **Automático** mantém a geração do motor, não significa zero ou IV perfeito.
+**+ Adicionar Pokémon** abre uma grade com todas as espécies do catálogo de Z-A, imagens e busca por nome ou número. **Escolher Pokémon** permite trocar a seleção. A criação reutiliza o painel de edição. Escolha espécie/forma, nível, natureza, shiny e Pokébola; ative os campos opcionais que quiser personalizar. Campo **Automático** mantém a geração do motor, não significa zero ou IV perfeito.
 
 Destino **Automático** usa primeiro uma vaga na equipe e depois uma box desbloqueada. Equipe exige vaga; Boxes usa uma posição livre sem substituir outro Pokémon. Resolva os rascunhos de edição antes de adicionar. **Adicionar com backup grava imediatamente**, em uma operação separada do lote de rascunhos. Cancelar a criação não grava nada.
 

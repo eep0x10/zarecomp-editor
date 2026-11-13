@@ -17,6 +17,7 @@ internal static class ApiDocs
         ("post", "/api/v1/sessions/{id}/edits", "Commit {expectedHash,operationId,teamEdits,boxEdits} with backup"),
         ("post", "/api/v1/sessions/{id}/add", "Commit {expectedHash,operationId,options} with backup"),
         ("get", "/api/v1/catalogs", "Catalog choice arrays"),
+        ("get", "/api/v1/catalogs/species/{species}/forms", "Available persistent forms as Choice[] {id,name}; select the first returned ID, which need not be zero. Empty array for unavailable species."),
         ("get", "/api/v1/catalogs/species/{species}/forms/{form}", "Forms, genders, stats and Plus moves"),
         ("get", "/api/v1/sprites/{species}/{form}/{variant}", "Exact-form PNG artwork; variant normal or shiny. 404 sprite_unavailable when absent/offline; no generic image substitution."),
         ("put", "/api/v1/preferences", "Save {lastSavePath,language}"),
@@ -25,7 +26,7 @@ internal static class ApiDocs
     ];
     internal static object Document() => new
     {
-        openapi = "3.1.0", info = new { title = "Recomp Pokémon local API", version = "2.0.1" },
+        openapi = "3.1.0", info = new { title = "Recomp Pokémon local API", version = "2.0.2" },
         security = new[] { new Dictionary<string, string[]> { ["bearerAuth"] = [] } },
         components = new { securitySchemes = new { bearerAuth = new { type = "http", scheme = "bearer" } }, schemas = Schemas() },
         paths = Routes.GroupBy(r => r.Path).ToDictionary(g => g.Key, g => g.ToDictionary(r => r.Method, r => (object)new

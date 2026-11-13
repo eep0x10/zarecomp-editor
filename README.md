@@ -49,7 +49,7 @@ All 25 selectable capture balls have bundled item images. Original and Mint natu
 
 ## Add a custom Pokémon
 
-**+ Add Pokémon** reuses the same inspector. Choose species/form, level, nature, shiny style and ball, then customize any optional details. **Automatic** preserves generated values; enable an optional override only when you want to supply it.
+**+ Add Pokémon** opens an inline grid of every species in the supported Z-A catalog, with images and name/number search. **Choose Pokémon** reopens the selection; creation reuses the same inspector. Choose species/form, level, nature, shiny style and ball, then customize any optional details. **Automatic** preserves generated values; enable an optional override only when you want to supply it.
 
 Choose **Automatic**, **Party** or **Boxes** as destination. Automatic fills an empty party slot first, then an empty slot in an unlocked box. Existing Pokémon are never overwritten. Resolve edit drafts before adding; **Add with backup writes immediately**, separately from the edit-draft batch. Cancel creation inline to leave the save unchanged.
 

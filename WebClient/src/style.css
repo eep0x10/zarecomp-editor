@@ -2262,3 +2262,133 @@ a {
     font-size: 11px;
   }
 }
+
+.species-picker {
+  margin-bottom: 14px;
+  flex-shrink: 0;
+}
+.choose-species {
+  width: 100%;
+  justify-content: flex-start;
+  min-height: 44px;
+  background: linear-gradient(#3a8b7d33, #28605922);
+  border-color: #85cbbb66;
+  font-size: 13px;
+}
+.choose-species > span {
+  margin-left: auto;
+  min-width: 0;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  color: var(--teal);
+  font-size: 12px;
+}
+.species-panel {
+  margin-top: 9px;
+  padding: 10px;
+  border: 1px solid var(--edge);
+  border-radius: 10px;
+  background: #101c27d9;
+}
+.species-search {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  border: 1px solid var(--edge);
+  border-radius: 8px;
+  padding: 0 8px;
+}
+.species-search input {
+  border: 0;
+  background: none;
+  width: 100%;
+  min-height: 42px;
+  font-size: 12px;
+}
+.species-count {
+  color: var(--muted);
+  font-size: 11px;
+  padding: 8px 0;
+}
+.species-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 7px;
+  max-height: 330px;
+  overflow: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  padding: 3px;
+}
+.species-grid button {
+  min-width: 0;
+  min-height: 104px;
+  flex-direction: column;
+  gap: 3px;
+  padding: 6px 3px;
+  position: relative;
+}
+.species-grid button[aria-selected="true"] {
+  border-color: var(--amber);
+  color: var(--amber);
+}
+.species-grid .sprite {
+  width: 58px;
+  height: 58px;
+  min-height: 58px;
+}
+.species-grid strong {
+  font-size: 11px;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+.species-grid small {
+  font-size: 10px;
+}
+.species-grid button > svg {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+}
+.species-back {
+  min-height: 34px;
+  font-size: 11px;
+  margin-top: 8px;
+}
+.species-grid .sprite-fallback {
+  font-size: 11px !important;
+}
+@media (max-width: 1250px) {
+  .species-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+@media (max-width: 900px) {
+  .choose-species {
+    font-size: 12px;
+    min-height: 44px;
+    gap: 6px;
+  }
+  .choose-species > span {
+    font-size: 11px;
+  }
+  .species-panel {
+    padding: 8px;
+  }
+  .species-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    max-height: 344px;
+    gap: 5px;
+  }
+  .species-grid button {
+    min-height: 108px;
+  }
+  .species-search input,
+  .species-back {
+    min-height: 44px;
+  }
+  .species-grid strong {
+    font-size: 10px;
+  }
+}

@@ -59,3 +59,11 @@ Executed on a separate synthetic fixture:
 Screenshots use synthetic data: [desktop controls](../../screenshots/web/controls-2.0.1-desktop.jpg), [390px controls](../../screenshots/web/controls-2.0.1-narrow.jpg).
 
 Final recovery retest passed on bundle index-D7aDvq8y.js: with the Vivillon route blocked after reload, both mounted views reached #0666 unavailable; after unblocking and reselecting, box and inspector both decoded475px without F5. Rapid selection ended on Vivillon, all25 ball PNGs decoded and no broken sprite images remained. Shared subscriptions are keyed by species/form/shiny and cleaned on unmount. Final screenshots above were recaptured from this build. Network/media/viewport overrides were restored and the QA tab/host closed.
+
+## 2.0.2 — species picker
+
+Creation opens the visible Choose Pokémon inline grid automatically. It uses all 364 species in the current Engine catalog, with name/ID search, images loaded near the visible area, keyboard selection and an explicit return/toggle. The accepted workspace composition is retained; Anime.js scopes handle disclosure/filter feedback and reduced motion, with cleanup. Selection uses the readonly forms list and compatible metadata; it resets moves/Plus to automatic while retaining other custom choices.
+
+Executed: frontend build and nine helper checks passed; backend40HTTP+32sprite checks passed. Independent static review found no blocker. Root CUA default1280×720 and390×1000 verified364 tiles, search Eevee and #025, Enter selection, touch selection and changing species while level22 remained. Only5–9 picker images were instantiated near the viewport rather than364 network requests. Narrow content width375 fit390; targets95×108. Synthetic fixture hash stayed unchanged; no write action was clicked. Viewport reset, QA tab/host closed. Existing main-workspace motion evidence applies; no intermediate frame of the new picker effect was captured.
+
+Captures: [desktop picker](../../screenshots/web/species-picker-2.0.2.jpg), [narrow picker](../../screenshots/web/species-picker-2.0.2-narrow.jpg). Synthetic data only.

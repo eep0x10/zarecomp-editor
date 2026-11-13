@@ -73,7 +73,25 @@ Check((await Send("GET", "/api/v1/bootstrap", requestHost: "evil.example")).Stat
 Check((await Send("POST", "/api/v1/heartbeat", origin: null)).StatusCode == HttpStatusCode.Forbidden, "missing mutation Origin rejected");
 var bootstrapResponse = await Send("GET", "/api/v1/bootstrap");
 var bootstrap = await Body(bootstrapResponse);
-Check(bootstrap.GetProperty("version").GetString() == "2.0.1", "bootstrap contract");
+Check(bootstrap.GetProperty("version").GetString() == "2.0.2", "bootstrap contract");
+bool formsContract = true;
+foreach (var species in Catalog.Species)
+{
+    var expectedForms = Catalog.Forms(species.Id);
+    var availableForms = await Body(await Send("GET", $"/api/v1/catalogs/species/{species.Id}/forms"));
+    formsContract &= availableForms.ValueKind == JsonValueKind.Array && availableForms.GetArrayLength() == expectedForms.Count
+        && availableForms.EnumerateArray().Select(f => (f.GetProperty("id").GetInt32(), f.GetProperty("name").GetString())).SequenceEqual(expectedForms.Select(f => (f.Id, (string?)f.Name)));
+}
+Check(formsContract, "forms list Choice array matches Engine for every catalog species");
+var nonzeroFirst = Catalog.Species.FirstOrDefault(s => Catalog.Forms(s.Id)[0].Id != 0);
+if (nonzeroFirst != null)
+{
+    var availableForms = await Body(await Send("GET", $"/api/v1/catalogs/species/{nonzeroFirst.Id}/forms"));
+    int firstForm = availableForms[0].GetProperty("id").GetInt32();
+    var formMetadata = await Body(await Send("GET", $"/api/v1/catalogs/species/{nonzeroFirst.Id}/forms/{firstForm}"));
+    Check(firstForm != 0 && formMetadata.GetProperty("baseStats").GetArrayLength() == 6 && formMetadata.GetProperty("genders").GetArrayLength() > 0, "species without form zero lists forms and loads first valid metadata");
+}
+else Console.WriteLine("SKIP nonzero-first form probe: current Engine catalog has form zero for every listed species.");
 Check(bootstrapResponse.Headers.GetValues("Content-Security-Policy").Single().Contains("img-src 'self' data: blob:"), "CSP permits authenticated artwork blobs");
 var patchKeys = JsonSerializer.SerializeToElement(new ZaTool.Engine.PokemonPatch { IVs = [1,2,3,4,5,6], EVs = [0,0,0,0,0,0], PP = [1,1,1,1], PPUps = [0,0,0,0], TID16 = 1, SID16 = 2 }, WorkbenchHost.Json);
 Check(patchKeys.TryGetProperty("iVs", out _) && patchKeys.TryGetProperty("eVs", out _) && patchKeys.TryGetProperty("pp", out _) && patchKeys.TryGetProperty("ppUps", out _) && patchKeys.TryGetProperty("tiD16", out _) && patchKeys.TryGetProperty("siD16", out _), "acronym field names match frontend contract");

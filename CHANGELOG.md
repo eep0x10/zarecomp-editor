@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.0.2 — 2026-11-13
+
+- Start creation with a visible inline species picker: every species in the game's supported catalog, images, search by name or number and a direct way to change the selection.
+- Load picker artwork near the visible area instead of requesting the complete catalog at once; preserve detailed creation choices when changing species.
+
 ## 2.0.1 — 2026-11-13
 
 - Show an individual image for every selectable capture ball in an inline, keyboard-accessible chooser.

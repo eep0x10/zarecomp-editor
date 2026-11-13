@@ -40,6 +40,8 @@ import "./style.css";
 import { SecondaryFields } from "./EditorFields";
 import { localizeError } from "./errors";
 import { BallPicker, NatureChoice } from "./PokemonChoices";
+import { SpeciesPicker, speciesCreationChanges } from "./SpeciesPicker";
+import { observeSpriteVisibility } from "./spriteVisibility";
 const stats = ["HP", "Attack", "Defense", "Speed", "Sp. Atk", "Sp. Def"];
 const initial: Patch = {
   species: 4,
@@ -59,15 +61,25 @@ function Sprite({
   form = 0,
   shiny = false,
   className = "",
+  lazy = false,
 }: {
   species: number;
   form?: number;
   shiny?: boolean;
   className?: string;
+  lazy?: boolean;
 }) {
+  const [visible, setVisible] = useState(!lazy);
+  const placeholder = useRef<HTMLSpanElement>(null);
+  useEffect(() => {
+    if (!lazy || visible) return;
+    if (!placeholder.current) return;
+    return observeSpriteVisibility(placeholder.current, () => setVisible(true));
+  }, [lazy, visible]);
   const [url, setUrl] = useState(""),
     [failed, setFailed] = useState(false);
   useEffect(() => {
+    if (!visible) return;
     let live = true,
       timer: ReturnType<typeof setTimeout> | undefined,
       attempt = 0;
@@ -102,7 +114,7 @@ function Sprite({
       unsubscribe();
       window.removeEventListener("online", reconnect);
     };
-  }, [species, form, shiny]);
+  }, [species, form, shiny, visible]);
   return url ? (
     <img
       className={"sprite " + className}
@@ -116,7 +128,11 @@ function Sprite({
       }}
     />
   ) : (
-    <span className={"sprite sprite-fallback " + className} aria-hidden="true">
+    <span
+      ref={placeholder}
+      className={"sprite sprite-fallback " + className}
+      aria-hidden="true"
+    >
       <span>#{String(species).padStart(4, "0")}</span>
       <small>{failed ? "—" : "…"}</small>
     </span>
@@ -139,7 +155,8 @@ function App() {
     [creating, setCreating] = useState(false),
     [newPatch, setNewPatch] = useState<Patch>(initial),
     [destination, setDestination] = useState("Auto"),
-    [preferredBox, setPreferredBox] = useState(-1);
+    [preferredBox, setPreferredBox] = useState(-1),
+    [speciesOpen, setSpeciesOpen] = useState(false);
   const [metadata, setMetadata] = useState<{
       forms: Choice[];
       genders: Choice[];
@@ -170,6 +187,7 @@ function App() {
     selectionRequest = useRef<AbortController | null>(null),
     boxRequest = useRef<AbortController | null>(null),
     metadataRequest = useRef<AbortController | null>(null),
+    speciesRequest = useRef<AbortController | null>(null),
     operation = useRef(false),
     loadedKey = useRef(""),
     activeKey = selection ? keyOf(selection.party, selection.slot) : "";
@@ -294,6 +312,7 @@ function App() {
       selectionRequest.current?.abort();
       boxRequest.current?.abort();
       metadataRequest.current?.abort();
+      speciesRequest.current?.abort();
     };
   }, []);
   function acceptSession(s: Session) {
@@ -429,10 +448,52 @@ function App() {
   }
   function set(name: string, value: any) {
     if (name === "species") {
-      update({ species: value, form: 0, gender: null });
+      if (creating) void chooseSpecies(Number(value));
+      else update({ species: value, form: 0, gender: null });
       return;
     }
     update({ [name]: value });
+  }
+  async function chooseSpecies(id: number): Promise<boolean> {
+    if (operation.current || !creating) return false;
+    clearValidationContext();
+    metadataRequest.current?.abort();
+    const ac = new AbortController();
+    speciesRequest.current = ac;
+    const expectedRevision = revision.current;
+    operation.current = true;
+    setBusy("Loading…");
+    setError("");
+    try {
+      const forms = await api<Choice[]>(
+        `/catalogs/species/${id}/forms`,
+        undefined,
+        ac.signal,
+      );
+      if (!forms.length) throw new Error(t("Choose a valid catalog value."));
+      const form = forms[0].id;
+      const metadata = await api<any>(
+        `/catalogs/species/${id}/forms/${form}`,
+        undefined,
+        ac.signal,
+      );
+      if (ac.signal.aborted || revision.current !== expectedRevision)
+        return false;
+      update(speciesCreationChanges(id, form, metadata.genders[0]?.id ?? null));
+      setMetadata(metadata);
+      setSpeciesOpen(false);
+      setTab("Profile");
+      requestAnimationFrame(() =>
+        root.current?.querySelector(".inspector")?.scrollTo({ top: 0 }),
+      );
+      return true;
+    } catch (e) {
+      fail(e);
+      return false;
+    } finally {
+      operation.current = false;
+      setBusy("");
+    }
   }
   async function loadBox(index: number) {
     if (!session || index < 0 || index >= session.summary.boxCount) return;
@@ -469,6 +530,7 @@ function App() {
   function clearValidationContext() {
     revision.current++;
     validationRequest.current?.abort();
+    speciesRequest.current?.abort();
     setValidating(false);
     setPreview(null);
   }
@@ -484,6 +546,10 @@ function App() {
     clearValidationContext();
     setNewPatch({ ...initial });
     setCreating(true);
+    setSpeciesOpen(true);
+    requestAnimationFrame(() =>
+      root.current?.querySelector(".inspector")?.scrollTo({ top: 0 }),
+    );
     setTab("Profile");
     setPreview(null);
     setError("");
@@ -1245,6 +1311,17 @@ function App() {
                       <X size={18} />
                     </button>
                   </div>
+                )}
+                {creating && (
+                  <SpeciesPicker
+                    catalog={catalogs.species || []}
+                    value={num("species", 4)}
+                    open={speciesOpen}
+                    setOpen={setSpeciesOpen}
+                    onChoose={chooseSpecies}
+                    renderSprite={(id) => <Sprite species={id} lazy />}
+                    t={t}
+                  />
                 )}
                 {creating && (
                   <div className="creation-placement">

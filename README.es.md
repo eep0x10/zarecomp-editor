@@ -38,7 +38,7 @@ Marcar **Alfa** fija Escala255 y completa al menos tres IVs31 sin reducir los de
 
 ## Añadir Pokémon personalizado
 
-**+ Añadir Pokémon** utiliza el mismo editor. Elige especie/forma, nivel, naturaleza, tipo variocolor y bola; activa las opciones que quieras personalizar. **Automático** conserva los valores generados, no significa cero o IVs perfectos.
+**+ Añadir Pokémon** abre una cuadrícula con todas las especies del catálogo de Z-A, imágenes y búsqueda por nombre o número. La selección puede cambiarse desde el botón visible. Utiliza el mismo editor. Elige especie/forma, nivel, naturaleza, tipo variocolor y bola; activa las opciones que quieras personalizar. **Automático** conserva los valores generados, no significa cero o IVs perfectos.
 
 El destino automático ocupa primero una plaza libre del equipo y después una caja desbloqueada. Nunca sobrescribe Pokémon existentes. Resuelve los borradores de edición antes de añadir. **Añadir con copia escribe inmediatamente**, separado del lote de borradores. Cancelar la creación no escribe nada.
 

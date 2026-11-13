@@ -106,7 +106,7 @@ public sealed class WorkbenchHost : IAsyncDisposable
     {
         // All Engine calls stay synchronous within this gate. Its path mutex must be released on its owning thread.
         T Locked<T>(Func<T> action) { lock (store.Gate) return action(); }
-        host.MapGet("/api/v1/bootstrap", () => Locked(() => new { version = "2.0.1", locales = new[] { "pt-BR", "en", "es" }, preferences = store.Preferences, initialPath = options.InitialPath ?? (File.Exists(store.Preferences.LastSavePath) ? store.Preferences.LastSavePath : null) }));
+        host.MapGet("/api/v1/bootstrap", () => Locked(() => new { version = "2.0.2", locales = new[] { "pt-BR", "en", "es" }, preferences = store.Preferences, initialPath = options.InitialPath ?? (File.Exists(store.Preferences.LastSavePath) ? store.Preferences.LastSavePath : null) }));
         host.MapPost("/api/v1/discovery", () => Locked(store.Discover));
         host.MapPost("/api/v1/sessions", (OpenRequest r) => Locked(() => store.Open(r)));
         host.MapGet("/api/v1/sessions/{id}", (string id) => Locked(() => store.Snapshot(store.Get(id))));
@@ -119,6 +119,7 @@ public sealed class WorkbenchHost : IAsyncDisposable
         host.MapPost("/api/v1/sessions/{id}/edits", (string id, EditRequest r) => Locked(() => { if (r.TeamEdits == null || r.BoxEdits == null || r.TeamEdits.Any(e => e == null) || r.BoxEdits.Any(e => e == null)) throw new ApiFailure(400, "invalid_edits", "Provide teamEdits and boxEdits arrays with non-null entries."); var s = store.Get(id); return store.Commit(s, r.ExpectedHash, r.OperationId, r, () => store.Engine.SaveEdits(s.Path, r.TeamEdits, r.BoxEdits, r.ExpectedHash)); }));
         host.MapPost("/api/v1/sessions/{id}/add", (string id, AddRequest r) => Locked(() => { var s = store.Get(id); return store.Commit(s, r.ExpectedHash, r.OperationId, r, () => store.Engine.Add(s.Path, r.Options, r.ExpectedHash)); }));
         host.MapGet("/api/v1/catalogs", () => new { Catalog.Species, Catalog.Natures, Catalog.Balls, Catalog.Moves, Catalog.Languages, Catalog.HeldItems, Catalog.MetLocations, Catalog.Ribbons });
+        host.MapGet("/api/v1/catalogs/species/{species:int}/forms", (int species) => Catalog.Forms(species));
         host.MapGet("/api/v1/catalogs/species/{species:int}/forms/{form:int}", (int species, int form) => new { forms = Catalog.Forms(species), genders = Catalog.Genders(species, form), baseStats = Catalog.BaseStats(species, form), plusMoves = Catalog.PlusMoves(species, form) });
         host.MapGet("/api/v1/sprites/{species:int}/{form:int}/{variant}", async (int species, int form, string variant, string? formName, CancellationToken cancellation) => { var bytes = await sprites.GetAsync(species, form, variant, formName, cancellation); return Results.Bytes(bytes, "image/png"); });
         host.MapPut("/api/v1/preferences", (Preferences r) => Locked(() => store.SavePreferences(r)));

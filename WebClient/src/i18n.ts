@@ -1,5 +1,15 @@
 export type Locale = "pt-BR" | "en" | "es";
 const words: Record<string, [string, string]> = {
+  "Choose Pokémon": ["Escolher Pokémon", "Elegir Pokémon"],
+  "Search by name or number": [
+    "Buscar por nome ou número",
+    "Buscar por nombre o número",
+  ],
+  results: ["resultados", "resultados"],
+  "available species": ["espécies disponíveis", "especies disponibles"],
+  "Available Pokémon": ["Pokémon disponíveis", "Pokémon disponibles"],
+  "Back to editor": ["Voltar ao editor", "Volver al editor"],
+
   "Neutral: no stat changes (0%)": [
     "Neutra: sem mudanças (0%)",
     "Neutra: sin cambios (0%)",
