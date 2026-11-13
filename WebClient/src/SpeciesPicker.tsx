@@ -17,14 +17,15 @@ const normalize = (value: string) =>
     .replace(/[^a-z0-9♀♂]+/g, " ")
     .trim();
 export function filterSpecies(catalog: Choice[], query: string) {
+  const ordered = [...catalog].sort((a, b) => a.id - b.id);
   const q = query.trim();
-  if (!q) return catalog;
+  if (!q) return ordered;
   if (/^#?\d+$/.test(q)) {
     const id = Number(q.replace("#", ""));
-    return catalog.filter((c) => c.id === id);
+    return ordered.filter((c) => c.id === id);
   }
   const words = normalize(q).split(/\s+/).filter(Boolean);
-  return catalog.filter((c) =>
+  return ordered.filter((c) =>
     words.every((word) => normalize(c.name).includes(word)),
   );
 }

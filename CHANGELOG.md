@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.0.3 — 2026-11-13
+
+- Order the species grid and search results by the National Pokédex number already shown on each card, rather than alphabetically.
+
 ## 2.0.2 — 2026-11-13
 
 - Start creation with a visible inline species picker: every species in the game's supported catalog, images, search by name or number and a direct way to change the selection.

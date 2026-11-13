@@ -67,3 +67,5 @@ Creation opens the visible Choose Pokémon inline grid automatically. It uses al
 Executed: frontend build and nine helper checks passed; backend40HTTP+32sprite checks passed. Independent static review found no blocker. Root CUA default1280×720 and390×1000 verified364 tiles, search Eevee and #025, Enter selection, touch selection and changing species while level22 remained. Only5–9 picker images were instantiated near the viewport rather than364 network requests. Narrow content width375 fit390; targets95×108. Synthetic fixture hash stayed unchanged; no write action was clicked. Viewport reset, QA tab/host closed. Existing main-workspace motion evidence applies; no intermediate frame of the new picker effect was captured.
 
 Captures: [desktop picker](../../screenshots/web/species-picker-2.0.2.jpg), [narrow picker](../../screenshots/web/species-picker-2.0.2-narrow.jpg). Synthetic data only.
+
+2.0.3: species grid/search now use a copied array sorted by National Pokédex ID (the number printed on cards). Four focused shuffled-input/filter/non-mutation checks and frontend build passed. Layout/controls are unchanged.

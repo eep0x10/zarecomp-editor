@@ -106,7 +106,7 @@ public sealed class WorkbenchHost : IAsyncDisposable
     {
         // All Engine calls stay synchronous within this gate. Its path mutex must be released on its owning thread.
         T Locked<T>(Func<T> action) { lock (store.Gate) return action(); }
-        host.MapGet("/api/v1/bootstrap", () => Locked(() => new { version = "2.0.2", locales = new[] { "pt-BR", "en", "es" }, preferences = store.Preferences, initialPath = options.InitialPath ?? (File.Exists(store.Preferences.LastSavePath) ? store.Preferences.LastSavePath : null) }));
+        host.MapGet("/api/v1/bootstrap", () => Locked(() => new { version = "2.0.3", locales = new[] { "pt-BR", "en", "es" }, preferences = store.Preferences, initialPath = options.InitialPath ?? (File.Exists(store.Preferences.LastSavePath) ? store.Preferences.LastSavePath : null) }));
         host.MapPost("/api/v1/discovery", () => Locked(store.Discover));
         host.MapPost("/api/v1/sessions", (OpenRequest r) => Locked(() => store.Open(r)));
         host.MapGet("/api/v1/sessions/{id}", (string id) => Locked(() => store.Snapshot(store.Get(id))));
