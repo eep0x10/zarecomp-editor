@@ -84,31 +84,72 @@ export async function api<T>(
 }
 export const sprite = (species: number, form = 0, shiny = false) =>
   `/api/v1/sprites/${species}/${form}/${shiny ? "shiny" : "normal"}`;
-// Images cannot attach bearer headers. Fetch them using the same authenticated client instead.
+// Shared authenticated image requests are cached only after a real decoded image.
 const images = new Map<string, Promise<string>>();
+const spriteListeners = new Map<string, Set<(url: string) => void>>();
+export function subscribeSprite(
+  species: number,
+  form: number,
+  shiny: boolean,
+  listener: (url: string) => void,
+) {
+  const key = sprite(species, form, shiny);
+  let listeners = spriteListeners.get(key);
+  if (!listeners) spriteListeners.set(key, (listeners = new Set()));
+  listeners.add(listener);
+  return () => {
+    listeners.delete(listener);
+    if (!listeners.size) spriteListeners.delete(key);
+  };
+}
+export function invalidateSprite(species: number, form = 0, shiny = false) {
+  const key = sprite(species, form, shiny);
+  const entry = images.get(key);
+  images.delete(key);
+  entry?.then((url) => URL.revokeObjectURL(url)).catch(() => {});
+}
 export function spriteUrl(
   species: number,
   form = 0,
   shiny = false,
 ): Promise<string> {
   const key = sprite(species, form, shiny);
-  if (!images.has(key))
-    images.set(
-      key,
-      fetch(key, { headers: { Authorization: "Bearer " + token } })
-        .then((r) => {
-          if (!r.ok) throw new Error("Sprite unavailable");
-          return r.blob();
-        })
-        .then(URL.createObjectURL)
-        .catch(() => ""),
-    );
-  return images.get(key)!;
+  const cached = images.get(key);
+  if (cached) return cached;
+  const request = fetch(key, {
+    headers: token ? { Authorization: "Bearer " + token } : {},
+    cache: "no-store",
+  }).then(async (response) => {
+    if (!response.ok) throw new Error("Sprite unavailable");
+    const url = URL.createObjectURL(await response.blob());
+    try {
+      const decoded = new Image();
+      decoded.src = url;
+      await decoded.decode();
+      if (decoded.naturalWidth <= 1 || decoded.naturalHeight <= 1)
+        throw new Error("Empty sprite");
+      return url;
+    } catch (e) {
+      URL.revokeObjectURL(url);
+      throw e;
+    }
+  });
+  images.set(key, request);
+  request.then(
+    (url) => {
+      if (images.get(key) === request)
+        spriteListeners.get(key)?.forEach((listener) => listener(url));
+    },
+    () => {
+      if (images.get(key) === request) images.delete(key);
+    },
+  );
+  return request;
 }
-window.addEventListener("pagehide", () => {
-  images.forEach(async (p) => {
-    const url = await p;
-    if (url) URL.revokeObjectURL(url);
+window.addEventListener("pagehide", (event) => {
+  if (event.persisted) return;
+  images.forEach((p) => {
+    p.then((url) => URL.revokeObjectURL(url)).catch(() => {});
   });
   images.clear();
 });

@@ -24,6 +24,7 @@ Cierra ZA Recomp. Busca una partida o escribe la ruta absoluta de su archivo **m
 Selecciona un Pokémon del equipo o de una caja; el editor aparece a la derecha. Cambiar de selección conserva los borradores. **Perfil, Atributos, Movimientos, Origen y Avanzado** permanecen en el mismo panel:
 
 - Identidad, forma persistente, apodo, género, nivel, naturaleza original/menta, tipo variocolor, Poké Ball, objeto y favorito.
+- Las 25 bolas seleccionables incluyen imágenes locales; las naturalezas muestran qué estadística sube y baja, o su efecto neutro.
 - IVs, EVs, Hyper Training, amistad y marcas; IV0–31, EV hasta252 por estadística y510 en total.
 - Cuatro movimientos y registros Plus; PP e historial de reaprendizaje son de solo lectura.
 - Entrenador original, identificadores, idioma y datos del encuentro/obediencia.
@@ -32,6 +33,8 @@ Selecciona un Pokémon del equipo o de una caja; el editor aparece a la derecha.
 **Guardar con copia** valida y escribe los borradores del equipo y cajas en una transacción. **Descartar borradores** abandona los cambios pendientes mediante confirmación integrada. Guarda antes de recargar o cerrar la pestaña; los borradores no se escriben automáticamente.
 
 Marcar **Alfa** fija Escala255 y completa al menos tres IVs31 sin reducir los demás IVs. El encuentro original debe ser compatible. Los tamaños predefinidos sincronizan los escalares nativos/HOME; los botones IV31/0 eliminan Hyper Training.
+
+![Bolas con imágenes y efectos de naturaleza — guardado de demostración](docs/screenshots/web/controls-2.0.1-desktop.jpg)
 
 ## Añadir Pokémon personalizado
 

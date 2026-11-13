@@ -398,6 +398,7 @@ export function SecondaryFields({
             <button
               key={n}
               onClick={() => scale(n)}
+              disabled={!!values.isAlpha}
               aria-pressed={Number(v("scale", 128)) === n}
               title={t(["Minimum", "Small", "Average", "Large", "Maximum"][i])}
             >

@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.0.1 — 2026-11-13
+
+- Show an individual image for every selectable capture ball in an inline, keyboard-accessible chooser.
+- Display each original/Mint nature's increased and decreased stats, including neutral natures.
+- Simplify Alpha into one control that adjusts dependent size/IV values and previews compatibility without writing or replacing encounter history.
+- Correct form artwork resolution and prevent failed sprite requests from becoming enlarged black pixels or permanently cached failures.
+
 ## 2.0.0 — 2026-11-13
 
 - Replace the primary WinForms workflow with a portable EXE launching a single local-browser workspace: party, 30-slot boxes, inline creation and detailed inspector.

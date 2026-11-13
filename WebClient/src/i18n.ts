@@ -1,5 +1,34 @@
 export type Locale = "pt-BR" | "en" | "es";
 const words: Record<string, [string, string]> = {
+  "Neutral: no stat changes (0%)": [
+    "Neutra: sem mudanças (0%)",
+    "Neutra: sin cambios (0%)",
+  ],
+  "Alpha Pokémon": ["Pokémon Alpha", "Pokémon Alfa"],
+  "Automatically sets maximum size and at least 3 perfect IVs. Encounter compatibility is checked without saving.":
+    [
+      "Ajusta automaticamente tamanho máximo e ao menos 3 IVs perfeitos. Confere o encontro sem salvar.",
+      "Ajusta automáticamente el tamaño máximo y al menos 3 IVs perfectos. Comprueba el encuentro sin guardar.",
+    ],
+  "Alpha disabled. Size and IVs are kept in the draft.": [
+    "Alpha desativado. Tamanho e IVs são mantidos no rascunho.",
+    "Alfa desactivado. El tamaño y los IVs se conservan en el borrador.",
+  ],
+  "Alpha prepared in the draft. No save was changed.": [
+    "Alpha preparado no rascunho. Nenhum save foi alterado.",
+    "Alfa preparado en el borrador. No se modificó el guardado.",
+  ],
+  "Alpha prepared in the draft; the report still has legality findings. No save was changed.":
+    [
+      "Alpha preparado no rascunho; o relatório ainda aponta pendências de legalidade. Nenhum save foi alterado.",
+      "Alfa preparado en el borrador; el informe aún señala problemas de legalidad. No se modificó el guardado.",
+    ],
+  "This encounter cannot become Alpha. To create a valid Alpha, use Add Pokémon. The draft is kept; you can turn Alpha off.":
+    [
+      "Este encontro não permite Alpha. Para criar um Alpha válido, use Adicionar Pokémon. O rascunho foi mantido; você pode desativar Alpha.",
+      "Este encuentro no permite Alfa. Para crear un Alfa válido, usa Añadir Pokémon. Se conserva el borrador; puedes desactivar Alfa.",
+    ],
+
   "Nature suggestions added to drafts.": [
     "sugestões de natureza adicionadas aos rascunhos.",
     "sugerencias de naturaleza añadidas a los borradores.",

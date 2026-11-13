@@ -26,6 +26,8 @@ import {
   api,
   ApiError,
   spriteUrl,
+  subscribeSprite,
+  invalidateSprite,
   type Choice,
   type Pokemon,
   type Patch,
@@ -37,6 +39,7 @@ import { translate, type Locale } from "./i18n";
 import "./style.css";
 import { SecondaryFields } from "./EditorFields";
 import { localizeError } from "./errors";
+import { BallPicker, NatureChoice } from "./PokemonChoices";
 const stats = ["HP", "Attack", "Defense", "Speed", "Sp. Atk", "Sp. Def"];
 const initial: Patch = {
   species: 4,
@@ -62,22 +65,60 @@ function Sprite({
   shiny?: boolean;
   className?: string;
 }) {
-  const [url, setUrl] = useState("");
+  const [url, setUrl] = useState(""),
+    [failed, setFailed] = useState(false);
   useEffect(() => {
-    let live = true;
+    let live = true,
+      timer: ReturnType<typeof setTimeout> | undefined,
+      attempt = 0;
     setUrl("");
-    spriteUrl(species, form, shiny).then((value) => {
-      if (live) setUrl(value);
-    });
+    setFailed(false);
+    const receive = (value: string) => {
+      if (!live) return;
+      if (timer) clearTimeout(timer);
+      timer = undefined;
+      setUrl(value);
+      setFailed(false);
+    };
+    const unsubscribe = subscribeSprite(species, form, shiny, receive);
+    const load = () =>
+      spriteUrl(species, form, shiny)
+        .then(receive)
+        .catch(() => {
+          if (!live) return;
+          if (attempt++ === 0) timer = setTimeout(load, 1200);
+          else setFailed(true);
+        });
+    const reconnect = () => {
+      if (timer) clearTimeout(timer);
+      attempt = 0;
+      void load();
+    };
+    window.addEventListener("online", reconnect);
+    void load();
     return () => {
       live = false;
+      if (timer) clearTimeout(timer);
+      unsubscribe();
+      window.removeEventListener("online", reconnect);
     };
   }, [species, form, shiny]);
   return url ? (
-    <img className={"sprite " + className} src={url} alt="" draggable={false} />
+    <img
+      className={"sprite " + className}
+      src={url}
+      alt=""
+      draggable={false}
+      onError={() => {
+        invalidateSprite(species, form, shiny);
+        setUrl("");
+        setFailed(true);
+      }}
+    />
   ) : (
     <span className={"sprite sprite-fallback " + className} aria-hidden="true">
-      ◓
+      <span>#{String(species).padStart(4, "0")}</span>
+      <small>{failed ? "—" : "…"}</small>
     </span>
   );
 }
@@ -425,11 +466,22 @@ function App() {
     setSelection({ party, slot });
     if (matchMedia("(max-width: 900px)").matches) setBoxesOpen(false);
   }
+  function clearValidationContext() {
+    revision.current++;
+    validationRequest.current?.abort();
+    setValidating(false);
+    setPreview(null);
+  }
+  function cancelCreation() {
+    clearValidationContext();
+    setCreating(false);
+  }
   function beginAdd() {
     if (draftCount) {
       setError(t("Resolve pending drafts before adding."));
       return;
     }
+    clearValidationContext();
     setNewPatch({ ...initial });
     setCreating(true);
     setTab("Profile");
@@ -438,9 +490,10 @@ function App() {
     setDestination("Auto");
     setPreferredBox(-1);
   }
-  function alpha(enabled: boolean) {
+  async function alpha(enabled: boolean) {
     if (!enabled) {
       update({ isAlpha: false });
+      setMessage(t("Alpha disabled. Size and IVs are kept in the draft."));
       return;
     }
     const ivs = [...(val("iVs", [31, 31, 31, 31, 31, 31]) as number[])];
@@ -463,16 +516,66 @@ function App() {
     });
     const home =
       !!details && String(details.readOnly.tracker) !== "0" && !creating;
-    update({
+    const changes: Patch = {
       isAlpha: true,
       scale: 255,
       heightScalar: home ? 255 : 0,
       weightScalar: home ? 255 : 0,
       iVs: ivs,
       hyperTrained: hyper,
-    });
+    };
+    update(changes);
     setMotion((n) => n + 1);
+    if (!session) return;
+    const candidate = { ...patch, ...changes };
+    const ac = new AbortController();
+    validationRequest.current = ac;
+    const expectedRevision = revision.current;
+    setValidating(true);
+    try {
+      const result = await api<Details>(
+        `/sessions/${session.id}/${creating ? "preview-add" : "preview"}`,
+        creating
+          ? {
+              expectedHash: session.hash,
+              options: { ...options(), details: { ...newPatch, ...changes } },
+            }
+          : {
+              expectedHash: session.hash,
+              party: selection?.party,
+              slot: selection?.slot,
+              patch: candidate,
+            },
+        ac.signal,
+      );
+      if (expectedRevision !== revision.current) return;
+      setPreview(result);
+      setMessage(
+        t(
+          result.legal
+            ? "Alpha prepared in the draft. No save was changed."
+            : "Alpha prepared in the draft; the report still has legality findings. No save was changed.",
+        ),
+      );
+    } catch (e) {
+      if (expectedRevision !== revision.current || ac.signal.aborted) return;
+      if (
+        !creating &&
+        e instanceof ApiError &&
+        (e.code.includes("alpha") || e.message.startsWith("IsAlpha:"))
+      ) {
+        setError(
+          t(
+            "This encounter cannot become Alpha. To create a valid Alpha, use Add Pokémon. The draft is kept; you can turn Alpha off.",
+          ),
+        );
+        setMessage("");
+      } else fail(e);
+    } finally {
+      if (expectedRevision === revision.current) setValidating(false);
+    }
   }
+
   function scale(n: number) {
     const home =
       !!details && String(details.readOnly.tracker) !== "0" && !creating;
@@ -553,6 +656,7 @@ function App() {
       setError(t("Resolve pending drafts before adding."));
       return;
     }
+    clearValidationContext();
     operation.current = true;
     setBusy("Saving…");
     setError("");
@@ -1136,7 +1240,7 @@ function App() {
                     <button
                       className="icon-button"
                       aria-label={t("Cancel creation")}
-                      onClick={() => setCreating(false)}
+                      onClick={cancelCreation}
                     >
                       <X size={18} />
                     </button>
@@ -1224,20 +1328,20 @@ function App() {
                       </label>
                     </div>
                     {number("level", "Level", 1, 100, 10)}
-                    {choices(
-                      "nature",
-                      "Nature",
-                      catalogs.natures || [],
-                      15,
-                      true,
-                    )}
-                    {choices(
-                      "statNature",
-                      "Mint",
-                      catalogs.natures || [],
-                      num("nature", 15),
-                      true,
-                    )}
+                    <NatureChoice
+                      label="Nature"
+                      value={num("nature", 15)}
+                      choices={catalogs.natures || []}
+                      onChange={(n) => set("nature", n)}
+                      t={t}
+                    />
+                    <NatureChoice
+                      label="Mint"
+                      value={num("statNature", num("nature", 15))}
+                      choices={catalogs.natures || []}
+                      onChange={(n) => set("statNature", n)}
+                      t={t}
+                    />
                     {creating && (
                       <button
                         className="mint-auto auto-button"
@@ -1258,7 +1362,12 @@ function App() {
                         · {t("Mint")}
                       </button>
                     )}
-                    {choices("ball", "Ball", catalogs.balls || [], 4)}
+                    <BallPicker
+                      value={num("ball", 4)}
+                      choices={catalogs.balls || []}
+                      onChange={(n) => set("ball", n)}
+                      locale={locale}
+                    />
                   </div>
                 </div>
                 <div className="nickname-row">
@@ -1517,7 +1626,9 @@ function App() {
                       </label>
                       <small>
                         <Info size={14} />
-                        {t("Alpha requires a compatible encounter.")}
+                        {t(
+                          "Automatically sets maximum size and at least 3 perfect IVs. Encounter compatibility is checked without saving.",
+                        )}
                       </small>
                     </div>
                     <div className="size-control">
@@ -1528,6 +1639,7 @@ function App() {
                           type="number"
                           min={0}
                           max={255}
+                          disabled={!!val("isAlpha", false)}
                           value={num("scale", 128)}
                           onChange={(e) => scale(Number(e.target.value))}
                         />
@@ -1537,6 +1649,7 @@ function App() {
                         type="range"
                         min={0}
                         max={255}
+                        disabled={!!val("isAlpha", false)}
                         value={num("scale", 128)}
                         onChange={(e) => scale(Number(e.target.value))}
                       />

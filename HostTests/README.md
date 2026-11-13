@@ -23,3 +23,11 @@ dotnet run --project HostTests/HostTests.csproj --artifacts-path HostTests/bin/i
 ```
 
 Frontend builds must finish before any host build starts because generated hashed assets are embedded during compilation. Run the harness on Windows; its ACL and launcher-contract checks intentionally target the shipped Windows product.
+
+Sprite-specific checks (no save input required):
+
+```powershell
+dotnet run --project HostTests/HostTests.csproj -- --sprites
+```
+
+This deterministic mode uses generated PNGs and mock HTTP to check all 20 Vivillon patterns, normal/shiny identity, fallback, offline cache and corrupt/blank images. Optional `--sprites-live` adds real PokéAPI retrieval probes and reports unavailable samples explicitly. See [sprite review](../WebHost/SPRITE-REVIEW.md) for executed evidence and limits.

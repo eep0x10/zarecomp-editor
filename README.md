@@ -43,7 +43,9 @@ Your six-slot party stays on the left, a 30-slot box occupies the centre, and th
 
 All edit controls update a **draft**, not the file. **Save with backup** validates and commits the pending party/box edits together. **Discard drafts** abandons pending edits; confirmation and recovery stay inline. Keep the workbench open while editing and save before reloading or closing the browser.
 
-Size presets synchronize native Z-A/HOME scalars. The all-31/all-0 IV presets clear Hyper Training. Marking Alpha sets Scale 255 and raises enough IVs to reach at least three perfect stats without reducing the other IVs. Encounter constraints still apply; changing a flag does not replace an existing Pokémon's history.
+All 25 selectable capture balls have bundled item images. Original and Mint nature controls show the increased/decreased stat or a neutral effect. Size presets synchronize native Z-A/HOME scalars. The all-31/all-0 IV presets clear Hyper Training. Marking Alpha sets Scale 255 and raises enough IVs to reach at least three perfect stats without reducing the other IVs. Encounter constraints still apply; changing a flag does not replace an existing Pokémon's history.
+
+![Capture-ball images and nature effects — synthetic save](docs/screenshots/web/controls-2.0.1-desktop.jpg)
 
 ## Add a custom Pokémon
 

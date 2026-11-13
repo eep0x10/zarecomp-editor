@@ -41,3 +41,21 @@ Built-in ImageGen produced `WebClient/public/assets/laboratory-night.png` (dark 
 Final captures: [desktop](../../screenshots/web/workbench-desktop.jpg), [creation](../../screenshots/web/workbench-add.jpg), [moves](../../screenshots/web/workbench-moves.jpg), [origin](../../screenshots/web/workbench-origin.jpg), [narrow](../../screenshots/web/workbench-narrow.jpg). All use synthetic data. Initial failed checkpoint images are historical evidence, not release screenshots.
 
 Portable EXE/archive/download/CI verification is the final packaging step, recorded with the release. No actual-game or personal-save mutation was performed. Engine crash/power-loss injection, actual in-flight disconnect and uncooperative external-writer races were not fault-injected; see host limits.
+
+## 2.0.1 — focused controls and artwork refinement
+
+The approved workspace composition is retained. Capture balls use one inline listbox with roving keyboard focus, 25 bundled item PNGs and separate focused/selected states. Opening uses a scoped Anime.js opacity/translation effect (160ms); reduced motion skips movement, cleanup reverts the scope. Nature and Mint labels disclose ±10% stats or neutral 0%. Alpha prepares dependent size/IV values and immediately requests a non-writing preview; it preserves original encounter history and explains incompatible encounters inline.
+
+Executed on a separate synthetic fixture:
+
+- 67 Engine detailed checks passed. Backend owner reports 32 deterministic sprite checks, 24 live exact-form/variant checks and 39 generated-save HTTP checks; see WebHost/SPRITE-REVIEW.md.
+- Browser at default 1280×720: all 25 ball PNGs decoded at 30×30; keyboard End moved focus to Beast Ball without changing Poké Ball, Escape closed and restored focus. Hardy displayed neutral 0%; Modest displayed +10% Sp. Atk/−10% Attack. The increased/decreased values remain visible outside the native select.
+- One-click Alpha preview on normal Ivysaur succeeded. Luxury Ball, Modest original nature, Timid Mint and Alpha were saved with a backup and reopened after F5. An independent API read confirmed legal=true, Scale255, IVs31/12/3/5/31/31, nature15, statNature10 and ball11.
+- Incompatible Charmander10 Alpha displayed the specific encounter guidance and retained the draft. Turning it off restored size editing; discarding stayed inline. No personal save was used.
+- At390×1000, content width375 did not overflow. Ball targets were approximately68×70. Touch selection of Beast Ball worked; Spanish showed localized stat effects while English nature/ball names stayed intact. The temporary viewport and media overrides were restored.
+- Vivillon form0 rendered as Icy Snow at475px in both box and inspector. A blocked image request produced an explicit #0666 unavailable state, with no scaled tiny image. This test exposed a mounted-consumer recovery gap; the final correction/retest is recorded below.
+- The ball-opening interaction reached its final state with normal motion and reduced-motion settings; no intermediate frame of the new 160ms effect was captured. Source integration/cleanup was independently reviewed. Earlier general workspace animation evidence remains above.
+
+Screenshots use synthetic data: [desktop controls](../../screenshots/web/controls-2.0.1-desktop.jpg), [390px controls](../../screenshots/web/controls-2.0.1-narrow.jpg).
+
+Final recovery retest passed on bundle index-D7aDvq8y.js: with the Vivillon route blocked after reload, both mounted views reached #0666 unavailable; after unblocking and reselecting, box and inspector both decoded475px without F5. Rapid selection ended on Vivillon, all25 ball PNGs decoded and no broken sprite images remained. Shared subscriptions are keyed by species/form/shiny and cleaned on unmount. Final screenshots above were recaptured from this build. Network/media/viewport overrides were restored and the QA tab/host closed.

@@ -18,14 +18,14 @@ internal static class ApiDocs
         ("post", "/api/v1/sessions/{id}/add", "Commit {expectedHash,operationId,options} with backup"),
         ("get", "/api/v1/catalogs", "Catalog choice arrays"),
         ("get", "/api/v1/catalogs/species/{species}/forms/{form}", "Forms, genders, stats and Plus moves"),
-        ("get", "/api/v1/sprites/{species}/{form}/{variant}", "PNG artwork or offline fallback; variant normal or shiny"),
+        ("get", "/api/v1/sprites/{species}/{form}/{variant}", "Exact-form PNG artwork; variant normal or shiny. 404 sprite_unavailable when absent/offline; no generic image substitution."),
         ("put", "/api/v1/preferences", "Save {lastSavePath,language}"),
         ("post", "/api/v1/heartbeat", "Keep launcher active"),
         ("post", "/api/v1/shutdown", "Drain writes and exit")
     ];
     internal static object Document() => new
     {
-        openapi = "3.1.0", info = new { title = "Recomp Pokémon local API", version = "2.0.0" },
+        openapi = "3.1.0", info = new { title = "Recomp Pokémon local API", version = "2.0.1" },
         security = new[] { new Dictionary<string, string[]> { ["bearerAuth"] = [] } },
         components = new { securitySchemes = new { bearerAuth = new { type = "http", scheme = "bearer" } }, schemas = Schemas() },
         paths = Routes.GroupBy(r => r.Path).ToDictionary(g => g.Key, g => g.ToDictionary(r => r.Method, r => (object)new

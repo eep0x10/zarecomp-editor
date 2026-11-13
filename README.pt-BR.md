@@ -26,6 +26,7 @@ Feche o ZA Recomp. No seletor de save, use a busca ou informe o caminho completo
 A equipe fica à esquerda, a box com 30 posições no centro e o editor à direita. Selecione um Pokémon e altere os campos; trocar a seleção mantém os rascunhos. As seções **Perfil, Atributos, Golpes, Origem e Avançado** ficam no mesmo painel.
 
 - **Perfil:** espécie/forma persistente, apelido, gênero, nível, natureza original/Mint, estilo shiny, Pokébola, item e favorito.
+- **Escolhas visuais:** as 25 Pokébolas têm imagens locais; cada natureza mostra o atributo que aumenta e diminui, ou indica efeito neutro.
 - **Atributos:** IVs, EVs, Hyper Training, amizade e marcações. IVs 0–31; EVs até 252 por atributo e 510 no total.
 - **Golpes:** quatro posições e registros Plus; PP e histórico são somente leitura.
 - **Origem:** treinador, IDs brutos, idioma, local/nível/data de encontro e obediência.
@@ -34,6 +35,8 @@ A equipe fica à esquerda, a box com 30 posições no centro e o editor à direi
 **Salvar com backup** valida e grava os rascunhos da equipe e das boxes em uma operação. **Descartar rascunhos** abandona as alterações pendentes, com confirmação inline. Salve antes de atualizar ou fechar a aba: rascunhos não são arquivos gravados automaticamente.
 
 Marcar **Alpha** ajusta Escala para 255 e completa pelo menos três IVs 31, preservando os demais IVs. O encontro original precisa ser compatível. Presets de tamanho sincronizam os escalares nativos/HOME; os botões de IVs 31/0 removem Hyper Training.
+
+![Pokébolas com imagens e efeitos de natureza — save de demonstração](docs/screenshots/web/controls-2.0.1-desktop.jpg)
 
 ## Adicionar Pokémon personalizado
 

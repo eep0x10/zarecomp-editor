@@ -1,5 +1,7 @@
 # Local host verification — 2026-11-13
 
+**2.0.1 follow-up:** sprite resolution and cache behavior below were superseded by the [sprite review](SPRITE-REVIEW.md). Exact artwork now returns an explicit 404 when unavailable, never a 1×1 placeholder. The generated HTTP harness passed all 39 checks again; sprite suites added 32 deterministic and 24 live retrieval checks.
+
 Implemented host version 2.0.0 in `RecompPokemon.WebHost.csproj`, AssemblyName `RecompPokemon`, .NET 10 Windows WinExe. Engine and existing WinForms application files were not changed. Frontend build owns `wwwroot`; host embeds its generated files. No release publication was performed.
 
 ## Executed evidence

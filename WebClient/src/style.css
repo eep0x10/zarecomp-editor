@@ -2118,3 +2118,147 @@ a {
     align-items: center;
   }
 }
+
+.quick-fields > .nature-field {
+  row-gap: 3px;
+}
+.nature-field > label {
+  font-size: 12px;
+}
+.nature-field select {
+  width: 100%;
+  min-width: 0;
+}
+.nature-effect {
+  grid-column: 2;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px 8px;
+  font-size: 10px;
+  line-height: 1.4;
+  color: var(--muted);
+}
+.nature-up {
+  color: #90e3b9;
+}
+.nature-down {
+  color: #ffaf9e;
+}
+.quick-fields > .ball-field {
+  row-gap: 7px;
+}
+.ball-current {
+  min-width: 0;
+  width: 100%;
+  justify-content: flex-start;
+  padding: 2px 7px;
+  font-size: 12px;
+  min-height: 36px;
+}
+.ball-current > span {
+  flex: 1;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ball-current img,
+.ball-options img {
+  object-fit: contain;
+  image-rendering: pixelated;
+  flex-shrink: 0;
+}
+.ball-options {
+  grid-column: 1/-1;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 5px;
+  padding: 7px;
+  border: 1px solid var(--edge);
+  border-radius: 9px;
+  background: #101c27dd;
+}
+.ball-options button {
+  display: flex;
+  position: relative;
+  flex-direction: column;
+  gap: 3px;
+  padding: 5px 3px;
+  min-width: 0;
+  min-height: 65px;
+  font-size: 10px;
+  text-align: center;
+  line-height: 1.3;
+}
+.ball-options button[aria-selected="true"] {
+  border-color: var(--amber);
+  color: var(--amber);
+}
+.ball-options button > svg {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+}
+.ball-options button > span {
+  overflow-wrap: anywhere;
+}
+.sprite-fallback {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 13px !important;
+  color: #d1dce5 !important;
+  background: linear-gradient(145deg, #ffffff0a, #ffffff02);
+  border-radius: 8px;
+}
+.sprite-fallback small {
+  font-size: 11px;
+}
+.preview-art .sprite-fallback {
+  font-size: 22px !important;
+}
+.alpha-control > label {
+  flex-wrap: wrap;
+}
+.alpha-control > label strong {
+  font-size: 12px;
+}
+.alpha-control > small {
+  line-height: 1.5;
+}
+.size-control input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+@media (max-width: 900px) {
+  .ball-current {
+    min-height: 44px;
+  }
+  .ball-options button {
+    min-height: 70px;
+    font-size: 10px;
+  }
+  .nature-field > label {
+    font-size: 11px;
+  }
+  .nature-effect {
+    font-size: 10px;
+    grid-column: 1/-1;
+    justify-content: flex-end;
+  }
+  .nature-field select {
+    min-height: 44px;
+  }
+  .party-card .sprite-fallback {
+    font-size: 10px !important;
+  }
+  .box-card .sprite-fallback {
+    font-size: 10px !important;
+  }
+  .alpha-control > label {
+    gap: 5px;
+  }
+  .alpha-control > label strong {
+    font-size: 11px;
+  }
+}
