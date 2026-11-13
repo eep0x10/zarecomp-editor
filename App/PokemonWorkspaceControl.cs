@@ -8,7 +8,7 @@ internal sealed class PokemonWorkspaceControl : UserControl
     private readonly Label teamHeading = Label("", 11, true), boxHeading = Label("", 11, true), title = Label("", 18, true), info = Label("", 10), reason = Label("", 10), pending = Label("", 10);
     private readonly ComboBox boxSelector = new() { Dock = DockStyle.Fill, DropDownStyle = ComboBoxStyle.DropDownList };
     private readonly Button optimize = new DarkButton() { AutoSize = false, Height = 36, Dock = DockStyle.Top, Font = new Font("Segoe UI", 9) };
-    private readonly Button editDetails = new DarkButton() { Height = 34, Dock = DockStyle.Top };
+    private readonly Button editDetails = new DarkButton() { Height = 54, Dock = DockStyle.Top };
     private readonly NumericUpDown level = new() { Minimum = 1, Maximum = 100, Dock = DockStyle.Fill };
     private readonly ComboBox nature = new() { Dock = DockStyle.Fill, DropDownStyle = ComboBoxStyle.DropDownList };
     private readonly CheckBox shiny = new() { AutoSize = true, Text = "★ Shiny" };
@@ -76,7 +76,7 @@ internal sealed class PokemonWorkspaceControl : UserControl
     public void ApplyLanguage()
     {
         teamHeading.Text = L.T("Your team"); boxHeading.Text = L.T("Boxes"); optimize.Text = L.T("Optimize team"); levelCaption.Text = L.T("Level"); natureCaption.Text = L.T("Nature"); recommendationCaption.Text = L.T("Recommendation"); shiny.Text = "★ " + L.T("Shiny");
-        level.AccessibleName = L.T("Level"); nature.AccessibleName = L.T("Nature"); boxSelector.AccessibleName = L.T("Box"); editDetails.Text = L.T("Edit details");
+        level.AccessibleName = L.T("Level"); nature.AccessibleName = L.T("Nature"); boxSelector.AccessibleName = L.T("Box"); editDetails.Text = L.T("Edit details") + "\n" + L.T("Poké Ball") + " · " + L.T("Size") + " · IVs · " + L.T("Alpha");
         filling = true; int old = boxSelector.SelectedIndex; for (int i = 0; i < boxSelector.Items.Count; i++) boxSelector.Items[i] = $"{L.T("Box")} {i + 1}"; boxSelector.SelectedIndex = old;
         nature.DataSource = Catalog.Natures.Select(x => new Choice(x.Id, L.Nature(x.Id))).ToArray(); filling = false;
         foreach (int slot in recommendations.Keys.ToArray()) if (originals.ContainsKey((true, slot))) recommendations[slot] = NatureAdvisor.Suggest(DisplayPokemon((true, slot)), L.Language).Reason;

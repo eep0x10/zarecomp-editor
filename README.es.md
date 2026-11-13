@@ -20,6 +20,8 @@ Las capturas muestran la aplicación real usando una partida sintética de demos
 
 ## Edita un Pokémon existente
 
+Los accesos **Poké Ball**, **IVs**, **Tamaño** y **Alpha** llevan a sus controles. Hay tamaños predefinidos y botones de IVs 31 o 0 que eliminan Hyper Training. **Definir como Alpha** ajusta la escala a 255 y completa al menos tres IVs 31; los datos del encuentro siguen sujetos a validación.
+
 1. Selecciona un Pokémon del equipo o una caja. Usa los controles rápidos o abre **Editar detalles**.
 2. Revisa las cinco pestañas y pulsa **Aplicar al borrador**. Esto **no** escribe la partida. **Cancelar** mantiene intacto el borrador anterior.
 3. Revisa los borradores y pulsa **Guardar cambios** para validar y escribir el lote completo con copia de seguridad. **Descartar borradores** abandona los cambios pendientes.
@@ -78,6 +80,12 @@ Activa solo los IVs, EVs, Hyper Training u otras opciones que quieras definir. U
 La interfaz cambia entre PT-BR, inglés y español sin perder borradores; el catálogo y los informes PKHeX siguen en inglés. Tema oscuro con Acrylic solicitado a Windows compatible y superficies opacas como alternativa.
 
 Consulta la [guía detallada](docs/EDITING.md#español) para campos y límites. No hay editor hexadecimal, creación de huevos ni conversión de otros juegos.
+
+## Crear un Alfa
+
+En **Añadir Pokémon**, usa **Alfa**, activa el campo opcional y marca **Definir como Alfa**. Elige una especie/forma y nivel compatibles (Charmander necesita nivel 25 o superior).
+
+![Añadir un Alfa con tamaño ajustado automáticamente](docs/screenshots/add-alpha.png)
 
 ## Optimize y límites
 

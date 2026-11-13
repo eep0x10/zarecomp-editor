@@ -67,7 +67,7 @@ internal sealed class PokemonDetailsEditor : UserControl
         Note(origin, "Origin and trainer values affect identity and encounter legality. Backups do not guarantee online compatibility.");
 
         var advanced = Page("Advanced");
-        Toggle(advanced, "IsAlpha", "Alpha"); Note(advanced, "Alpha has encounter and size constraints. A changed flag alone does not create a valid Alpha encounter.");
+        Toggle(advanced, "IsAlpha", "Alpha"); Note(advanced, "Marking Alpha sets size to 255 and raises at least three IVs to 31. Encounter legality is still validated; unmarking keeps size and IVs.");
         Number(advanced, "HeightScalar", "Height scalar", 0, 255); Number(advanced, "WeightScalar", "Weight scalar", 0, 255); Number(advanced, "Scale", "Scale", 0, 255);
         var ribbons = new[] { new Choice(-1, L.T("None")) }.Concat((details?.ReadOnly.Ribbons ?? []).Select(id => Catalog.Ribbons.FirstOrDefault(x => x.Id == id) ?? new Choice(id, "#" + id))).ToArray();
         Choice(advanced, "AffixedRibbon", "Affixed title", ribbons);
@@ -97,6 +97,109 @@ internal sealed class PokemonDetailsEditor : UserControl
         foreach (var binding in bindings)
             if (binding.Override is { } check) { check.Checked = binding.Property.GetValue(initial) is not null && !PokemonPatchTools.Same(binding.Property.GetValue(initial), binding.Property.GetValue(original)); binding.Control.Enabled = check.Checked; }
         filling = false; UpdateEvs(); DarkTheme.Apply(this); ResumeLayout(true);
+        AddQuickControls(details);
+    }
+
+    private Binding Field(string property) => bindings.Single(x => x.Property.Name == property);
+    private void SetField(string property, object value)
+    {
+        var field = Field(property);
+        if (field.Override is { } check) check.Checked = true;
+        field.Write(value);
+    }
+    private void AddQuickControls(PokemonDetails? details)
+    {
+        // These navigate to the existing controls, so there is only one draft value per field.
+        var shortcuts = new FlowLayoutPanel { Dock = DockStyle.Fill, AutoSize = true, WrapContents = true, Margin = Padding.Empty };
+        foreach (var item in new[] { ("Ball", "Poké Ball"), ("IVs", "IVs"), ("Scale", "Size"), ("IsAlpha", "Alpha") })
+        {
+            var button = new DarkButton { Text = L.T(item.Item2), AutoSize = true, Margin = new Padding(3, 3, 8, 6) };
+            button.Click += (_, _) =>
+            {
+                var field = Field(item.Item1);
+                Control? parent = field.Control;
+                while (parent is not null && parent is not TabPage) parent = parent.Parent;
+                if (parent is TabPage page) tabs.SelectedTab = page;
+                var target = field.Override is { Checked: false } check ? (Control)check : field.Control;
+                if (target.CanSelect) target.Select(); else target.SelectNextControl(null, true, true, true, false);
+            };
+            shortcuts.Controls.Add(button);
+        }
+        // Separate layout rows reserve space for the shortcuts before laying out the tabs.
+        // Docking a new top bar over an existing Fill control can cover its tab headers.
+        var layout = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 2, Margin = Padding.Empty, Padding = Padding.Empty };
+        layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
+        layout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+        layout.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
+        Controls.Remove(tabs);
+        tabs.Margin = Padding.Empty;
+        layout.Controls.Add(shortcuts, 0, 0);
+        layout.Controls.Add(tabs, 0, 1);
+        Controls.Add(layout);
+
+        var size = Field("Scale");
+        var grid = (TableLayoutPanel)size.Control.Parent!;
+        void SynchronizeSize()
+        {
+            if (filling) return;
+            int scale = (int)((NumericUpDown)size.Control).Value;
+            if (size.Override is { } check) check.Checked = true;
+            int stored = details?.ReadOnly.Tracker is > 0 ? scale : 0;
+            SetField("HeightScalar", stored); SetField("WeightScalar", stored);
+        }
+        var sizeHelp = new TableLayoutPanel { Dock = DockStyle.Top, AutoSize = true, ColumnCount = 2 };
+        sizeHelp.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
+        sizeHelp.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 0));
+        var presets = new FlowLayoutPanel { Dock = DockStyle.Top, AutoSize = true, WrapContents = true };
+        foreach (var item in new[] { (0, "Minimum"), (64, "Small"), (128, "Average"), (192, "Large"), (255, "Maximum") })
+        {
+            var button = new DarkButton { Text = $"{L.T(item.Item2)} · {item.Item1}", AutoSize = true };
+            button.Click += (_, _) => { SetField("Scale", item.Item1); SynchronizeSize(); };
+            presets.Controls.Add(button);
+        }
+        // Place presets immediately after Scale, before the read-only technical report.
+        int row = grid.GetRow(size.Control) + 1;
+        grid.RowCount++;
+        grid.RowStyles.Insert(row, new RowStyle(SizeType.AutoSize));
+        foreach (Control control in grid.Controls)
+            if (grid.GetRow(control) >= row) grid.SetRow(control, grid.GetRow(control) + 1);
+        Wide(sizeHelp, presets);
+        Note(sizeHelp, "Size uses Scale (0–255). Presets also synchronize stored height and weight for native Z-A or HOME.");
+        Note(sizeHelp, "Alpha requires maximum size (255) and at least three IVs of 31. Size presets do not change Alpha status.");
+        grid.Controls.Add(sizeHelp, 0, row); grid.SetColumnSpan(sizeHelp, 2);
+        ((NumericUpDown)size.Control).ValueChanged += (_, _) => SynchronizeSize();
+
+        var alpha = (CheckBox)Field("IsAlpha").Control;
+        alpha.Text = L.T("Set as Alpha");
+        alpha.CheckedChanged += (_, _) =>
+        {
+            if (filling || !alpha.Checked) return;
+            SetField("Scale", 255); SynchronizeSize();
+            var ivs = ((int[])Field("IVs").Read()!).ToArray();
+            foreach (int index in Enumerable.Range(0, ivs.Length).OrderByDescending(i => ivs[i]))
+            {
+                if (ivs.Count(x => x == 31) >= 3) break;
+                ivs[index] = 31;
+            }
+            SetField("IVs", ivs);
+            var training = ((bool[])Field("HyperTrained").Read()!).ToArray();
+            bool changed = false;
+            for (int i = 0; i < ivs.Length; i++)
+                if (ivs[i] == 31 && training[i]) { training[i] = false; changed = true; }
+            if (changed) SetField("HyperTrained", training);
+        };
+
+        var iv = Field("IVs");
+        var ivGrid = (TableLayoutPanel)iv.Control.Parent!;
+        var ivPresets = new FlowLayoutPanel { Dock = DockStyle.Top, AutoSize = true, WrapContents = true };
+        foreach (int value in new[] { 31, 0 })
+        {
+            var button = new DarkButton { Text = L.T(value == 31 ? "All IVs 31 (clears Hyper Training)" : "All IVs 0 (clears Hyper Training)"), AutoSize = true };
+            button.Click += (_, _) => { SetField("IVs", Enumerable.Repeat(value, 6).ToArray()); SetField("HyperTrained", new bool[6]); };
+            ivPresets.Controls.Add(button);
+        }
+        Wide(ivGrid, ivPresets);
+        DarkTheme.Apply(this);
     }
 
     internal PokemonPatch ReadPatch()
@@ -112,6 +215,9 @@ internal sealed class PokemonDetailsEditor : UserControl
         if (patch.EVs?.Sum() > 510) throw new InvalidOperationException(L.T("Total EVs cannot exceed 510."));
         if (patch.HyperTrained?.Any(x => x) == true && (patch.Level ?? baseline.Level ?? 1) < 50) throw new InvalidOperationException(L.T("Hyper Training requires level 50."));
         if (patch.StatNature is not null && patch.Nature is null && !adding) patch = patch with { Nature = baseline.Nature };
+        var effective = PokemonPatchTools.Merge(baseline, patch);
+        if ((patch.Scale is not null || patch.IsAlpha is not null || patch.IVs is not null) && effective.IsAlpha == true && (effective.Scale != 255 || effective.IVs?.Count(x => x == 31) < 3))
+            throw new InvalidOperationException(L.T("Alpha requires maximum size (255) and at least three IVs of 31. Size presets do not change Alpha status."));
         return patch;
     }
     private void UpdateForms(int? preferred = null)

@@ -273,8 +273,12 @@ public sealed partial class SaveService
         var species = (ushort)o.Species; var form = (byte)o.Form;
         var blank = new PA9 { Species = species, Form = form };
         var chain = new[] { new EvoCriteria { Species = species, Form = form, LevelMin = 1, LevelMax = (byte)o.Level } };
+        var requestedAlpha = o.Details?.IsAlpha;
         var encounter = EncounterGenerator9a.Instance.GetPossible(blank, chain, GameVersion.ZA, EncounterTypeGroup.Static | EncounterTypeGroup.Slot)
-            .FirstOrDefault(e => e.Species == species && e.Form == form && e.LevelMin <= o.Level && e is IEncounterConvertible);
+            .FirstOrDefault(e => e.Species == species && e.Form == form && e.LevelMin <= o.Level && e is IEncounterConvertible
+                && (requestedAlpha is null || (e is IAlphaReadOnly { IsAlpha: true }) == requestedAlpha.Value));
+        if (requestedAlpha == true && encounter is null)
+            throw new ArgumentException("IsAlpha: não existe encontro Alpha disponível para esta espécie/forma neste nível. Aumente o nível ou escolha outra espécie/forma.");
         var criteria = new EncounterCriteria { Nature = (Nature)o.Nature, Gender = o.Gender < 0 ? Gender.Random : (Gender)o.Gender, Shiny = o.Shiny ? Shiny.Always : Shiny.Never };
         var pk = encounter is IEncounterConvertible converter ? (PA9)converter.ConvertToPKM(save, criteria) : new PA9
         {

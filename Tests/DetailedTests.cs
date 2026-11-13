@@ -108,6 +108,33 @@ internal static class DetailedTests
         var addition=service.Add(path,newOptions,service.Inspect(path).Hash);
         var custom=service.InspectPokemon(path,false,addition.Pokemon.Index);
         Check(custom.Values.Nickname=="Custom"&&custom.Values.IVs!.SequenceEqual(newOptions.Details.IVs!)&&custom.Values.EVs!.SequenceEqual(newOptions.Details.EVs!)&&custom.Values.Shiny==ShinyStyle.Star&&custom.Values.Friendship==200&&custom.Values.Favorite==true,"Add uses same detailed custom patch as preview and edit");
+        var alphaPatch=new PokemonPatch{IsAlpha=true,Scale=255,HeightScalar=0,WeightScalar=0,IVs=[31,31,31,31,31,31],HyperTrained=[false,false,false,false,false,false]};
+        foreach(int alphaSpecies in new[]{4,25,6})
+        {
+            var alphaPreview=service.PreviewNewPokemon(path,new AddOptions{Species=alphaSpecies,Level=100,Destination=Destination.Box,Details=alphaPatch});
+            Check(alphaPreview.Values.IsAlpha==true&&alphaPreview.Values.Scale==255&&alphaPreview.Legal,$"Alpha creation selects compatible encounter for species {alphaSpecies}");
+        }
+        var threeIvAlpha=service.PreviewNewPokemon(path,new AddOptions{Species=4,Level=60,Destination=Destination.Box,Details=alphaPatch with{IVs=[31,31,31,0,0,0]}});
+        Check(threeIvAlpha.Values.IsAlpha==true&&threeIvAlpha.Values.IVs!.Count(x=>x==31)==3&&threeIvAlpha.Legal,"Alpha creation accepts exactly three perfect IVs");
+        var alphaAddition=service.Add(path,new AddOptions{Species=4,Level=100,Destination=Destination.Box,Details=alphaPatch},service.Inspect(path).Hash);
+        var alphaStored=service.InspectPokemon(path,false,alphaAddition.Pokemon.Index);
+        Check(alphaStored.Values.IsAlpha==true&&alphaStored.Values.Scale==255&&alphaStored.Values.IVs!.Count(x=>x==31)>=3&&alphaStored.Legal,"Alpha addition persists valid encounter and size/IV dependencies");
+        var alphaEdit=service.PreviewPokemon(path,false,alphaAddition.Pokemon.Index,new(){IsAlpha=true,Nickname="Alpha"});
+        Check(alphaEdit.Values.IsAlpha==true&&alphaEdit.ReadOnly.EncryptionConstant==alphaStored.ReadOnly.EncryptionConstant&&alphaEdit.Values.MetLocation==alphaStored.Values.MetLocation,"Existing Alpha edit preserves encounter and identity");
+        var nonAlphaAddition=service.Add(path,new AddOptions{Species=2,Level=100,Destination=Destination.Box,Details=new(){IsAlpha=false}},service.Inspect(path).Hash);
+        var nonAlphaStored=service.InspectPokemon(path,false,nonAlphaAddition.Pokemon.Index);
+        Check(nonAlphaStored.Values.IsAlpha==false&&nonAlphaStored.Legal,"Conversion fixture is an existing legal non-Alpha Ivysaur");
+        service.SaveEdits(path,[],[new TeamEdit(nonAlphaAddition.Pokemon.Index){Details=alphaPatch with{IVs=[31,31,31,0,0,0]}}],service.Inspect(path).Hash);
+        var convertedAlpha=service.InspectPokemon(path,false,nonAlphaAddition.Pokemon.Index);
+        Check(convertedAlpha.Values.IsAlpha==true&&convertedAlpha.Values.Scale==255&&convertedAlpha.Values.IVs!.Count(x=>x==31)==3&&convertedAlpha.Legal,"Existing non-Alpha converts and persists as legal Alpha with three perfect IVs");
+        Check(convertedAlpha.ReadOnly.EncryptionConstant==nonAlphaStored.ReadOnly.EncryptionConstant&&convertedAlpha.Values.MetLocation==nonAlphaStored.Values.MetLocation&&convertedAlpha.Values.MetLevel==nonAlphaStored.Values.MetLevel&&convertedAlpha.Values.MetDate==nonAlphaStored.Values.MetDate,"Non-Alpha conversion preserves encryption constant and original encounter");
+        foreach(var unavailable in new[]{(Species:4,Level:10),(Species:150,Level:100)})
+        {
+            string alphaHash=service.Inspect(path).Hash;bool alphaRejected=false;
+            try{service.Add(path,new AddOptions{Species=unavailable.Species,Level=unavailable.Level,Destination=Destination.Box,Details=alphaPatch},alphaHash);}
+            catch(ArgumentException ex){alphaRejected=ex.Message.Contains("não existe encontro Alpha");}
+            Check(alphaRejected&&service.Inspect(path).Hash==alphaHash,$"Unavailable Alpha encounter rejects clearly without mutation: species {unavailable.Species} level {unavailable.Level}");
+        }
         int stone=Catalog.HeldItems.First(c=>c.Name.Contains("Charizardite",StringComparison.OrdinalIgnoreCase)).Id;
         service.SaveEdits(path,[new TeamEdit(0){Details=new(){HeldItem=stone}}],[]);
         Check(service.InspectPokemon(path,true,0).Values.HeldItem==stone,"Actual Z-A Mega Stone can be held without persisting a battle form");

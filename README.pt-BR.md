@@ -20,6 +20,8 @@ As capturas mostram o aplicativo real usando um save sintético de demonstraçã
 
 ## Edite um Pokémon existente
 
+Os atalhos **Pokébola**, **IVs**, **Tamanho** e **Alpha** levam diretamente aos controles. Há presets de tamanho e botões para IVs 31 ou 0, que removem Hyper Training. Marcar **Definir como Alpha** ajusta a escala para 255 e completa pelo menos três IVs 31; os dados de encontro continuam sendo validados.
+
 1. Selecione um Pokémon da equipe ou de uma box. Use os controles rápidos ou abra **Editar detalhes**.
 2. Revise as cinco abas e clique em **Aplicar ao rascunho**. Isso **não** grava o save. **Cancelar** mantém o rascunho anterior intacto.
 3. Revise os rascunhos e use **Salvar alterações** para validar e gravar o lote inteiro com backup. **Descartar rascunhos** abandona as mudanças pendentes.
@@ -78,6 +80,12 @@ Ative apenas os IVs, EVs, Hyper Training e demais opções que quiser definir. C
 O seletor de idioma alterna entre PT-BR, inglês e espanhol sem perder rascunhos. Catálogo e relatórios PKHeX permanecem em inglês. O tema escuro solicita Desktop Acrylic ao Windows compatível, com superfícies opacas como alternativa; a edição independe do efeito.
 
 Consulte o [guia detalhado](docs/EDITING.md#português) para limites de campos e diferenças entre editar e adicionar. Não há editor hexadecimal, criação de ovos nem conversão de outros jogos.
+
+## Criar um Alpha
+
+Em **Adicionar Pokémon**, use **Alpha**, marque a personalização **Alpha** e depois **Definir como Alpha**. Escolha espécie e nível com encontro compatível (Charmander: nível 25 ou maior).
+
+![Adicionar um Alpha com tamanho ajustado automaticamente](docs/screenshots/add-alpha.png)
 
 ## Optimize
 

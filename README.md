@@ -20,6 +20,8 @@ All screenshots below show the real application with a synthetic demonstration s
 
 ## Edit an existing Pokémon
 
+Use the **Poké Ball**, **IVs**, **Size** and **Alpha** shortcuts to jump to their controls. Size presets synchronize stored scalars; the all-31/all-0 IV buttons clear Hyper Training. Selecting **Set as Alpha** sets Scale to 255 and raises enough IVs to 31 to reach at least three perfect stats. Encounter constraints still apply.
+
 1. Select a Pokémon from the party or a box. Use the quick controls or open **Edit details**.
 2. Review the five tabs, then choose **Apply to draft**. This does **not** write the save. **Cancel** leaves the previous draft intact.
 3. Review other Pokémon or adjust your drafts, then choose **Save changes** to validate and write the whole batch with a backup. **Discard drafts** abandons pending edits.
@@ -76,6 +78,12 @@ Enable only the IV, EV, Hyper Training or other options you want to supply. An u
 </details>
 
 Keep your own backup too. This editor supports Z-A saves; it does not convert saves from other games. See the [detailed guide](docs/EDITING.md) for field limits, draft behaviour and examples of preserved data.
+
+## Alpha creation
+
+In **Add Pokémon**, use **Alpha**, enable the optional **Alpha** field, then select **Set as Alpha**. Choose a supported species/form and level (Charmander needs level 25 or higher). Unsupported combinations stop without writing.
+
+![Adding an Alpha with automatically adjusted size](docs/screenshots/add-alpha.png)
 
 ## Features
 

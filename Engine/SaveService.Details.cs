@@ -197,6 +197,12 @@ public sealed partial class SaveService
         var pi=pk.PersonalInfo;pk.SetPlusFlagsEncounter(pi,LearnSource9ZA.GetLearnsetAndPlus(pk.Species,pk.Form).Plus,pk.CurrentLevel);
         if(pk.Form!=0&&pk.Species is 479 or 720)pk.SetPlusFlagsEncounter(pi,LearnSource9ZA.GetLearnsetAndPlus(pk.Species,0).Plus,pk.CurrentLevel);
         if(pk.IsAlpha&&pi.AlphaMove!=0)pk.SetPlusFlagsSpecific(pi,pi.AlphaMove);
+        // Evolved Alphas retain the required move of their original encounter species.
+        if(pk.IsAlpha&&new LegalityAnalysis(pk).EncounterMatch is IEncounter9a {IsAlpha:true} encounter)
+        {
+            var encounterMove=PersonalTable.ZA[encounter.Species,encounter.Form].AlphaMove;
+            if(encounterMove!=0)pk.SetPlusFlagsSpecific(pi,encounterMove);
+        }
     }
     private static bool[] GetDetailedLearnable(SAV9ZA save,PA9 pk,byte level)
     {
