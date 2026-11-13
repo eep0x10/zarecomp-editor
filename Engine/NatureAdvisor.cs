@@ -37,12 +37,12 @@ public static class NatureAdvisor
         else if(prefersPhysical)
         {
             nature=3;
-            reason=T(language,"Perfil físico pelos golpes e atributos: Adamant aumenta Ataque e reduz Ataque Especial.","Physical profile from moves and base stats: Adamant boosts Attack and lowers Special Attack.","Perfil físico según movimientos y atributos: Firme aumenta Ataque y reduce Ataque Especial.");
+            reason=T(language,"Perfil físico pelos golpes e atributos: Adamant aumenta Ataque e reduz Ataque Especial.","Physical profile from moves and base stats: Adamant boosts Attack and lowers Special Attack.","Perfil físico según movimientos y atributos: Adamant aumenta Ataque y reduce Ataque Especial.");
         }
         else
         {
             nature=15;
-            reason=T(language,"Perfil especial pelos golpes e atributos: Modest aumenta Ataque Especial e reduz Ataque.","Special profile from moves and base stats: Modest boosts Special Attack and lowers Attack.","Perfil especial según movimientos y atributos: Modesta aumenta Ataque Especial y reduce Ataque.");
+            reason=T(language,"Perfil especial pelos golpes e atributos: Modest aumenta Ataque Especial e reduz Ataque.","Special profile from moves and base stats: Modest boosts Special Attack and lowers Attack.","Perfil especial según movimientos y atributos: Modest aumenta Ataque Especial y reduce Ataque.");
         }
         if(physical+special==0)reason=T(language,"Sem golpes ofensivos reconhecidos: sugestão baseada nos atributos-base. ","No recognized damaging moves: suggestion uses base stats. ","Sin movimientos ofensivos reconocidos: sugerencia basada en atributos base. ")+reason;
         reason+=" "+T(language,"Sugestão inicial: função, Mega Evolução, tempos de recarga e adversários podem mudar a escolha.","Starting point only: role, Mega Evolution, cooldowns and opponents may change the choice.","Solo un punto de partida: el rol, la Megaevolución, las recargas y los rivales pueden cambiar la elección.");

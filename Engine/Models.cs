@@ -7,6 +7,7 @@ public sealed record SaveSummary(string Path, string Trainer, int PartyCount, in
 public enum Destination { Auto, Party, Box }
 public sealed record AddOptions
 {
+    public ulong? CreationSeed { get; init; }
     public int Species { get; init; }=4;
     public int Form { get; init; }
     public int Level { get; init; }=10;

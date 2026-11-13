@@ -4,6 +4,9 @@ import { ChevronDown, Check } from "lucide-react";
 import type { Choice } from "./api";
 import type { Locale } from "./i18n";
 import { translate } from "./i18n";
+export function genderChoiceLabel(choice: Choice) {
+  return ["Male", "Female", "Genderless"][choice.id] || choice.name;
+}
 export function natureModifiers(id: number): {
   up: string | null;
   down: string | null;
@@ -15,6 +18,11 @@ export function natureModifiers(id: number): {
   return index === decrease
     ? { up: null, down: null }
     : { up: order[index], down: order[decrease] };
+}
+export function mintChoices(choices: Choice[], original: number) {
+  return choices.filter(
+    (c) => c.id === original || c.id === 12 || !!natureModifiers(c.id).up,
+  );
 }
 export function natureEffect(id: number, t: (s: string) => string) {
   const { up, down } = natureModifiers(id);

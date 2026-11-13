@@ -8,7 +8,7 @@ $documents = @(
     'README.md', 'README.pt-BR.md', 'README.es.md', 'CHANGELOG.md', 'CONTRIBUTING.md',
     'LICENSE', 'THIRD_PARTY_NOTICES.md', 'WEB-THIRD-PARTY-NOTICES.txt',
     'DOTNET-LICENSE.txt', 'DOTNET-ThirdPartyNotices.txt',
-    'WebHost/VERIFICATION.md', 'WebHost/SPRITE-REVIEW.md', 'WebClient/README.md', 'HostTests/README.md'
+    'WebHost/VERIFICATION.md', 'WebHost/SPRITE-REVIEW.md', 'WebHost/ALPHA-API.md', 'WebClient/README.md', 'HostTests/README.md'
 )
 foreach ($document in $documents) {
     $source = Join-Path $repository $document

@@ -14,7 +14,7 @@ if (args.Length != 1) throw new ArgumentException("Use --generated or pass an ap
 string root = Path.Combine(AppContext.BaseDirectory, "data", Guid.NewGuid().ToString("N"));
 Directory.CreateDirectory(root);
 string source;
-if (args[0] == "--generated")
+if (args[0] is "--generated" or "--alpha-probe")
 {
     string sourceDirectory = Path.Combine(root, "generated_source", "save_0");
     Directory.CreateDirectory(sourceDirectory);
@@ -44,8 +44,10 @@ if (args[0] == "--generated")
     Console.WriteLine("Generated synthetic encrypted save from blank vendor blocks; no input save required.");
 }
 else source = Path.GetFullPath(args[0]);
+if (args[0] == "--alpha-probe") { AlphaTests.Probe(source); return; }
 string Hash(string path) => Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(path)));
 string sourceHash = Hash(source);
+if(args[0]=="--generated")AlphaTests.Run(source);
 string saveDirectory = Path.Combine(root, "save_0"); Directory.CreateDirectory(saveDirectory);
 string path = Path.Combine(saveDirectory, "main"); File.Copy(source, path);
 File.WriteAllText(Path.Combine(saveDirectory, "metadata.txt"), "synthetic preservation probe");
@@ -73,7 +75,7 @@ Check((await Send("GET", "/api/v1/bootstrap", requestHost: "evil.example")).Stat
 Check((await Send("POST", "/api/v1/heartbeat", origin: null)).StatusCode == HttpStatusCode.Forbidden, "missing mutation Origin rejected");
 var bootstrapResponse = await Send("GET", "/api/v1/bootstrap");
 var bootstrap = await Body(bootstrapResponse);
-Check(bootstrap.GetProperty("version").GetString() == "2.0.3", "bootstrap contract");
+Check(bootstrap.GetProperty("version").GetString() == "2.1.0", "bootstrap contract");
 bool formsContract = true;
 foreach (var species in Catalog.Species)
 {
@@ -103,6 +105,11 @@ var opened = await Body(await Send("POST", "/api/v1/sessions", new { path }));
 string id = opened.GetProperty("id").GetString()!, hash = opened.GetProperty("hash").GetString()!;
 Check(hash == Hash(path), "coherent snapshot hash");
 string session = "/api/v1/sessions/" + id;
+var alphaPlan=await Body(await Send("POST",session+"/alpha-plan-add",new{expectedHash=hash,options=new{species=4,level=10,destination="Box"},mode="Compatible"}));
+Check(alphaPlan.GetProperty("available").GetBoolean()&&alphaPlan.GetProperty("options").GetProperty("creationSeed").ValueKind==JsonValueKind.String,"Alpha planning API returns applicable seeded options with 64-bit string");
+Check((await Send("POST",session+"/alpha-plan-add",new{expectedHash="STALE",options=new{species=4,level=10},mode="Compatible"})).StatusCode==HttpStatusCode.Conflict,"stale Alpha plan rejected");
+Check((await Send("POST",session+"/preview-add",new{expectedHash=hash,options=new{species=4,level=10,creationSeed="184467440737095516160"}})).StatusCode==HttpStatusCode.BadRequest,"overflowed creation seed rejected as JSON request error");
+Check(Hash(path)==hash,"Alpha plan API never writes save");
 Check((await Send("POST", session + "/edits", new { expectedHash = hash, operationId = Guid.NewGuid().ToString(), teamEdits = (object?)null, boxEdits = Array.Empty<object>() })).StatusCode == HttpStatusCode.BadRequest, "null team edits rejected as request error");
 Check((await Send("POST", session + "/edits", new { expectedHash = hash, operationId = Guid.NewGuid().ToString(), teamEdits = new object?[] { null }, boxEdits = Array.Empty<object>() })).StatusCode == HttpStatusCode.BadRequest, "null edit entry rejected as request error");
 Check((await Send("POST", session + "/suggestions", new { expectedHash = hash, team = new object?[] { null } })).StatusCode == HttpStatusCode.BadRequest, "null suggestion entry rejected as request error");

@@ -74,7 +74,13 @@ internal sealed class WorkspaceStore
         Coherent(s, expectedHash, () => true);
         object result;
         try { result = write(); }
-        catch (IOException) when (File.Exists(s.Path) && FileHash(s.Path) != expectedHash)
+        catch(SaveCommitException error)
+        {
+            string? currentHash=null;try{if(File.Exists(s.Path))currentHash=FileHash(s.Path);}catch(IOException){}catch(UnauthorizedAccessException){}
+            var failed=new {committed=false,outcomeUnknown=error.MayHaveCommitted,refreshRequired=true,hash=currentHash,backupDirectory=error.BackupDirectory,phase=error.Phase};
+            receipts[key]=(fingerprint,failed);return failed;
+        }
+        catch (IOException) when (File.Exists(s.Path) && !FileHash(s.Path).Equals(expectedHash,StringComparison.OrdinalIgnoreCase))
         {
             // A failure after replacement is ambiguous: remember it and forbid a retry.
             var uncertain = new { committed = false, outcomeUnknown = true, refreshRequired = true, hash = FileHash(s.Path), backupDirectory = (string?)null };

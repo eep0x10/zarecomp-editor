@@ -1,6 +1,6 @@
 # ZA Recomp Editor
 
-**A portable Pokémon Legends: Z-A save workbench for ZA Recomp — version 2.0.3.** Browse your party and boxes, edit detailed Pokémon data and create custom additions in one dark acrylic workspace. The Windows EXE opens a private local browser interface.
+**A portable Pokémon Legends: Z-A save workbench for ZA Recomp — version 2.1.0.** Browse your party and boxes, edit detailed Pokémon data and create custom additions in one dark acrylic workspace. The Windows EXE opens a private local browser interface; its header shows the running host version.
 
 [Download for Windows](https://github.com/eep0x10/zarecomp-editor/releases/latest) · [Português (Brasil)](README.pt-BR.md) · [Español](README.es.md) · [Editing guide](docs/EDITING.md) · [Report an issue](https://github.com/eep0x10/zarecomp-editor/issues)
 
@@ -14,7 +14,7 @@ Windows x64. No installer, Node.js or separate .NET installation is required for
 
 ![Version 2.0.3: party, 30-slot box and inline Pokémon editor](docs/screenshots/web/current-desktop.jpg)
 
-The screenshots below are real captures of build 2.0.3 using a synthetic demonstration save. Older captures and design proposals remain historical evidence, not previews of the current release.
+General-workspace screenshots are real captures of build 2.0.3 using a synthetic demonstration save. The Alpha examples below show 2.1.0; older design proposals remain historical records.
 
 <details>
 <summary>Creation and the narrow-screen layout</summary>
@@ -43,7 +43,24 @@ Your six-slot party stays on the left, a 30-slot box occupies the centre, and th
 
 All edit controls update a **draft**, not the file. **Save with backup** validates and commits the pending party/box edits together. **Discard drafts** abandons pending edits; confirmation and recovery stay inline. Keep the workbench open while editing and save before reloading or closing the browser.
 
-All 25 selectable capture balls have bundled PNG images available offline. Original and Mint nature controls show **+10% / −10%** stat effects or a neutral effect. Size presets synchronize native Z-A/HOME scalars. The all-31/all-0 IV presets clear Hyper Training. One click on Alpha previews compatibility, sets Scale 255 and raises enough IVs to reach at least three perfect stats without reducing the other IVs. Encounter constraints still apply; changing a flag does not replace an existing Pokémon's history.
+All 25 selectable capture balls have bundled PNG images available offline. Original and Mint nature controls show **+10% / −10%** stat effects or a neutral effect. A neutral Mint effect is available; when no Mint override exists, the effective nature follows the original nature. Size presets synchronize native Z-A/HOME scalars. The all-31/all-0 IV presets clear Hyper Training.
+
+## Review an Alpha conversion
+
+Alpha opens a plan before changing the draft. **Compatible** looks for an Alpha encounter and can propose a different encounter location/level, a higher current level and necessary move corrections. Every proposed change appears in the explicit before/after diff. **Custom** is an explicit alternative that preserves the requested origin while setting Alpha and its required size/IV dependencies. Custom can produce an invalid PKHeX report; the editor shows the actual findings.
+
+Review the before/after values for origin, level, scalars, IVs, Hyper Training and Plus records, along with warnings and the PKHeX report. Applying the plan changes only the draft; **Save with backup** or **Add with backup** performs the write. Both modes require Scale 255 and at least three IVs of 31. Turning Alpha off clears its conversion mode; it does not undo other values already applied. A compatible Alpha encounter does not guarantee that the whole Pokémon is legal or accepted online.
+
+![Version 2.1.0: Alpha plan with changes for review — synthetic save](docs/screenshots/web/alpha-plan-2.1.0.jpg)
+
+<details>
+<summary>Custom Alpha and narrow-screen review — version 2.1.0</summary>
+
+![Explicit Custom mode and actual PKHeX findings](docs/screenshots/web/alpha-custom-2.1.0.jpg)
+
+<img src="docs/screenshots/web/alpha-narrow-2.1.0.jpg" alt="Alpha plan on a narrow screen in version 2.1.0" width="390">
+
+</details>
 
 ![Version 2.0.3: detailed controls, ball images and nature effects — synthetic save](docs/screenshots/web/current-details.jpg)
 
@@ -57,7 +74,7 @@ Choosing a species opens its first supported form in the same inspector. **Choos
 
 Choose **Automatic**, **Party** or **Boxes** as destination. Automatic fills an empty party slot first, then an empty slot in an unlocked box. Existing Pokémon are never overwritten. Resolve edit drafts before adding; **Add with backup writes immediately**, separately from the edit-draft batch. Cancel creation inline to leave the save unchanged.
 
-Alpha creation chooses a compatible encounter for the species/form/level. Unsupported combinations are rejected before writing; for example, Charmander Alpha requires level 25 or higher, and Mewtwo has no Alpha template in the bundled encounter data.
+The Alpha planner also supports creation. Compatible mode proposes an available encounter and any required level increase; for example, Charmander needs at least level 25. Mewtwo has no compatible Alpha template in the bundled data. Custom mode remains an explicit option with real incompatibility findings, never a fabricated legal result. **Automatic** shiny preserves generation; it is separate from choosing non-shiny, star or square.
 
 ## Optimize and languages
 
@@ -98,9 +115,10 @@ dotnet run --project Tests/ZaTool.Tests.csproj -c Release -- --details "C:/Dispo
 dotnet run --project HostTests/HostTests.csproj -- "C:/DisposableTestSave/main"
 dotnet run --project HostTests/HostTests.csproj -- --generated
 dotnet run --project HostTests/HostTests.csproj -- --sprites
+npm test --prefix WebClient
 ```
 
-The current harness contains **40 generated-save HTTP checks** and **32 deterministic sprite checks**. `--generated` constructs an encrypted synthetic save in test code, without game assets or a private input; `--sprites` uses mock HTTP and generated PNGs. CI builds the frontend/host and runs both modes. Optional `--sprites-live` also probes external artwork (24 live retrieval checks in the recorded sprite review); network results can change. The detailed Engine suite previously passed 67 checks; that historical result is not a claim that it was rerun for every release. See the [harness guide](HostTests/README.md) for commands and limits. Browser evidence and untested fault-injection cases are documented rather than inferred from successful compilation.
+Local 2.1.0 verification passed **61 Alpha, 44 generated-save HTTP, 67 Engine and 39 client regression checks**. `--generated` runs Alpha checks before the HTTP suite and constructs an encrypted synthetic save without game assets or private input. `npm test --prefix WebClient` runs the client regressions. CI is configured for these client/generated-save checks after building; a local pass does not establish a published CI result. Sprite coverage remains the earlier **32 deterministic checks** with mock HTTP/generated PNGs and 24 sampled live retrieval checks; these were not rerun for this change. Optional `--sprites-live` depends on external availability. See the [2.1.0 audit](docs/audits/2026-11-13-alpha-review.md) and [harness guide](HostTests/README.md) for evidence and limits. Browser evidence is distinct from successful compilation.
 
 ## Licence and acknowledgements
 

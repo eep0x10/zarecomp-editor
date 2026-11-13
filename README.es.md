@@ -1,6 +1,6 @@
 # ZA Recomp Editor — Español
 
-**Editor portátil de partidas de Pokémon Legends: Z-A para ZA Recomp — versión 2.0.3.** Equipo, cajas, creación y edición detallada en una única interfaz web local, oscura y acrílica, con copia de seguridad automática.
+**Editor portátil de partidas de Pokémon Legends: Z-A para ZA Recomp — versión 2.1.0.** Equipo, cajas, creación y edición detallada en una única interfaz web local, oscura y acrílica, con copia de seguridad automática. El encabezado muestra la versión del host en ejecución.
 
 [Descargar para Windows](https://github.com/eep0x10/zarecomp-editor/releases/latest) · [English](README.md) · [Português](README.pt-BR.md) · [Guía detallada](docs/EDITING.md)
 
@@ -8,7 +8,7 @@ Windows x64. Extrae el ZIP en una carpeta con permiso de escritura y abre **Reco
 
 ![Versión 2.0.3: equipo, caja y editor integrado](docs/screenshots/web/current-desktop.jpg)
 
-Las capturas son reales del build 2.0.3 con una partida sintética de demostración. Las capturas antiguas y propuestas de diseño son registros históricos, no la presentación de la versión actual.
+Las capturas generales son reales del build 2.0.3 con una partida sintética. Los ejemplos Alfa siguientes muestran la 2.1.0; las propuestas antiguas de diseño son registros históricos.
 
 <details>
 <summary>Creación personalizada en el mismo panel</summary>
@@ -34,7 +34,24 @@ Selecciona un Pokémon del equipo o de una caja; el editor aparece a la derecha.
 
 **Guardar con copia** valida y escribe los borradores del equipo y cajas en una transacción. **Descartar borradores** abandona los cambios pendientes mediante confirmación integrada. Guarda antes de recargar o cerrar la pestaña; los borradores no se escriben automáticamente.
 
-Un clic en **Alfa** previsualiza la compatibilidad, fija Escala 255 y completa al menos tres IVs 31 sin reducir los demás IVs. El encuentro original debe ser compatible; su historial no se sustituye. Los tamaños predefinidos sincronizan los escalares nativos/HOME; los botones IV 31/0 eliminan Hyper Training.
+Naturaleza original y menta son distintas. Hay un efecto de menta neutro; sin una sustitución por menta, la naturaleza efectiva sigue a la original. Los tamaños predefinidos sincronizan los escalares nativos/HOME; los botones IV 31/0 eliminan Hyper Training.
+
+## Revisar una conversión Alfa
+
+Alfa abre un plan antes de cambiar el borrador. **Compatible** busca un encuentro Alfa y puede proponer otro lugar/nivel de encuentro, aumentar el nivel actual y corregir movimientos necesarios. Todos los cambios propuestos aparecen en el antes/después explícito. **Personalizado** es una elección explícita que conserva el origen solicitado y ajusta Alfa y sus dependencias de tamaño/IVs. Este modo puede producir un informe PKHeX inválido; el editor muestra los resultados reales.
+
+Revisa el antes/después de origen, nivel, escalares, IVs, Hyper Training y registros Plus, junto con las advertencias y el informe PKHeX. Aplicar el plan solo cambia el borrador; **Guardar con copia** o **Añadir con copia** escribe el resultado. Ambos modos exigen Escala 255 y al menos tres IVs 31. Desmarcar Alfa borra el modo de conversión, sin deshacer otros valores ya aplicados. Un encuentro Alfa compatible no garantiza legalidad completa ni aceptación online.
+
+![Versión 2.1.0: plan Alfa para revisión — partida sintética](docs/screenshots/web/alpha-plan-2.1.0.jpg)
+
+<details>
+<summary>Alfa personalizado y pantalla estrecha — versión 2.1.0</summary>
+
+![Modo personalizado explícito y resultados reales de PKHeX](docs/screenshots/web/alpha-custom-2.1.0.jpg)
+
+<img src="docs/screenshots/web/alpha-narrow-2.1.0.jpg" alt="Plan Alfa en pantalla estrecha en la versión 2.1.0" width="390">
+
+</details>
 
 ![Versión 2.0.3: controles detallados, bolas y naturalezas — partida sintética](docs/screenshots/web/current-details.jpg)
 
@@ -48,7 +65,7 @@ La elección abre su primera forma admitida en el mismo editor. **Elegir Pokémo
 
 El destino automático ocupa primero una plaza libre del equipo y después una caja desbloqueada. Nunca sobrescribe Pokémon existentes. Resuelve los borradores de edición antes de añadir. **Añadir con copia escribe inmediatamente**, separado del lote de borradores. Cancelar la creación no escribe nada.
 
-La creación Alfa busca un encuentro compatible con especie/forma/nivel. Charmander necesita nivel 25 o superior; Mewtwo no tiene plantilla Alfa en los datos incluidos. Una combinación imposible se rechaza antes de escribir.
+El plan Alfa también admite creación. Compatible propone un encuentro disponible y el aumento de nivel necesario: Charmander requiere al menos nivel 25; Mewtwo no tiene plantilla Alfa compatible en los datos incluidos. Personalizado sigue disponible como elección explícita, con incompatibilidades reales en el informe. Variocolor **Automático** conserva la generación y es distinto de elegir normal, estrella o cuadrado.
 
 ## Optimize e idiomas
 
@@ -70,6 +87,6 @@ La referencia interactiva de la API local está en `/api-docs`, con esquema `/op
 
 Para compilar: Windows, SDK .NET 10 x64 y Node.js 24/npm; ejecuta `./build.ps1`. Se genera `dist/RecompPokemon.exe` con los assets incorporados. Los usuarios del ZIP no necesitan estas herramientas. Consulta [pruebas y fuentes](README.md#build-from-source) y usa copias desechables.
 
-El harness actual contiene **40 comprobaciones HTTP con partida generada** y **32 comprobaciones deterministas de sprites**, ejecutadas en CI. El modo opcional `--sprites-live` consulta imágenes externas: el registro histórico incluye 24 consultas aprobadas, sujetas a disponibilidad. La suite Engine superó anteriormente 67 comprobaciones; eso no significa que se repitiera en cada versión. Consulta la [guía del harness](HostTests/README.md).
+La verificación local de la 2.1.0 superó **37 pruebas Alfa, 44 HTTP con partida generada, 67 Engine y 39 regresiones del cliente**. `--generated` ejecuta Alfa antes de HTTP; `npm test --prefix WebClient` ejecuta las regresiones del cliente. CI está configurado para estos modos tras compilar; una aprobación local no demuestra un resultado publicado de CI. Las 32 pruebas deterministas de sprites y 24 consultas externas son resultados históricos, sin nueva ejecución para este cambio. Las fuentes externas pueden fallar. Consulta la [auditoría 2.1.0](docs/audits/2026-11-13-alpha-review.md) y la [guía del harness](HostTests/README.md).
 
 Código GPL-3.0-or-later con fuentes correspondientes de PKHeX.Core. Consulta [avisos de terceros](THIRD_PARTY_NOTICES.md) y [licencias del frontend](WEB-THIRD-PARTY-NOTICES.txt). Los recursos y marcas Pokémon pertenecen a sus titulares. Proyecto independiente, sin afiliación a Nintendo, Game Freak, The Pokémon Company, ZA Recomp o PKHeX.

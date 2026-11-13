@@ -1,6 +1,16 @@
-# Current verification status — 2.0.3
+# Local verification status â€” 2.1.0
 
-The current shipped app is **2.0.3**. [Windows CI](https://github.com/eep0x10/zarecomp-editor/actions/runs/43469969015) passed the portable build, **40 generated-save HTTP checks** and **32 deterministic artwork checks**. Species-list coverage and the readonly forms endpoint were added after the original 39-check suite. The latest grid sorts all 364 current catalog species by their National Pokédex numbers.
+Final local verification passed **61 Alpha, 44 generated-save HTTP, 67 Engine and 39 client regression checks**. The final Alpha suite includes twelve fixed seeds each for Gallade ancestral automatic gender and gift ability-slot/RNG correlation, plus ancestral-only Annihilape. See the [2.1.0 audit](../docs/audits/2026-11-13-alpha-review.md). The previous 32 deterministic sprite/24 live-image results remain historical at this local checkpoint; published CI is separate evidence.
+
+Executed CUA on synthetic data verified Chikorita level 5 â†’ Compatible level 25 with explicit origin/four-move diff â†’ Apply â†’ backup Save â†’ reload/Validate with PKHeX valid; Custom Mewtwo level 42 preview retained truthful incompatible findings. English/Spanish and 390px layout were exercised; document width 390px had no horizontal page overflow. An earlier round verified backed-up Charmander 10 â†’ 25 compatible creation, Custom Mewtwo creation/reopen with actual invalid report, existing Alpha undo/IV guards and Mint following the original nature. Current [captures](../docs/design/za-workbench/EVIDENCE.md#210--alpha-plans-and-application-review) use synthetic data.
+
+Planning endpoints are non-writing and hash-coherent. Compatible may disclose origin/level/required-move changes; Custom retains requested origin and truthful legality findings. Both enforce Scale 255 and three natural perfect IVs. Backups reject reparse entries before recursion; structured commit failures retain known phase/backup and require reconciliation. These controls do not eliminate power-loss or an uncooperative external-writer race.
+
+Not verified here: actual-game acceptance, personal-save mutation, clean no-SDK machine, final portable download/publication, power-loss/crash injection, or actual network disconnection during an Engine commit. Compatible origin search is bounded to 24 candidates. A valid Alpha encounter alone does not establish full legality or online acceptance. Historical limits below describe their own checkpoints; the audit is the current scope record.
+
+# Historical shipped verification â€” 2.0.3
+
+At this historical checkpoint, the shipped app was **2.0.3**. [Windows CI](https://github.com/eep0x10/zarecomp-editor/actions/runs/43469969015) passed the portable build, **40 generated-save HTTP checks** and **32 deterministic artwork checks**. Species-list coverage and the readonly forms endpoint were added after the original 39-check suite. The latest grid sorts all 364 current catalog species by their National PokÃ©dex numbers.
 
 Root separately verified the shipped EXE startup, embedded frontend/forms API, complete grid order, search order, archive/source integrity and public download hash. Earlier browser tests exercised editing/creation/backups, Alpha, form artwork recovery, keyboard/touch and 390px reflow on synthetic data. See [workbench evidence](../docs/design/za-workbench/EVIDENCE.md) and [sprite review](SPRITE-REVIEW.md) for exact versions, executed scopes and limits. This does not establish real-game/online acceptance or portability on every Windows machine.
 
@@ -8,9 +18,9 @@ Root separately verified the shipped EXE startup, embedded frontend/forms API, c
 
 The following records the original 2.0.0/2.0.1 checkpoint. Its version/counts and statements about what was not tested refer to that checkpoint, rather than the current release.
 
-# Original local host verification — 2026-11-13
+# Original local host verification â€” 2026-11-13
 
-**2.0.1 follow-up:** sprite resolution and cache behavior below were superseded by the [sprite review](SPRITE-REVIEW.md). Exact artwork now returns an explicit 404 when unavailable, never a 1×1 placeholder. The generated HTTP harness passed all 39 checks again; sprite suites added 32 deterministic and 24 live retrieval checks.
+**2.0.1 follow-up:** sprite resolution and cache behavior below were superseded by the [sprite review](SPRITE-REVIEW.md). Exact artwork now returns an explicit 404 when unavailable, never a 1Ã—1 placeholder. The generated HTTP harness passed all 39 checks again; sprite suites added 32 deterministic and 24 live retrieval checks.
 
 Implemented host version 2.0.0 in `RecompPokemon.WebHost.csproj`, AssemblyName `RecompPokemon`, .NET 10 Windows WinExe. Engine and existing WinForms application files were not changed. Frontend build owns `wwwroot`; host embeds its generated files. No release publication was performed.
 

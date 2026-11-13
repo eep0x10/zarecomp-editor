@@ -2392,3 +2392,106 @@ a {
     font-size: 10px;
   }
 }
+
+.app-version {
+  font-size: 10px;
+  font-weight: 450;
+  letter-spacing: 0;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.alpha-mode-label {
+  display: flex !important;
+  flex-direction: column;
+  align-items: stretch !important;
+  gap: 5px;
+  font-size: 10px !important;
+}
+.alpha-mode-label select {
+  width: 100%;
+  min-width: 0;
+  font-size: 10px;
+  min-height: 33px;
+  padding-left: 5px;
+}
+.alpha-revert {
+  font-size: 10px;
+  min-height: 30px;
+  padding: 4px 6px;
+  white-space: normal;
+}
+.alpha-plan-review {
+  border: 1px solid #6ac5b66b;
+  background: #1c3c3922;
+  border-radius: 10px;
+  padding: 12px;
+  margin-top: 12px;
+}
+.alpha-plan-review h3 {
+  display: flex;
+  gap: 7px;
+  align-items: center;
+  font-size: 13px;
+  margin: 0 0 9px;
+}
+.alpha-plan-review p {
+  font-size: 11px;
+  line-height: 1.55;
+  margin: 7px 0;
+}
+.alpha-diff {
+  margin: 10px 0;
+  max-height: 245px;
+  overflow: auto;
+  scrollbar-width: thin;
+}
+.alpha-diff table {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+  font-size: 10px;
+}
+.alpha-diff th,
+.alpha-diff td {
+  border-bottom: 1px solid var(--edge);
+  padding: 7px 5px;
+  text-align: left;
+  vertical-align: top;
+  overflow-wrap: anywhere;
+}
+.alpha-diff thead th {
+  color: var(--muted);
+  position: sticky;
+  top: 0;
+  background: #172830;
+}
+.alpha-plan-actions {
+  display: flex;
+  gap: 7px;
+  flex-wrap: wrap;
+  margin: 12px 0;
+}
+.alpha-plan-actions button {
+  font-size: 11px;
+  flex: 1;
+  min-width: 120px;
+}
+.alpha-plan-review > small {
+  font-size: 10px;
+}
+@media (max-width: 900px) {
+  .alpha-mode-label select,
+  .alpha-revert,
+  .alpha-plan-actions button {
+    min-height: 44px;
+  }
+  .alpha-plan-review {
+    padding: 10px;
+  }
+  .alpha-diff th,
+  .alpha-diff td {
+    font-size: 10px;
+    padding: 7px 4px;
+  }
+}

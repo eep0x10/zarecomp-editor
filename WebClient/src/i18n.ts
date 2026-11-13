@@ -1,5 +1,171 @@
 export type Locale = "pt-BR" | "en" | "es";
 const words: Record<string, [string, string]> = {
+  "This species/form has no Alpha encounter. Choose another species/form or use Custom Alpha, which preserves origin and reports incompatibilities.":
+    [
+      "Esta espécie/forma não possui encontro Alpha. Escolha outra espécie/forma ou use Alpha personalizado, que preserva a origem e informa incompatibilidades.",
+      "Esta especie/forma no tiene un encuentro Alfa. Elige otra especie/forma o usa Alfa personalizado, que conserva el origen e informa incompatibilidades.",
+    ],
+  "No compatible Alpha origin preserves this identity. Review the species/origin or use Custom Alpha to preserve the current encounter.":
+    [
+      "Nenhuma origem Alpha compatível preserva esta identidade. Reveja a espécie/origem ou use Alpha personalizado para manter o encontro atual.",
+      "Ningún origen Alfa compatible conserva esta identidad. Revisa la especie/origen o usa Alfa personalizado para conservar el encuentro actual.",
+    ],
+  "Available Alpha encounters conflict with these choices. Review level, form, gender, nature and origin, or choose Custom Alpha.":
+    [
+      "Os encontros Alpha disponíveis conflitam com estas escolhas. Confira nível, forma, gênero, natureza e origem, ou escolha Alpha personalizado.",
+      "Los encuentros Alfa disponibles no son compatibles con estas opciones. Revisa nivel, forma, género, naturaleza y origen, o elige Alfa personalizado.",
+    ],
+  "No Alpha plan could be built. Review the reported constraints before changing these values.":
+    [
+      "Não foi possível criar um plano Alpha. Confira as restrições informadas antes de mudar os valores.",
+      "No se pudo crear un plan Alfa. Revisa las restricciones indicadas antes de cambiar los valores.",
+    ],
+
+  Custom: ["Personalizado", "Personalizado"],
+  Yes: ["Sim", "Sí"],
+  No: ["Não", "No"],
+
+  "No custom plan could be built for these values. Review the warnings and editable fields.":
+    [
+      "Não foi possível criar um plano personalizado para estes valores. Confira os avisos e os campos editáveis.",
+      "No se pudo crear un plan personalizado para estos valores. Revisa los avisos y los campos editables.",
+    ],
+  "No compatible Alpha origin preserves this Pokémon's identity and other constraints. Custom Alpha keeps its origin and reports incompatibility honestly.":
+    [
+      "Nenhuma origem Alpha compatível preserva a identidade deste Pokémon e as demais restrições. Alpha personalizado mantém a origem e informa a incompatibilidade.",
+      "Ningún origen Alfa compatible conserva la identidad de este Pokémon y las demás restricciones. Alfa personalizado conserva el origen e informa de la incompatibilidad.",
+    ],
+  "No Alpha encounter exists for this species/form in the current database. Custom Alpha remains available with an incompatible legality report.":
+    [
+      "Não existe encontro Alpha para esta espécie/forma na base atual. Alpha personalizado continua disponível com relatório de legalidade incompatível.",
+      "No existe un encuentro Alfa para esta especie/forma en la base actual. Alfa personalizado sigue disponible con un informe de legalidad incompatible.",
+    ],
+  "Available Alpha encounters conflict with the selected form, gender, nature or origin fields. Adjust those choices or use explicit Custom mode.":
+    [
+      "Os encontros Alpha disponíveis conflitam com a forma, gênero, natureza ou origem escolhidos. Ajuste essas escolhas ou use o modo Personalizado explicitamente.",
+      "Los encuentros Alfa disponibles no son compatibles con la forma, género, naturaleza u origen elegidos. Ajusta esas opciones o usa explícitamente el modo Personalizado.",
+    ],
+  "Custom Alpha changes the flag and required size/IV dependencies while preserving the requested origin. The PKHeX report remains authoritative; incompatible encounter/RNG results are not hidden.":
+    [
+      "Alpha personalizado altera a marca e os requisitos de tamanho/IVs, preservando a origem solicitada. O relatório do PKHeX é mantido; incompatibilidades de encontro/RNG não são ocultadas.",
+      "Alfa personalizado cambia la marca y los requisitos de tamaño/IVs conservando el origen solicitado. Se mantiene el informe PKHeX; no se ocultan incompatibilidades de encuentro/RNG.",
+    ],
+  "This plan does not make the entire Pokémon legal. Review the unchanged PKHeX legality report, including any RNG correlation errors.":
+    [
+      "Este plano não torna o Pokémon totalmente legal. Confira o relatório original de legalidade do PKHeX, incluindo erros de correlação de RNG.",
+      "Este plan no hace que el Pokémon sea totalmente legal. Revisa el informe original de legalidad de PKHeX, incluidos los errores de correlación de RNG.",
+    ],
+
+  "The write did not complete. Reopen the save and inspect the backup; drafts have been kept.":
+    [
+      "A gravação não foi concluída. Reabra o save e confira o backup; os rascunhos foram mantidos.",
+      "La escritura no se completó. Abre el guardado y comprueba la copia; los borradores se conservaron.",
+    ],
+
+  "Alpha mode": ["Modo Alpha", "Modo Alfa"],
+  "Compatible encounter": ["Encontro compatível", "Encuentro compatible"],
+  "Custom: keep encounter": [
+    "Personalizado: manter origem",
+    "Personalizado: conservar origen",
+  ],
+  "Compatible previews encounter adjustments; Custom keeps origin and reports incompatibilities. Nothing is saved automatically.":
+    [
+      "Compatível mostra ajustes do encontro; Personalizado mantém a origem e informa incompatibilidades. Nada é salvo automaticamente.",
+      "Compatible muestra ajustes del encuentro; Personalizado conserva el origen e informa incompatibilidades. Nada se guarda automáticamente.",
+    ],
+  "Alpha conversion preview": [
+    "Prévia de conversão Alpha",
+    "Vista previa de conversión Alfa",
+  ],
+  "Custom Alpha preserves the encounter. Compatibility findings remain visible; this does not certify legality.":
+    [
+      "Alpha personalizado preserva o encontro. As incompatibilidades continuam visíveis; isso não certifica legalidade.",
+      "Alfa personalizado conserva el encuentro. Las incompatibilidades siguen visibles; esto no certifica la legalidad.",
+    ],
+  "Compatible Alpha may adapt encounter details. Review the changes before applying them to the draft.":
+    [
+      "Alpha compatível pode adaptar dados do encontro. Confira as mudanças antes de aplicá-las ao rascunho.",
+      "Alfa compatible puede adaptar datos del encuentro. Revisa los cambios antes de aplicarlos al borrador.",
+    ],
+  "Minimum level": ["Nível mínimo", "Nivel mínimo"],
+  "Encounter details will change only after you apply this plan.": [
+    "Os dados do encontro só mudarão após aplicar este plano.",
+    "Los datos del encuentro solo cambiarán al aplicar este plan.",
+  ],
+  Field: ["Campo", "Campo"],
+  Before: ["Antes", "Antes"],
+  After: ["Depois", "Después"],
+  "No legality findings": [
+    "Sem pendências de legalidade",
+    "Sin problemas de legalidad",
+  ],
+  "Legality findings": ["Pendências de legalidade", "Problemas de legalidad"],
+  "No compatible plan is available for these values. Adjust the level or choose Custom Alpha to keep the current encounter.":
+    [
+      "Não há plano compatível para estes valores. Ajuste o nível ou escolha Alpha personalizado para manter o encontro atual.",
+      "No hay un plan compatible para estos valores. Ajusta el nivel o elige Alfa personalizado para conservar el encuentro actual.",
+    ],
+  "Cancel plan": ["Cancelar plano", "Cancelar plan"],
+  "Apply custom Alpha to draft": [
+    "Aplicar Alpha personalizado ao rascunho",
+    "Aplicar Alfa personalizado al borrador",
+  ],
+  "Apply compatible Alpha to draft": [
+    "Aplicar Alpha compatível ao rascunho",
+    "Aplicar Alfa compatible al borrador",
+  ],
+  "This preview does not write the save. Save with backup remains a separate action.":
+    [
+      "Esta prévia não grava o save. Salvar com backup continua sendo uma ação separada.",
+      "Esta vista previa no escribe el guardado. Guardar con copia sigue siendo una acción separada.",
+    ],
+  "Review the Alpha plan. No draft or save was changed.": [
+    "Confira o plano Alpha. Nenhum rascunho ou save foi alterado.",
+    "Revisa el plan Alfa. No se modificó ningún borrador ni guardado.",
+  ],
+  "Custom Alpha applied to draft; review the actual legality report before saving.":
+    [
+      "Alpha personalizado aplicado ao rascunho; confira o relatório real de legalidade antes de salvar.",
+      "Alfa personalizado aplicado al borrador; revisa el informe real de legalidad antes de guardar.",
+    ],
+  "Compatible Alpha plan applied to draft. Save with backup when ready.": [
+    "Plano Alpha compatível aplicado ao rascunho. Salve com backup quando estiver pronto.",
+    "Plan Alfa compatible aplicado al borrador. Guarda con copia cuando esté listo.",
+  ],
+  "Alpha adjustments reverted; your other edits were kept.": [
+    "Ajustes Alpha revertidos; suas outras edições foram mantidas.",
+    "Ajustes Alfa revertidos; se conservaron tus otras ediciones.",
+  ],
+  "Alpha plan cancelled. The draft was not changed.": [
+    "Plano Alpha cancelado. O rascunho não foi alterado.",
+    "Plan Alfa cancelado. El borrador no se modificó.",
+  ],
+  "Alpha disabled. Other adjustments remain; use Revert Alpha adjustments to restore the planned fields.":
+    [
+      "Alpha desativado. Os outros ajustes permanecem; use Reverter ajustes Alpha para restaurar os campos do plano.",
+      "Alfa desactivado. Los otros ajustes se mantienen; usa Revertir ajustes Alfa para restaurar los campos del plan.",
+    ],
+  "Revert Alpha adjustments": [
+    "Reverter ajustes Alpha",
+    "Revertir ajustes Alfa",
+  ],
+  "Apply or cancel the Alpha plan before saving.": [
+    "Aplique ou cancele o plano Alpha antes de salvar.",
+    "Aplica o cancela el plan Alfa antes de guardar.",
+  ],
+  Preview: ["Prévia", "Vista previa"],
+  "The previous neutral effective nature is unavailable as a Mint here; effective nature now follows the original.":
+    [
+      "A natureza efetiva neutra anterior não está disponível como Mint neste caso; a efetiva agora segue a original.",
+      "La naturaleza efectiva neutra anterior no está disponible como menta en este caso; la efectiva ahora sigue a la original.",
+    ],
+
+  "Alpha needs at least three perfect IVs. Keep three IVs at 31 before reducing another.":
+    [
+      "Alpha exige ao menos três IVs perfeitos. Mantenha três IVs em 31 antes de reduzir outro.",
+      "Alfa requiere al menos tres IVs perfectos. Mantén tres IVs en 31 antes de reducir otro.",
+    ],
+
   "Choose Pokémon": ["Escolher Pokémon", "Elegir Pokémon"],
   "Search by name or number": [
     "Buscar por nome ou número",

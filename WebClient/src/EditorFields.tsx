@@ -1,6 +1,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { Plus, X, Info, FileText, Code } from "lucide-react";
 import type { Patch, Choice, Details, Catalogs } from "./api";
+import { genderChoiceLabel } from "./PokemonChoices";
 type Props = {
   tab: string;
   values: Patch;
@@ -131,7 +132,7 @@ export function SecondaryFields({
         )}
         {list.map((c) => (
           <option key={c.id} value={c.id}>
-            {t(c.name)}
+            {t(name === "gender" ? genderChoiceLabel(c) : c.name)}
           </option>
         ))}
       </select>

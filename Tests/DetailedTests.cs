@@ -23,7 +23,9 @@ internal static class DetailedTests
         var before=Open(path);var baseline=service.InspectPokemon(path,true,0);
         Check(baseline.Hash==Hash(File.ReadAllBytes(path))&&baseline.Values.IVs!.Length==6&&baseline.Values.Moves!.Length==4,"Detailed snapshot uses encrypted hash and full typed data");
         Check(baseline.ReadOnly.Unsupported.Count>=5&&baseline.Stats.Length==6&&baseline.Stats[0]>0,"Snapshot includes limits and calculated stats");
-        var preview=service.PreviewPokemon(path,true,0,new(){StatNature=15,IVs=[0,1,2,3,4,5],EVs=[252,0,0,0,252,4]});
+        // This probe tests mint/preview behavior; do not change unrelated IV/Hyper Training
+        // dependencies of an arbitrary supplied Alpha fixture. IV roundtrips are checked below.
+        var preview=service.PreviewPokemon(path,true,0,new(){StatNature=15,EVs=[252,0,0,0,252,4]});
         Check(preview.Values.Nature==baseline.Values.Nature&&preview.Values.StatNature==15&&Hash(File.ReadAllBytes(path))==baseline.Hash,"Preview mint changes only effective nature and does not persist");
         var change=new PokemonPatch
         {

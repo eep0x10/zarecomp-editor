@@ -39,7 +39,16 @@ import { translate, type Locale } from "./i18n";
 import "./style.css";
 import { SecondaryFields } from "./EditorFields";
 import { localizeError } from "./errors";
-import { BallPicker, NatureChoice } from "./PokemonChoices";
+import { AlphaPlanReview } from "./AlphaPlanReview";
+import {
+  planDraft,
+  undoAlphaChanges,
+  natureChange,
+  type AlphaPlan,
+  type AlphaMode,
+  type AlphaUndo,
+} from "./alphaDraft";
+import { BallPicker, NatureChoice, mintChoices } from "./PokemonChoices";
 import { SpeciesPicker, speciesCreationChanges } from "./SpeciesPicker";
 import { observeSpriteVisibility } from "./spriteVisibility";
 const stats = ["HP", "Attack", "Defense", "Speed", "Sp. Atk", "Sp. Def"];
@@ -140,6 +149,13 @@ function Sprite({
 }
 function App() {
   const [locale, setLocale] = useState<Locale>("pt-BR");
+  const [appVersion, setAppVersion] = useState("");
+  const [alphaPlan, setAlphaPlan] = useState<AlphaPlan | null>(null),
+    [alphaPlanning, setAlphaPlanning] = useState(false),
+    [alphaChoice, setAlphaChoice] = useState<AlphaMode>("Compatible"),
+    [creationSeed, setCreationSeed] = useState<string | null>(null);
+  const alphaUndo = useRef<Record<string, AlphaUndo>>({}),
+    mintIntent = useRef(new Set<string>());
   const t = useCallback((key: string) => translate(locale, key), [locale]);
   const [session, setSession] = useState<Session | null>(null),
     [catalogs, setCatalogs] = useState<Catalogs>({}),
@@ -194,8 +210,11 @@ function App() {
   const patch = creating ? newPatch : drafts[activeKey] || {};
   const values = creating ? newPatch : { ...(details?.values || {}), ...patch };
   const draftCount = Object.keys(drafts).length;
+  const editContext = creating ? "new" : activeKey;
   const sessionId = useRef("");
   sessionId.current = session?.id || "";
+  const sessionHash = useRef("");
+  sessionHash.current = session?.hash || "";
   const val = (name: string, fallback: any = "") => values[name] ?? fallback;
   const num = (name: string, fallback = 0) => Number(val(name, fallback));
   const localeRef = useRef(locale);
@@ -278,6 +297,7 @@ function App() {
     const ac = new AbortController();
     api<any>("/bootstrap", undefined, ac.signal)
       .then(async (b) => {
+        setAppVersion(b.version || "");
         setLocale(b.preferences?.language || "pt-BR");
         localeRef.current = b.preferences?.language || "pt-BR";
         document.documentElement.lang = localeRef.current;
@@ -316,7 +336,14 @@ function App() {
     };
   }, []);
   function acceptSession(s: Session) {
+    sessionId.current = s.id;
+    sessionHash.current = s.hash;
     setSession(s);
+    alphaUndo.current = {};
+    mintIntent.current.clear();
+    setAlphaPlan(null);
+    setAlphaPlanning(false);
+    setCreationSeed(null);
     setSuggestionRows([]);
     setDrafts({});
     setCreating(false);
@@ -404,9 +431,20 @@ function App() {
       ac.signal,
     )
       .then((d) => {
+        if (
+          ac.signal.aborted ||
+          sessionId.current !== session.id ||
+          sessionHash.current !== d.hash
+        )
+          return;
         if (d.hash !== session.hash) throw new ApiError(409, "stale_hash", "");
         loadedKey.current = keyOf(selection.party, selection.slot);
         setDetails(d);
+        setAlphaChoice(
+          (drafts[keyOf(selection.party, selection.slot)]?.alphaMode ||
+            d.values.alphaMode ||
+            "Compatible") as AlphaMode,
+        );
       })
       .catch(fail);
     return () => ac.abort();
@@ -430,6 +468,8 @@ function App() {
     validationRequest.current?.abort();
     setValidating(false);
     setPreview(null);
+    setAlphaPlan(null);
+    setAlphaPlanning(false);
     setError("");
     if (creating) {
       setNewPatch((p) => ({ ...p, ...changes }));
@@ -438,8 +478,25 @@ function App() {
     if (!details || loadedKey.current !== activeKey) return;
     setDrafts((all) => {
       const merged = { ...(all[activeKey] || {}), ...changes };
+      const effectiveAlpha = merged.isAlpha ?? details.values.isAlpha;
+      if (
+        effectiveAlpha === true &&
+        merged.alphaMode === undefined &&
+        details.values.alphaMode === "Custom"
+      )
+        merged.alphaMode = "Custom";
       for (const k in merged)
-        if (same(merged[k], details.values[k])) delete merged[k];
+        if (
+          same(merged[k], details.values[k]) &&
+          !(k === "alphaMode" && effectiveAlpha === true && merged[k] != null)
+        )
+          delete merged[k];
+      if (
+        Object.keys(merged).length === 1 &&
+        Object.hasOwn(merged, "alphaMode") &&
+        same(merged.alphaMode, details.values.alphaMode)
+      )
+        delete merged.alphaMode;
       const next = { ...all };
       if (Object.keys(merged).length) next[activeKey] = merged;
       else delete next[activeKey];
@@ -447,15 +504,76 @@ function App() {
     });
   }
   function set(name: string, value: any) {
+    if (name === "statNature") {
+      if (value == null) mintIntent.current.delete(editContext);
+      else mintIntent.current.add(editContext);
+    }
+    if (name === "nature") {
+      const change = natureChange(
+        values,
+        Number(value),
+        mintIntent.current.has(editContext),
+        creating && newPatch.statNature == null,
+      );
+      if (change.resetMint) {
+        mintIntent.current.delete(editContext);
+        setMessage(
+          t(
+            "The previous neutral effective nature is unavailable as a Mint here; effective nature now follows the original.",
+          ),
+        );
+      }
+      update(change.patch);
+      return;
+    }
     if (name === "species") {
       if (creating) void chooseSpecies(Number(value));
-      else update({ species: value, form: 0, gender: null });
+      else void chooseSpecies(Number(value));
+      return;
+    }
+    if (name === "form") {
+      void chooseForm(Number(value));
       return;
     }
     update({ [name]: value });
   }
+  async function chooseForm(form: number) {
+    if (operation.current) return;
+    clearValidationContext();
+    metadataRequest.current?.abort();
+    const ac = new AbortController();
+    speciesRequest.current = ac;
+    const expectedRevision = revision.current;
+    operation.current = true;
+    setBusy("Loading…");
+    setError("");
+    try {
+      const metadata = await api<any>(
+        `/catalogs/species/${num("species")}/forms/${form}`,
+        undefined,
+        ac.signal,
+      );
+      if (ac.signal.aborted || revision.current !== expectedRevision) return;
+      const gender = metadata.genders.some(
+        (g: Choice) => g.id === num("gender"),
+      )
+        ? num("gender")
+        : (metadata.genders[0]?.id ?? null);
+      update({
+        form,
+        gender,
+        ...(creating ? { moves: null, plusMoves: null } : {}),
+      });
+      setMetadata(metadata);
+    } catch (e) {
+      fail(e);
+    } finally {
+      operation.current = false;
+      setBusy("");
+    }
+  }
   async function chooseSpecies(id: number): Promise<boolean> {
-    if (operation.current || !creating) return false;
+    if (operation.current) return false;
     clearValidationContext();
     metadataRequest.current?.abort();
     const ac = new AbortController();
@@ -479,7 +597,11 @@ function App() {
       );
       if (ac.signal.aborted || revision.current !== expectedRevision)
         return false;
-      update(speciesCreationChanges(id, form, metadata.genders[0]?.id ?? null));
+      update(
+        creating
+          ? speciesCreationChanges(id, form, metadata.genders[0]?.id ?? null)
+          : { species: id, form, gender: metadata.genders[0]?.id ?? null },
+      );
       setMetadata(metadata);
       setSpeciesOpen(false);
       setTab("Profile");
@@ -506,17 +628,27 @@ function App() {
         undefined,
         ac.signal,
       );
-      if (sessionId.current !== session.id || ac.signal.aborted) return;
+      if (
+        sessionId.current !== session.id ||
+        ac.signal.aborted ||
+        sessionHash.current !== b.hash
+      )
+        return;
       if (b.hash !== session.hash) throw new ApiError(409, "stale_hash", "");
-      setSession((s) => (s ? { ...s, box: b.entries, boxIndex: index } : s));
+      setSession((s) =>
+        s && s.id === session.id && s.hash === b.hash
+          ? { ...s, box: b.entries, boxIndex: index }
+          : s,
+      );
     } catch (e) {
       fail(e);
     }
   }
   function select(party: boolean, slot: number) {
-    revision.current++;
-    validationRequest.current?.abort();
-    setValidating(false);
+    clearValidationContext();
+    setAlphaChoice(
+      (drafts[keyOf(party, slot)]?.alphaMode as AlphaMode) || "Compatible",
+    );
     if (creating) {
       guard(() => {
         setCreating(false);
@@ -533,6 +665,8 @@ function App() {
     speciesRequest.current?.abort();
     setValidating(false);
     setPreview(null);
+    setAlphaPlan(null);
+    setAlphaPlanning(false);
   }
   function cancelCreation() {
     clearValidationContext();
@@ -545,6 +679,10 @@ function App() {
     }
     clearValidationContext();
     setNewPatch({ ...initial });
+    setCreationSeed(null);
+    delete alphaUndo.current.new;
+    mintIntent.current.delete("new");
+    setAlphaChoice("Compatible");
     setCreating(true);
     setSpeciesOpen(true);
     requestAnimationFrame(() =>
@@ -556,90 +694,87 @@ function App() {
     setDestination("Auto");
     setPreferredBox(-1);
   }
-  async function alpha(enabled: boolean) {
-    if (!enabled) {
-      update({ isAlpha: false });
-      setMessage(t("Alpha disabled. Size and IVs are kept in the draft."));
-      return;
-    }
-    const ivs = [...(val("iVs", [31, 31, 31, 31, 31, 31]) as number[])];
-    for (const i of [0, 1, 2, 3, 4, 5].sort((a, b) => ivs[b] - ivs[a])) {
-      if (ivs.filter((v) => v === 31).length >= 3) break;
-      ivs[i] = 31;
-    }
-    const hyper = [
-      ...(val("hyperTrained", [
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-      ]) as boolean[]),
-    ];
-    ivs.forEach((v, i) => {
-      if (v === 31) hyper[i] = false;
-    });
-    const home =
-      !!details && String(details.readOnly.tracker) !== "0" && !creating;
-    const changes: Patch = {
-      isAlpha: true,
-      scale: 255,
-      heightScalar: home ? 255 : 0,
-      weightScalar: home ? 255 : 0,
-      iVs: ivs,
-      hyperTrained: hyper,
-    };
-    update(changes);
-    setMotion((n) => n + 1);
-    if (!session) return;
-    const candidate = { ...patch, ...changes };
+  async function requestAlphaPlan(mode: AlphaMode = alphaChoice) {
+    if (!session || operation.current) return;
+    clearValidationContext();
+    setAlphaChoice(mode);
+    setAlphaPlanning(true);
+    setError("");
     const ac = new AbortController();
     validationRequest.current = ac;
     const expectedRevision = revision.current;
-    setValidating(true);
     try {
-      const result = await api<Details>(
-        `/sessions/${session.id}/${creating ? "preview-add" : "preview"}`,
+      const plan = await api<AlphaPlan>(
+        `/sessions/${session.id}/${creating ? "alpha-plan-add" : "alpha-plan"}`,
         creating
-          ? {
-              expectedHash: session.hash,
-              options: { ...options(), details: { ...newPatch, ...changes } },
-            }
+          ? { expectedHash: session.hash, options: options(), mode }
           : {
               expectedHash: session.hash,
               party: selection?.party,
               slot: selection?.slot,
-              patch: candidate,
+              patch,
+              mode,
             },
         ac.signal,
       );
-      if (expectedRevision !== revision.current) return;
-      setPreview(result);
-      setMessage(
-        t(
-          result.legal
-            ? "Alpha prepared in the draft. No save was changed."
-            : "Alpha prepared in the draft; the report still has legality findings. No save was changed.",
-        ),
-      );
+      if (ac.signal.aborted || revision.current !== expectedRevision) return;
+      if (plan.hash !== session.hash) throw new ApiError(409, "stale_hash", "");
+      setAlphaPlan(plan);
+      setMessage(t("Review the Alpha plan. No draft or save was changed."));
     } catch (e) {
-      if (expectedRevision !== revision.current || ac.signal.aborted) return;
-      if (
-        !creating &&
-        e instanceof ApiError &&
-        (e.code.includes("alpha") || e.message.startsWith("IsAlpha:"))
-      ) {
-        setError(
-          t(
-            "This encounter cannot become Alpha. To create a valid Alpha, use Add Pokémon. The draft is kept; you can turn Alpha off.",
-          ),
-        );
-        setMessage("");
-      } else fail(e);
+      if (ac.signal.aborted || revision.current !== expectedRevision) return;
+      fail(e);
     } finally {
-      if (expectedRevision === revision.current) setValidating(false);
+      if (revision.current === expectedRevision) setAlphaPlanning(false);
     }
+  }
+  function applyAlphaPlan() {
+    if (!alphaPlan?.available || alphaPlan.hash !== session?.hash) return;
+    const planned = planDraft(alphaPlan);
+    alphaUndo.current[editContext] = {
+      before: { ...patch },
+      applied: planned,
+      baseline: creating ? {} : { ...(details?.values || {}) },
+      creationSeed: creating ? creationSeed : undefined,
+    };
+    const preview = alphaPlan.preview,
+      seed = alphaPlan.options?.creationSeed;
+    update(planned);
+    if (creating && seed != null) setCreationSeed(String(seed));
+    setPreview(preview);
+    setMessage(
+      t(
+        alphaPlan.mode === "Custom"
+          ? "Custom Alpha applied to draft; review the actual legality report before saving."
+          : "Compatible Alpha plan applied to draft. Save with backup when ready.",
+      ),
+    );
+    setMotion((n) => n + 1);
+  }
+  function revertAlphaPlan() {
+    const undo = alphaUndo.current[editContext];
+    if (!undo) return;
+    delete alphaUndo.current[editContext];
+    update(undoAlphaChanges(values, undo));
+    if (creating) setCreationSeed(undo.creationSeed ?? null);
+    setMessage(t("Alpha adjustments reverted; your other edits were kept."));
+  }
+  async function alpha(enabled: boolean) {
+    if (enabled) {
+      await requestAlphaPlan();
+      return;
+    }
+    if (alphaPlan || alphaPlanning) {
+      clearValidationContext();
+      setMessage(t("Alpha plan cancelled. The draft was not changed."));
+      return;
+    }
+    update({ isAlpha: false, alphaMode: null });
+    setMessage(
+      t(
+        "Alpha disabled. Other adjustments remain; use Revert Alpha adjustments to restore the planned fields.",
+      ),
+    );
   }
 
   function scale(n: number) {
@@ -660,6 +795,18 @@ function App() {
       ) as number[]),
     ];
     values[index] = n;
+    if (
+      name === "iVs" &&
+      val("isAlpha", false) &&
+      values.filter((v) => v === 31).length < 3
+    ) {
+      setError(
+        t(
+          "Alpha needs at least three perfect IVs. Keep three IVs at 31 before reducing another.",
+        ),
+      );
+      return;
+    }
     if (name === "iVs" && n === 31) {
       const flags = [
         ...(val("hyperTrained", [
@@ -680,10 +827,11 @@ function App() {
     form: num("form"),
     level: num("level", 10),
     nature: num("nature", 15),
-    shiny: val("shiny") !== "NonShiny",
+    shiny: ["Star", "Square"].includes(String(val("shiny", "NonShiny"))),
     ball: num("ball", 4),
     destination,
     preferredBox,
+    ...(creationSeed ? { creationSeed } : {}),
     details: newPatch,
   });
   async function validate() {
@@ -711,6 +859,7 @@ function App() {
       setPreview(p);
       setMessage(t("Validated by engine."));
     } catch (e) {
+      if (expectedRevision !== revision.current || ac.signal.aborted) return;
       fail(e);
     } finally {
       if (expectedRevision === revision.current) setValidating(false);
@@ -718,11 +867,16 @@ function App() {
   }
   async function commit() {
     if (!session || operation.current || conflict) return;
+    if (alphaPlan || alphaPlanning) {
+      setError(t("Apply or cancel the Alpha plan before saving."));
+      return;
+    }
     if (creating && draftCount) {
       setError(t("Resolve pending drafts before adding."));
       return;
     }
     clearValidationContext();
+    boxRequest.current?.abort();
     operation.current = true;
     setBusy("Saving…");
     setError("");
@@ -751,18 +905,24 @@ function App() {
               boxEdits: edits(false),
             },
       );
+      if (result.backupDirectory) setBackup(result.backupDirectory);
       if (!result.committed) {
         setConflict(true);
         setError(
           t(
-            "The write outcome is unknown. Reopen the save to reconcile; drafts have been kept.",
+            result.outcomeUnknown
+              ? "The write outcome is unknown. Reopen the save to reconcile; drafts have been kept."
+              : "The write did not complete. Reopen the save and inspect the backup; drafts have been kept.",
           ),
         );
         return;
       }
       writeConfirmed = true;
+      sessionHash.current = result.hash;
       setBackup(result.backupDirectory);
       setDrafts({});
+      alphaUndo.current = {};
+      mintIntent.current.clear();
       setCreating(false);
       setMessage(t("Saved with backup."));
       let refreshed = await api<Session>(`/sessions/${session.id}`);
@@ -1000,7 +1160,10 @@ function App() {
       <header className="glass topbar">
         <div className="brand">
           <img src="/assets/pokeball-mark.png" alt="" />
-          <h1>ZA Recomp Editor</h1>
+          <h1>
+            ZA Recomp Editor{" "}
+            {appVersion && <small className="app-version">v{appVersion}</small>}
+          </h1>
         </div>
         <button className="save-picker" onClick={() => setOpenPath((v) => !v)}>
           <FolderOpen size={18} />
@@ -1415,7 +1578,10 @@ function App() {
                     <NatureChoice
                       label="Mint"
                       value={num("statNature", num("nature", 15))}
-                      choices={catalogs.natures || []}
+                      choices={mintChoices(
+                        catalogs.natures || [],
+                        num("nature", 15),
+                      )}
                       onChange={(n) => set("statNature", n)}
                       t={t}
                     />
@@ -1514,6 +1680,9 @@ function App() {
                               <input
                                 type="checkbox"
                                 checked={newPatch[name] != null}
+                                disabled={
+                                  name === "iVs" && !!val("isAlpha", false)
+                                }
                                 onChange={(e) =>
                                   set(
                                     name,
@@ -1657,7 +1826,12 @@ function App() {
                           {[31, 0].map((n) => (
                             <button
                               key={n}
-                              title={t("IV presets clear Hyper Training.")}
+                              disabled={n === 0 && !!val("isAlpha", false)}
+                              title={t(
+                                n === 0 && val("isAlpha", false)
+                                  ? "Alpha needs at least three perfect IVs. Keep three IVs at 31 before reducing another."
+                                  : "IV presets clear Hyper Training.",
+                              )}
                               onClick={() => {
                                 update({
                                   iVs: Array(6).fill(n),
@@ -1696,17 +1870,57 @@ function App() {
                         <strong>Alpha</strong>
                         <input
                           type="checkbox"
-                          checked={!!val("isAlpha", false)}
+                          checked={
+                            !!val("isAlpha", false) ||
+                            !!alphaPlan ||
+                            alphaPlanning
+                          }
                           onChange={(e) => alpha(e.target.checked)}
                         />
-                        <small>{val("isAlpha", false) ? "ON" : "OFF"}</small>
+                        <small>
+                          {alphaPlanning
+                            ? t("Loading…")
+                            : val("isAlpha", false)
+                              ? "ON"
+                              : alphaPlan
+                                ? t("Preview")
+                                : "OFF"}
+                        </small>
+                      </label>
+                      <label className="alpha-mode-label">
+                        {t("Alpha mode")}
+                        <select
+                          aria-label={t("Alpha mode")}
+                          value={alphaChoice}
+                          onChange={(e) => {
+                            const mode = e.target.value as AlphaMode;
+                            setAlphaChoice(mode);
+                            if (alphaPlan || val("isAlpha", false))
+                              void requestAlphaPlan(mode);
+                          }}
+                        >
+                          <option value="Compatible">
+                            {t("Compatible encounter")}
+                          </option>
+                          <option value="Custom">
+                            {t("Custom: keep encounter")}
+                          </option>
+                        </select>
                       </label>
                       <small>
                         <Info size={14} />
                         {t(
-                          "Automatically sets maximum size and at least 3 perfect IVs. Encounter compatibility is checked without saving.",
+                          "Compatible previews encounter adjustments; Custom keeps origin and reports incompatibilities. Nothing is saved automatically.",
                         )}
                       </small>
+                      {alphaUndo.current[editContext] && (
+                        <button
+                          className="alpha-revert"
+                          onClick={revertAlphaPlan}
+                        >
+                          {t("Revert Alpha adjustments")}
+                        </button>
+                      )}
                     </div>
                     <div className="size-control">
                       <label>
@@ -1736,10 +1950,31 @@ function App() {
                       </div>
                     </div>
                   </div>
+                  {alphaPlan && (
+                    <AlphaPlanReview
+                      plan={alphaPlan}
+                      catalogs={catalogs}
+                      locale={locale}
+                      t={t}
+                      apply={applyAlphaPlan}
+                      cancel={() => {
+                        clearValidationContext();
+                        setMessage(
+                          t("Alpha plan cancelled. The draft was not changed."),
+                        );
+                      }}
+                    />
+                  )}
                   <div className="validation-bar">
                     <button
                       onClick={validate}
-                      disabled={validating || !!busy || conflict}
+                      disabled={
+                        validating ||
+                        !!busy ||
+                        conflict ||
+                        alphaPlanning ||
+                        !!alphaPlan
+                      }
                     >
                       {validating ? (
                         <LoaderCircle size={16} className="spinning" />
@@ -1810,7 +2045,12 @@ function App() {
           <button
             className="primary"
             disabled={
-              (!creating && !draftCount) || !!busy || conflict || !session
+              (!creating && !draftCount) ||
+              !!busy ||
+              conflict ||
+              !session ||
+              !!alphaPlan ||
+              alphaPlanning
             }
             onClick={commit}
           >

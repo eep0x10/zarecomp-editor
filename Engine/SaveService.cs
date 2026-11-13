@@ -78,8 +78,7 @@ public sealed partial class SaveService
             if (party && index >= 6) throw new InvalidOperationException("A equipe já tem seis Pokémon. Escolha Caixa ou Automático.");
             if (!party && index < 0) throw new InvalidOperationException("As caixas estão cheias. Nenhum Pokémon foi sobrescrito.");
             var before = save.Clone() as SAV9ZA ?? throw new InvalidDataException();
-            var pokemon = CreatePokemon(save, options);
-            if (options.Details != null) ApplyDetails(save, pokemon, options.Details);
+            var pokemon = BuildNewPokemon(save, options);
             if (party) save.SetPartySlotAtIndex(pokemon, index);
             else save.SetBoxSlotAtIndex(pokemon, index);
             VerifyChanges(before, save, party, index, pokemon);
@@ -203,6 +202,8 @@ public sealed partial class SaveService
     {
         string backup = Backup(path, hash);
         string temp = Path.Combine(Path.GetDirectoryName(path)!, $".za-tool-{Guid.NewGuid():N}.tmp");
+        bool mayHaveCommitted=false;
+        string phase="temporary_write";
         try
         {
             using (var stream = new FileStream(temp, FileMode.CreateNew, FileAccess.Write, FileShare.None, 65536, FileOptions.WriteThrough))
@@ -211,11 +212,15 @@ public sealed partial class SaveService
             if (!Hash(written).Equals(Hash(output))) throw new IOException("Falha ao verificar arquivo temporário.");
             verify(Read(written)); GuardGame(path);
             if (!Hash(File.ReadAllBytes(path)).Equals(hash)) throw new IOException("O save mudou durante a edição. Operação cancelada.");
+            phase="replace";mayHaveCommitted=true;
             File.Replace(temp, path, null);
+            phase="final_verification";
             if (!Hash(File.ReadAllBytes(path)).Equals(Hash(output))) throw new IOException($"Verificação final falhou. Backup em {backup}");
             return backup;
         }
-        finally { if (File.Exists(temp)) File.Delete(temp); }
+        catch(Exception error) when(error is IOException or UnauthorizedAccessException)
+        { throw new SaveCommitException(backup,phase,mayHaveCommitted,error); }
+        finally { try { if (File.Exists(temp)) File.Delete(temp); } catch(IOException) { } catch(UnauthorizedAccessException) { } }
     }
 
     private static SAV9ZA Read(byte[] bytes)
@@ -272,14 +277,24 @@ public sealed partial class SaveService
     {
         var species = (ushort)o.Species; var form = (byte)o.Form;
         var blank = new PA9 { Species = species, Form = form };
-        var chain = new[] { new EvoCriteria { Species = species, Form = form, LevelMin = 1, LevelMax = (byte)o.Level } };
-        var requestedAlpha = o.Details?.IsAlpha;
+        var requestedAlpha = o.Details?.AlphaMode == AlphaMode.Custom && o.Details.IsAlpha == true ? false : o.Details?.IsAlpha;
+        var lineage = requestedAlpha==true ? EvolutionTree.Evolves9a.Reverse.GetPreEvolutions(species,form).Append((species,form)) : new[]{(species,form)};
+        var chain=lineage.Select(s=>new EvoCriteria{Species=s.Item1,Form=s.Item2,LevelMin=1,LevelMax=(byte)o.Level}).ToArray();
+        bool requestedShiny = o.Details?.Shiny is { } style ? style != ShinyStyle.NonShiny : o.Shiny;
+        int requestedNature = o.Details?.Nature ?? o.Nature;
+        int requestedGender = o.Details?.Gender ?? o.Gender;
+        var targetGenders=Catalog.Genders(species,form);
+        if(requestedGender<0&&targetGenders.Count==1)requestedGender=targetGenders[0].Id;
         var encounter = EncounterGenerator9a.Instance.GetPossible(blank, chain, GameVersion.ZA, EncounterTypeGroup.Static | EncounterTypeGroup.Slot)
-            .FirstOrDefault(e => e.Species == species && e.Form == form && e.LevelMin <= o.Level && e is IEncounterConvertible
-                && (requestedAlpha is null || (e is IAlphaReadOnly { IsAlpha: true }) == requestedAlpha.Value));
+            .Where(e => chain.Any(s=>s.Species==e.Species&&s.Form==e.Form) && e.LevelMin <= o.Level && e is IEncounterConvertible
+                && (e is not IFixedGender g || g.Gender > 2 || requestedGender < 0 || g.Gender == requestedGender)
+                && (e is not IFixedNature n || !n.Nature.IsFixed || (int)n.Nature == requestedNature)
+                && (e.Shiny == Shiny.Random || e.Shiny.IsShiny() == requestedShiny)
+                && (requestedAlpha is null || (e is IAlphaReadOnly { IsAlpha: true }) == requestedAlpha.Value))
+            .OrderBy(e=>e.Species==species?0:1).ThenBy(e=>e.LevelMin).FirstOrDefault();
         if (requestedAlpha == true && encounter is null)
             throw new ArgumentException("IsAlpha: não existe encontro Alpha disponível para esta espécie/forma neste nível. Aumente o nível ou escolha outra espécie/forma.");
-        var criteria = new EncounterCriteria { Nature = (Nature)o.Nature, Gender = o.Gender < 0 ? Gender.Random : (Gender)o.Gender, Shiny = o.Shiny ? Shiny.Always : Shiny.Never };
+        var criteria = new EncounterCriteria { Nature = (Nature)requestedNature, Gender = requestedGender < 0 ? Gender.Random : (Gender)requestedGender, Shiny = o.Details?.Shiny==ShinyStyle.Square ? Shiny.AlwaysSquare : requestedShiny ? Shiny.Always : Shiny.Never };
         var pk = encounter is IEncounterConvertible converter ? (PA9)converter.ConvertToPKM(save, criteria) : new PA9
         {
             Species = species, Form = form, Version = GameVersion.ZA, Language = save.Language,
@@ -287,20 +302,38 @@ public sealed partial class SaveService
             MetLevel = (byte)o.Level, MetDate = DateOnly.FromDateTime(DateTime.Today),
             EncryptionConstant = (uint)Random.Shared.NextInt64(0, 1L << 32), PID = (uint)Random.Shared.NextInt64(0, 1L << 32),
         };
+        // A real Alpha pre-evolution can be evolved without replacing the target identity.
+        pk.Species=species;pk.Form=form;
+        if(o.CreationSeed is ulong creationSeed)
+        {
+            if(encounter is IEncounter9a rngEncounter)
+            {
+                var generation=rngEncounter.GetParams(PersonalTable.ZA[encounter.Species,encounter.Form]);
+                if(!rngEncounter.TryApply64(pk,creationSeed,generation,criteria))throw new ArgumentException("IsAlpha: seed cannot satisfy this encounter's creation constraints.");
+            }
+            else
+            {
+                var random=new Xoroshiro128Plus(creationSeed);pk.EncryptionConstant=(uint)random.Next();pk.PID=(uint)random.Next();
+                var generatedIVs=new int[6];for(int i=0;i<6;i++)generatedIVs[i]=(int)random.NextInt(32);pk.SetIVs(generatedIVs);
+            }
+        }
         var info = PersonalTable.ZA[species, form];
-        pk.Nature = pk.StatAlignment = (Nature)o.Nature;
-        pk.Gender = (byte)(o.Gender < 0 ? Catalog.Genders(o.Species, o.Form)[0].Id : o.Gender);
+        pk.Nature = pk.StatAlignment = (Nature)requestedNature;
+        pk.Gender = (byte)(requestedGender < 0 ? encounter is null ? Catalog.Genders(o.Species,o.Form)[0].Id : pk.Gender : requestedGender);
         pk.CurrentLevel = (byte)o.Level; pk.ObedienceLevel = pk.MetLevel;
         pk.Ball = (byte)o.Ball;
         pk.Nickname = string.IsNullOrWhiteSpace(o.Nickname) ? SpeciesName.GetSpeciesNameGeneration(species, pk.Language, 9) : o.Nickname;
         pk.IsNicknamed = !string.IsNullOrWhiteSpace(o.Nickname);
         pk.OriginalTrainerFriendship = info.BaseFriendship;
-        pk.RefreshAbility(0);
-        if (encounter == null) pk.SetRandomIVs();
+        // ZA retains the birth encounter's ability through evolution. Preserve the RNG
+        // slot and use the vendor's origin-aware rule rather than realigning to the final species.
+        if(encounter==null)pk.RefreshAbility(0);
+        else pk.Ability=AbilityChangeRules.GetExpectedAbilityZA(pk,encounter,pk.AbilityNumber);
+        if (encounter == null && o.CreationSeed == null) pk.SetRandomIVs();
         if (o.IVs != null) pk.SetIVs(o.IVs);
         if (o.EVs != null) pk.SetEVs(o.EVs);
-        if (o.Shiny) SetStarShiny(pk);
-        if (!o.Shiny && pk.IsShiny) pk.PID ^= 0x10000000;
+        if(requestedShiny)ApplyShinyStyle(pk,o.Details?.Shiny??ShinyStyle.Star);
+        if(!requestedShiny&&pk.IsShiny)pk.PID^=0x10000000;
         Span<ushort> moves = stackalloc ushort[4];
         if (o.Moves == null) LearnSource9ZA.Instance.GetLearnset(species, form).SetEncounterMovesBackwards((byte)o.Level, moves, sameDescend: false);
         else for (int i = 0; i < 4; i++) moves[i] = (ushort)o.Moves[i];
@@ -364,11 +397,19 @@ public sealed partial class SaveService
         string backup = Path.Combine(parent, "ZA-Tool-Backups", $"{DateTime.UtcNow:yyyyMMdd-HHmmssfff}-{Guid.NewGuid():N}");
         var manifest = new Dictionary<string, string>();
         // Enumerate before creating the destination; reject links to avoid following external data.
-        var files = Directory.GetFiles(source, "*", SearchOption.AllDirectories);
-        foreach (var entry in Directory.EnumerateFileSystemEntries(source, "*", SearchOption.AllDirectories))
-            if ((File.GetAttributes(entry) & FileAttributes.ReparsePoint) != 0) throw new IOException("Backup não aceita links/junções na pasta do save.");
+        var files = new List<string>();var directories=new List<string>();var pending=new Stack<string>();pending.Push(source);
+        if((File.GetAttributes(source)&FileAttributes.ReparsePoint)!=0)throw new IOException("Backup não aceita links/junções na pasta do save.");
+        while(pending.Count>0)
+        {
+            foreach(var entry in Directory.EnumerateFileSystemEntries(pending.Pop()))
+            {
+                var attributes=File.GetAttributes(entry);
+                if((attributes&FileAttributes.ReparsePoint)!=0)throw new IOException("Backup não aceita links/junções na pasta do save.");
+                if((attributes&FileAttributes.Directory)!=0){directories.Add(entry);pending.Push(entry);}else files.Add(entry);
+            }
+        }
         Directory.CreateDirectory(backup);
-        foreach (var directory in Directory.GetDirectories(source, "*", SearchOption.AllDirectories)) Directory.CreateDirectory(Path.Combine(backup, Path.GetRelativePath(source, directory)));
+        foreach (var directory in directories) Directory.CreateDirectory(Path.Combine(backup, Path.GetRelativePath(source, directory)));
         foreach (var file in files)
         {
             string relative = Path.GetRelativePath(source, file), target = Path.Combine(backup, relative);

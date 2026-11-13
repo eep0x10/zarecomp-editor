@@ -13,6 +13,8 @@ internal static class ApiDocs
         ("get", "/api/v1/sessions/{id}/pokemon/{storage}/{slot}", "Read details; storage party or box, zero-based global slot"),
         ("post", "/api/v1/sessions/{id}/preview", "Preview {expectedHash,party,slot,patch}; never writes"),
         ("post", "/api/v1/sessions/{id}/preview-add", "Preview {expectedHash,options}; never writes"),
+        ("post", "/api/v1/sessions/{id}/alpha-plan", "Read-only Alpha plan {expectedHash,party,slot,patch,mode}; review changes, then explicitly apply patch to draft before Save"),
+        ("post", "/api/v1/sessions/{id}/alpha-plan-add", "Read-only creation plan {expectedHash,options,mode}; retain returned options.creationSeed and apply options explicitly"),
         ("post", "/api/v1/sessions/{id}/suggestions", "Nature suggestions {expectedHash,team,language}"),
         ("post", "/api/v1/sessions/{id}/edits", "Commit {expectedHash,operationId,teamEdits,boxEdits} with backup"),
         ("post", "/api/v1/sessions/{id}/add", "Commit {expectedHash,operationId,options} with backup"),
@@ -26,7 +28,7 @@ internal static class ApiDocs
     ];
     internal static object Document() => new
     {
-        openapi = "3.1.0", info = new { title = "Recomp Pokémon local API", version = "2.0.2" },
+        openapi = "3.1.0", info = new { title = "Recomp Pokémon local API", version = "2.1.0" },
         security = new[] { new Dictionary<string, string[]> { ["bearerAuth"] = [] } },
         components = new { securitySchemes = new { bearerAuth = new { type = "http", scheme = "bearer" } }, schemas = Schemas() },
         paths = Routes.GroupBy(r => r.Path).ToDictionary(g => g.Key, g => g.ToDictionary(r => r.Method, r => (object)new
@@ -37,15 +39,16 @@ internal static class ApiDocs
             requestBody = r.Method is "post" or "put" ? new { required = true, content = new Dictionary<string, object> { ["application/json"] = new { schema = RequestSchema(r.Path) } } } : null
         }))
     };
-    private static object RequestSchema(string path) => path.EndsWith("/preview") ? Ref("PreviewRequest") : path.EndsWith("/preview-add") ? Ref("PreviewAddRequest") : path.EndsWith("/edits") ? Ref("EditRequest") : path.EndsWith("/add") ? Ref("AddRequest") : path.EndsWith("/sessions") ? Ref("OpenRequest") : path.EndsWith("/suggestions") ? Ref("SuggestRequest") : path.EndsWith("/preferences") ? Ref("Preferences") : new { type = "object" };
+    private static object RequestSchema(string path) => path.EndsWith("/alpha-plan") ? Ref("AlphaPlanRequest") : path.EndsWith("/alpha-plan-add") ? Ref("AlphaPlanAddRequest") : path.EndsWith("/preview") ? Ref("PreviewRequest") : path.EndsWith("/preview-add") ? Ref("PreviewAddRequest") : path.EndsWith("/edits") ? Ref("EditRequest") : path.EndsWith("/add") ? Ref("AddRequest") : path.EndsWith("/sessions") ? Ref("OpenRequest") : path.EndsWith("/suggestions") ? Ref("SuggestRequest") : path.EndsWith("/preferences") ? Ref("Preferences") : new { type = "object" };
     private static Dictionary<string, object> Ref(string type) => new() { ["$ref"] = "#/components/schemas/" + type };
     private static Dictionary<string, object> Schemas()
     {
-        Type[] types = [typeof(OpenRequest), typeof(PreviewRequest), typeof(PreviewAddRequest), typeof(EditRequest), typeof(AddRequest), typeof(SuggestRequest), typeof(Preferences), typeof(ZaTool.Engine.PokemonPatch), typeof(ZaTool.Engine.AddOptions), typeof(ZaTool.Engine.TeamEdit), typeof(ZaTool.Engine.TeamPokemon)];
+        Type[] types = [typeof(OpenRequest), typeof(PreviewRequest), typeof(PreviewAddRequest), typeof(AlphaPlanRequest),typeof(AlphaPlanAddRequest),typeof(EditRequest), typeof(AddRequest), typeof(SuggestRequest), typeof(Preferences), typeof(ZaTool.Engine.PokemonPatch), typeof(ZaTool.Engine.AddOptions), typeof(ZaTool.Engine.TeamEdit), typeof(ZaTool.Engine.TeamPokemon)];
         object Schema(Type t)
         {
             var underlying = Nullable.GetUnderlyingType(t); if (underlying != null) return new { anyOf = new[] { Schema(underlying), new { type = "null" } } };
             if (t == typeof(string)) return new { type = "string" };
+            if (t == typeof(ulong)) return new {type="string",pattern="^[0-9]+$",description="Unsigned 64-bit decimal string; never convert to a JavaScript Number."};
             if (t == typeof(DateOnly)) return new { type = "string", format = "date" };
             if (t == typeof(bool)) return new { type = "boolean" };
             if (t.IsEnum) return new Dictionary<string, object> { ["type"] = "string", ["enum"] = Enum.GetNames(t) };

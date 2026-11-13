@@ -32,9 +32,16 @@ public sealed partial class SaveService
     {
         ArgumentNullException.ThrowIfNull(options);
         var bytes = File.ReadAllBytes(path); var save = Read(bytes); Validate(save, options);
-        var pk = CreatePokemon(save, options);
-        if (options.Details != null) ApplyDetails(save, pk, options.Details);
+        var pk = BuildNewPokemon(save, options);
         return DetailedSnapshot(pk, options.Destination != Destination.Box && save.PartyCount < 6, -1, Hash(bytes));
+    }
+    private static PA9 BuildNewPokemon(SAV9ZA save,AddOptions options)
+    {
+        var pk=CreatePokemon(save,options);
+        if(options.Details!=null)ApplyDetails(save,pk,options.Details);
+        // New Pokémon start at full health after final IV/level/customization. Existing
+        // edits still preserve HP/status; don't let template pre-patch stats leak into Add.
+        pk.ResetPartyStats();pk.RefreshChecksum();return pk;
     }
     private static PA9 GetDetailedPokemon(SAV9ZA save, bool party, int slot)
     {
@@ -64,7 +71,7 @@ public sealed partial class SaveService
             Moves=[pk.Move1,pk.Move2,pk.Move3,pk.Move4],PP=ReadPP(pk),PPUps=ReadPPUps(pk),RelearnMoves=ReadRelearn(pk),PlusMoves=ReadPlus(pk),
             MetLevel=pk.MetLevel,MetLocation=pk.MetLocation,MetDate=pk.MetDate,ObedienceLevel=pk.ObedienceLevel,
             OriginalTrainerName=pk.OriginalTrainerName,OriginalTrainerGender=pk.OriginalTrainerGender,TID16=pk.TID16,SID16=pk.SID16,
-            IsAlpha=pk.IsAlpha,HeightScalar=pk.HeightScalar,WeightScalar=pk.WeightScalar,Scale=pk.Scale,AffixedRibbon=pk.AffixedRibbon,
+            IsAlpha=pk.IsAlpha,AlphaMode=pk.IsAlpha ? (legality.Results.Any(r=>!r.Valid&&r.Result==LegalityCheckResultCode.StatAlphaInvalid) ? Engine.AlphaMode.Custom : Engine.AlphaMode.Compatible) : null,HeightScalar=pk.HeightScalar,WeightScalar=pk.WeightScalar,Scale=pk.Scale,AffixedRibbon=pk.AffixedRibbon,
             Favorite=pk.IsFavorite,Markings=Enumerable.Range(0,6).Select(i => (int)pk.GetMarking(i)).ToArray(),
         };
         var readOnly = new PokemonReadOnly(pk.PID,pk.EncryptionConstant,pk.Tracker,(int)pk.Version,pk.IsEgg,pk.EggLocation,pk.EggMetDate,
@@ -78,6 +85,7 @@ public sealed partial class SaveService
     private static void ApplyDetails(SAV9ZA save, PA9 pk, PokemonPatch patch)
     {
         var prior = pk.Clone(); var shinyBefore = GetShinyStyle(pk);
+        if(patch.AlphaMode is { } alphaMode && (!Enum.IsDefined(alphaMode) || !(patch.IsAlpha??pk.IsAlpha))) throw new ArgumentException("IsAlpha: AlphaMode requires an Alpha Pokémon.");
         Range(patch.Species,1,save.MaxSpeciesID,"Species"); Range(patch.Form,0,255,"Form");Range(patch.Level,1,100,"Level");
         Range(patch.Gender,0,2,"Gender");Range(patch.Nature,0,24,"Nature");Range(patch.StatNature,0,24,"StatNature");
         Range(patch.Language,1,11,"Language");Range(patch.Friendship,0,255,"Friendship");
@@ -141,7 +149,7 @@ public sealed partial class SaveService
             if(patch.Moves.All(m=>m==0)||patch.Moves.Where(m=>m!=0).Distinct().Count()!=patch.Moves.Count(m=>m!=0)) throw new ArgumentException("Moves: ao menos um golpe, sem repetidos.");
             pk.SetMoves(patch.Moves.Select(m=>(ushort)m).ToArray());pk.HealPP();
         }
-        if(identity||patch.Moves!=null) ValidateDetailedMoves(save,pk);
+        if(identity||patch.Moves!=null) ValidateDetailedMoves(save,pk,patch.IsAlpha);
         if(patch.OriginalTrainerName!=null)pk.OriginalTrainerName=patch.OriginalTrainerName;
         if(patch.OriginalTrainerGender is int otGender)pk.OriginalTrainerGender=(byte)otGender;
         if(patch.TID16 is int tid)pk.TID16=(ushort)tid;
@@ -170,17 +178,18 @@ public sealed partial class SaveService
         if(identity)pk.ClearMovePlusFlags();
         if(patch.PlusMoves is { } requestedPlus)
         {
-            var possible=GetDetailedLearnable(save,pk,100);
+            var possible=GetDetailedLearnable(save,pk,100,patch.IsAlpha);
             if(requestedPlus.Distinct().Count()!=requestedPlus.Length||requestedPlus.Any(m=>m<=0||m>save.MaxMoveID||!possible[m]||!pk.PersonalInfo.PlusMoveIndexes.Contains((ushort)m)))throw new ArgumentException("PlusMoves: registro não permitido para esta espécie/forma.");
             pk.ClearMovePlusFlags();pk.SetPlusFlagsSpecific(pk.PersonalInfo,requestedPlus.Select(m=>(ushort)m).ToArray());
         }
-        if(identity||patch.Level!=null||patch.Moves!=null||patch.PlusMoves!=null||patch.IsAlpha!=null)ReconcileNaturalPlus(pk);
-        if(patch.IsAlpha!=null||patch.Scale!=null||patch.HeightScalar!=null||patch.WeightScalar!=null||identity)
+        if(identity||patch.Level!=null||patch.Moves!=null||patch.PlusMoves!=null||patch.IsAlpha!=null||patch.AlphaMode!=null)ReconcileNaturalPlus(pk);
+        if(patch.IsAlpha!=null||patch.AlphaMode!=null||patch.Scale!=null||patch.HeightScalar!=null||patch.WeightScalar!=null||patch.IVs!=null||patch.MetLevel!=null||patch.MetLocation!=null||identity)
         {
             if((pk.Tracker!=0) && (pk.HeightScalar!=pk.Scale||pk.WeightScalar!=pk.Scale))throw new ArgumentException("Scale: registro HOME exige HeightScalar e WeightScalar iguais a Scale.");
             if(!(pk.Tracker!=0) && (pk.HeightScalar!=0||pk.WeightScalar!=0))throw new ArgumentException("Scale: origem nativa usa Scale; HeightScalar e WeightScalar devem ser zero.");
             if(pk.IsAlpha&&(pk.Scale!=255||Enumerable.Range(0,6).Count(i=>pk.GetIV(i)==31)<3))throw new ArgumentException("IsAlpha: Alpha exige Scale 255 e ao menos três IVs 31.");
-            if(patch.IsAlpha!=null && new LegalityAnalysis(pk).Results.Any(r=>!r.Valid&&r.Result==LegalityCheckResultCode.StatAlphaInvalid))throw new ArgumentException("IsAlpha: os dados de encontro não correspondem a um encontro Alpha válido.");
+            bool originOrMode=patch.IsAlpha!=null||patch.AlphaMode!=null||pk.IsAlpha&&(identity||patch.MetLevel!=null||patch.MetLocation!=null);
+            if(originOrMode && patch.AlphaMode!=Engine.AlphaMode.Custom && new LegalityAnalysis(pk).Results.Any(r=>!r.Valid&&r.Result==LegalityCheckResultCode.StatAlphaInvalid))throw new ArgumentException("IsAlpha: os dados de encontro não correspondem a um encontro Alpha válido.");
         }
         if(patch.ObedienceLevel!=null||patch.MetLevel!=null)
         {
@@ -204,16 +213,16 @@ public sealed partial class SaveService
             if(encounterMove!=0)pk.SetPlusFlagsSpecific(pi,encounterMove);
         }
     }
-    private static bool[] GetDetailedLearnable(SAV9ZA save,PA9 pk,byte level)
+    private static bool[] GetDetailedLearnable(SAV9ZA save,PA9 pk,byte level,bool? alpha=null)
     {
         var moves=new bool[save.MaxMoveID+1];
         LearnSource9ZA.Instance.GetAllMoves(moves,pk,new EvoCriteria {Species=pk.Species,Form=pk.Form,LevelMax=level});
-        if(pk.IsAlpha&&pk.PersonalInfo.AlphaMove<moves.Length)moves[pk.PersonalInfo.AlphaMove]=true;
+        if((alpha??pk.IsAlpha)&&pk.PersonalInfo.AlphaMove<moves.Length)moves[pk.PersonalInfo.AlphaMove]=true;
         return moves;
     }
-    private static void ValidateDetailedMoves(SAV9ZA save,PA9 pk)
+    private static void ValidateDetailedMoves(SAV9ZA save,PA9 pk,bool? alpha=null)
     {
-        var moves=GetDetailedLearnable(save,pk,pk.CurrentLevel);
+        var moves=GetDetailedLearnable(save,pk,pk.CurrentLevel,alpha);
         for(int i=0;i<4;i++) {var move=pk.GetMove(i);if(move!=0&&(move>save.MaxMoveID||!moves[move]||MoveInfo.IsDummiedMove(pk,move)))throw new ArgumentException("Moves: golpe indisponível para a espécie/forma e nível escolhidos em Z-A.");}
     }
     private static void ApplyShinyStyle(PA9 pk,ShinyStyle style)

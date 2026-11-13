@@ -106,7 +106,7 @@ public sealed class WorkbenchHost : IAsyncDisposable
     {
         // All Engine calls stay synchronous within this gate. Its path mutex must be released on its owning thread.
         T Locked<T>(Func<T> action) { lock (store.Gate) return action(); }
-        host.MapGet("/api/v1/bootstrap", () => Locked(() => new { version = "2.0.3", locales = new[] { "pt-BR", "en", "es" }, preferences = store.Preferences, initialPath = options.InitialPath ?? (File.Exists(store.Preferences.LastSavePath) ? store.Preferences.LastSavePath : null) }));
+        host.MapGet("/api/v1/bootstrap", () => Locked(() => new { version = "2.1.0", locales = new[] { "pt-BR", "en", "es" }, preferences = store.Preferences, initialPath = options.InitialPath ?? (File.Exists(store.Preferences.LastSavePath) ? store.Preferences.LastSavePath : null) }));
         host.MapPost("/api/v1/discovery", () => Locked(store.Discover));
         host.MapPost("/api/v1/sessions", (OpenRequest r) => Locked(() => store.Open(r)));
         host.MapGet("/api/v1/sessions/{id}", (string id) => Locked(() => store.Snapshot(store.Get(id))));
@@ -115,6 +115,8 @@ public sealed class WorkbenchHost : IAsyncDisposable
         host.MapGet("/api/v1/sessions/{id}/pokemon/{storage}/{slot:int}", (string id, string storage, int slot) => Locked(() => { var s = store.Get(id); bool party = ParseStorage(storage); return store.Coherent(s, null, () => store.Engine.InspectPokemon(s.Path, party, slot)); }));
         host.MapPost("/api/v1/sessions/{id}/preview", (string id, PreviewRequest r) => Locked(() => { RequireHash(r.ExpectedHash); var s = store.Get(id); return store.Coherent(s, r.ExpectedHash, () => store.Engine.PreviewPokemon(s.Path, r.Party, r.Slot, r.Patch)); }));
         host.MapPost("/api/v1/sessions/{id}/preview-add", (string id, PreviewAddRequest r) => Locked(() => { RequireHash(r.ExpectedHash); var s = store.Get(id); return store.Coherent(s, r.ExpectedHash, () => store.Engine.PreviewNewPokemon(s.Path, r.Options)); }));
+        host.MapPost("/api/v1/sessions/{id}/alpha-plan", (string id, AlphaPlanRequest r) => Locked(() => {RequireHash(r.ExpectedHash);var s=store.Get(id);return store.Coherent(s,r.ExpectedHash,()=>store.Engine.PlanAlpha(s.Path,r.Party,r.Slot,r.Patch,r.Mode));}));
+        host.MapPost("/api/v1/sessions/{id}/alpha-plan-add", (string id, AlphaPlanAddRequest r) => Locked(() => {RequireHash(r.ExpectedHash);var s=store.Get(id);return store.Coherent(s,r.ExpectedHash,()=>store.Engine.PlanNewAlpha(s.Path,r.Options,r.Mode));}));
         host.MapPost("/api/v1/sessions/{id}/suggestions", (string id, SuggestRequest r) => Locked(() => { RequireHash(r.ExpectedHash); var s = store.Get(id); if (r.Team == null || r.Team.Length > 6 || r.Team.Any(p => p == null || p.BaseStats == null || p.BaseStats.Length != 6 || p.Moves == null || p.Moves.Length != 4 || p.MoveCategories == null)) throw new ApiFailure(400, "invalid_team", "Team entries require four moves and six base stats."); return store.Coherent(s, r.ExpectedHash, () => r.Team.Select(p => NatureAdvisor.Suggest(p, r.Language)).ToArray()); }));
         host.MapPost("/api/v1/sessions/{id}/edits", (string id, EditRequest r) => Locked(() => { if (r.TeamEdits == null || r.BoxEdits == null || r.TeamEdits.Any(e => e == null) || r.BoxEdits.Any(e => e == null)) throw new ApiFailure(400, "invalid_edits", "Provide teamEdits and boxEdits arrays with non-null entries."); var s = store.Get(id); return store.Commit(s, r.ExpectedHash, r.OperationId, r, () => store.Engine.SaveEdits(s.Path, r.TeamEdits, r.BoxEdits, r.ExpectedHash)); }));
         host.MapPost("/api/v1/sessions/{id}/add", (string id, AddRequest r) => Locked(() => { var s = store.Get(id); return store.Commit(s, r.ExpectedHash, r.OperationId, r, () => store.Engine.Add(s.Path, r.Options, r.ExpectedHash)); }));
@@ -192,7 +194,7 @@ public sealed class WorkbenchHost : IAsyncDisposable
     }
     private sealed class UInt64StringConverter : JsonConverter<ulong>
     {
-        public override ulong Read(ref Utf8JsonReader reader, Type type, JsonSerializerOptions options) => reader.TokenType == JsonTokenType.String ? ulong.Parse(reader.GetString()!, CultureInfo.InvariantCulture) : throw new JsonException("64-bit values require decimal strings.");
+        public override ulong Read(ref Utf8JsonReader reader, Type type, JsonSerializerOptions options) => reader.TokenType == JsonTokenType.String && ulong.TryParse(reader.GetString(),NumberStyles.None,CultureInfo.InvariantCulture,out var value) ? value : throw new JsonException("64-bit values require valid unsigned decimal strings.");
         public override void Write(Utf8JsonWriter writer, ulong value, JsonSerializerOptions options) => writer.WriteStringValue(value.ToString(CultureInfo.InvariantCulture));
     }
 }

@@ -1,6 +1,7 @@
 namespace ZaTool.Engine;
 
 public enum ShinyStyle { NonShiny, Star, Square }
+public enum AlphaMode { Compatible, Custom }
 
 /// <summary>Null preserves the field. Arrays use HP/Atk/Def/Spe/SpA/SpD and four move slots.</summary>
 public sealed record PokemonPatch
@@ -35,6 +36,8 @@ public sealed record PokemonPatch
     public int? TID16 { get; init; }
     public int? SID16 { get; init; }
     public bool? IsAlpha { get; init; }
+    /// <summary>Custom explicitly permits an Alpha encounter mismatch, never invalid size/IV data.</summary>
+    public AlphaMode? AlphaMode { get; init; }
     public int? HeightScalar { get; init; }
     public int? WeightScalar { get; init; }
     public int? Scale { get; init; }
@@ -42,6 +45,11 @@ public sealed record PokemonPatch
     public bool? Favorite { get; init; }
     public int[]? Markings { get; init; }
 }
+
+public sealed record AlphaChange(string Field, string Before, string After);
+public sealed record AlphaPlan(bool Available, string Code, string Hash, AlphaMode Mode, int? MinimumLevel,
+    bool RequiresOriginChange, PokemonPatch? Patch, AddOptions? Options, PokemonDetails? Preview,
+    IReadOnlyList<AlphaChange> Changes, IReadOnlyList<string> Warnings);
 
 public sealed record PokemonReadOnly(uint PID, uint EncryptionConstant, ulong Tracker, int OriginGame, bool IsEgg,
     int EggLocation, DateOnly? EggDate, int CurrentHandler, string HandlingTrainerName, int Ability, int AbilitySlot,

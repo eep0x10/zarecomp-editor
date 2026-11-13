@@ -40,6 +40,11 @@ jobs:
       - name: Publish self-contained Windows x64 application
         shell: pwsh
         run: ./build.ps1
+      - name: Run client draft and request regression checks
+        shell: pwsh
+        run: |
+          npm test --prefix WebClient
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Run local API regression checks with a generated save
         shell: pwsh
         run: |
