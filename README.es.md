@@ -1,6 +1,8 @@
 # ZA Recomp Editor — Español
 
-**Editor portátil de partidas de Pokémon Legends: Z-A para ZA Recomp — versión 2.1.0.** Equipo, cajas, creación y edición detallada en una única interfaz web local, oscura y acrílica, con copia de seguridad automática. El encabezado muestra la versión del host en ejecución.
+**Editor portátil de partidas de Pokémon Legends: Z-A para ZA Recomp — versión 2.1.1.** Equipo, cajas, creación y edición detallada en una única interfaz web local, oscura y acrílica, con copia de seguridad automática. El encabezado muestra la versión del host en ejecución.
+
+**Corrección 2.1.1:** aplicar un plan Alfa conserva la identidad y la imagen del Pokémon. Los campos nulos de la API significan “mantener el valor actual”; solo se aplican cambios reales. [Evidencia de la corrección](docs/audits/2026-11-13-alpha-preview.md).
 
 [Descargar para Windows](https://github.com/eep0x10/zarecomp-editor/releases/latest) · [English](README.md) · [Português](README.pt-BR.md) · [Guía detallada](docs/EDITING.md)
 
@@ -87,6 +89,6 @@ La referencia interactiva de la API local está en `/api-docs`, con esquema `/op
 
 Para compilar: Windows, SDK .NET 10 x64 y Node.js 24/npm; ejecuta `./build.ps1`. Se genera `dist/RecompPokemon.exe` con los assets incorporados. Los usuarios del ZIP no necesitan estas herramientas. Consulta [pruebas y fuentes](README.md#build-from-source) y usa copias desechables.
 
-La verificación local de la 2.1.0 superó **37 pruebas Alfa, 44 HTTP con partida generada, 67 Engine y 39 regresiones del cliente**. `--generated` ejecuta Alfa antes de HTTP; `npm test --prefix WebClient` ejecuta las regresiones del cliente. CI está configurado para estos modos tras compilar; una aprobación local no demuestra un resultado publicado de CI. Las 32 pruebas deterministas de sprites y 24 consultas externas son resultados históricos, sin nueva ejecución para este cambio. Las fuentes externas pueden fallar. Consulta la [auditoría 2.1.0](docs/audits/2026-11-13-alpha-review.md) y la [guía del harness](HostTests/README.md).
+La verificación local de la 2.1.0 superó **61 pruebas Alfa, 44 HTTP con partida generada, 67 Engine y 39 regresiones del cliente**. `--generated` ejecuta Alfa antes de HTTP; `npm test --prefix WebClient` ejecuta las regresiones del cliente. CI está configurado para estos modos tras compilar; una aprobación local no demuestra un resultado publicado de CI. Las 32 pruebas deterministas de sprites y 24 consultas externas son resultados históricos, sin nueva ejecución para este cambio. Las fuentes externas pueden fallar. Consulta la [auditoría 2.1.0](docs/audits/2026-11-13-alpha-review.md) y la [guía del harness](HostTests/README.md).
 
 Código GPL-3.0-or-later con fuentes correspondientes de PKHeX.Core. Consulta [avisos de terceros](THIRD_PARTY_NOTICES.md) y [licencias del frontend](WEB-THIRD-PARTY-NOTICES.txt). Los recursos y marcas Pokémon pertenecen a sus titulares. Proyecto independiente, sin afiliación a Nintendo, Game Freak, The Pokémon Company, ZA Recomp o PKHeX.

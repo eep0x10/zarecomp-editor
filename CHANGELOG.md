@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.1.1 — 2026-11-13
+
+- Preserve Pokémon identity, artwork and unchanged inspector fields after applying an Alpha plan. Nullable API patch fields mean “preserve”, rather than empty UI overrides; real zero/false/empty values remain valid edits.
+- Add regression coverage from a real serialized Alpha response, including draft preservation, creation and undo.
+
 ## 2.1.0 â€” 2026-11-13
 
 - Replace the Alpha shortcut with explicit Compatible and Custom plans for existing PokÃ©mon and new additions. Inspect origin, minimum level, evolution, required moves, size, IV and Plus changes before applying a draft; only Save/Add writes with a backup.

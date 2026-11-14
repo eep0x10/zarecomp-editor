@@ -1,6 +1,8 @@
 # ZA Recomp Editor
 
-**A portable Pokémon Legends: Z-A save workbench for ZA Recomp — version 2.1.0.** Browse your party and boxes, edit detailed Pokémon data and create custom additions in one dark acrylic workspace. The Windows EXE opens a private local browser interface; its header shows the running host version.
+**A portable Pokémon Legends: Z-A save workbench for ZA Recomp — version 2.1.1.** Browse your party and boxes, edit detailed Pokémon data and create custom additions in one dark acrylic workspace. The Windows EXE opens a private local browser interface; its header shows the running host version.
+
+**2.1.1 fix:** applying an Alpha plan now preserves the Pokémon identity and artwork in the inspector. Null API fields mean “keep the current value”; only actual planned changes are applied. [Fix evidence](docs/audits/2026-11-13-alpha-preview.md).
 
 [Download for Windows](https://github.com/eep0x10/zarecomp-editor/releases/latest) · [Português (Brasil)](README.pt-BR.md) · [Español](README.es.md) · [Editing guide](docs/EDITING.md) · [Report an issue](https://github.com/eep0x10/zarecomp-editor/issues)
 

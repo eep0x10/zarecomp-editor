@@ -68,6 +68,184 @@ function bind(name, context) {
 }
 async function main() {
   const helpers = sourceModule("alphaDraft.ts");
+  // Captured from the real 2.1.0 API on the synthetic Chikorita Alpha fixture.
+  // Keep the full nullable patch shape; sparse mocks missed this regression.
+  const serializedPatch = JSON.parse(
+    fs.readFileSync(
+      path.join(client, "tests/fixtures/alpha-plan-nullable-patch.json"),
+      "utf8",
+    ),
+  );
+  const nullablePlan = {
+    available: true,
+    hash: "synthetic",
+    mode: "Custom",
+    patch: serializedPatch,
+    options: null,
+    preview: { values: { species: 152, form: 0 } },
+  };
+  const sparse = helpers.planDraft(nullablePlan);
+  check(
+    Object.values(serializedPatch).filter((v) => v === null).length === 30,
+    "fixture retains all30 nullable members from a real API response",
+  );
+  check(
+    !Object.hasOwn(sparse, "species") &&
+      !Object.hasOwn(sparse, "form") &&
+      !Object.hasOwn(sparse, "nickname"),
+    "nullable plan members are no-ops, not identity overrides",
+  );
+
+  const meaningful = helpers.planDraft({
+    ...nullablePlan,
+    patch: {
+      species: null,
+      form: undefined,
+      favorite: false,
+      heldItem: 0,
+      nickname: "",
+      plusMoves: [],
+    },
+  });
+  check(
+    meaningful.favorite === false &&
+      meaningful.heldItem === 0 &&
+      meaningful.nickname === "" &&
+      Array.isArray(meaningful.plusMoves) &&
+      !meaningful.plusMoves.length,
+    "sparse plan retains false, zero, empty text and empty arrays",
+  );
+  const identity = {
+    species: 152,
+    form: 0,
+    gender: 0,
+    level: 25,
+    nature: 15,
+    ball: 4,
+    nickname: "Original",
+    isAlpha: true,
+    alphaMode: "Compatible",
+  };
+  const contextKey = "party:0",
+    originalDraft = { nickname: "Kept draft", ball: 2, level: 26 };
+  let actualDrafts = { [contextKey]: { ...originalDraft } },
+    writes = 0;
+  const undoStore = { current: {} };
+  const applyUpdate = bind("update", {
+    revision: { current: 0 },
+    validationRequest: { current: null },
+    setValidating: () => {},
+    setPreview: () => {},
+    setAlphaPlan: () => {},
+    setAlphaPlanning: () => {},
+    setError: () => {},
+    creating: false,
+    details: { values: identity },
+    loadedKey: { current: contextKey },
+    activeKey: contextKey,
+    same: (a, b) => JSON.stringify(a) === JSON.stringify(b),
+    setDrafts: (fn) => (actualDrafts = fn(actualDrafts)),
+  });
+  const apply = bind("applyAlphaPlan", {
+    alphaPlan: nullablePlan,
+    session: { hash: "synthetic" },
+    planDraft: helpers.planDraft,
+    alphaUndo: undoStore,
+    editContext: contextKey,
+    patch: { ...originalDraft },
+    creating: false,
+    details: { values: identity },
+    creationSeed: null,
+    update: applyUpdate,
+    setCreationSeed: () => {},
+    setPreview: () => {},
+    setMessage: () => {},
+    setMotion: () => {},
+    t: (x) => x,
+    api: () => {
+      writes++;
+      throw Error("Apply must not write");
+    },
+  });
+  apply();
+  const effective = { ...identity, ...actualDrafts[contextKey] };
+  check(
+    effective.species === 152 &&
+      effective.form === 0 &&
+      effective.gender === 0 &&
+      effective.nature === 15,
+    "real serialized Alpha Apply keeps inspector identity and sprite species",
+  );
+  check(
+    effective.nickname === "Kept draft" &&
+      effective.ball === 2 &&
+      effective.level === 26,
+    "real serialized Alpha Apply preserves unrelated existing draft fields",
+  );
+  check(
+    effective.isAlpha === true &&
+      effective.alphaMode === "Custom" &&
+      writes === 0,
+    "Apply changes only the local draft and never calls write API",
+  );
+  check(
+    !Object.hasOwn(undoStore.current[contextKey].applied, "species"),
+    "Undo does not claim null identity members as Alpha-owned changes",
+  );
+  const reverted = helpers.undoAlphaChanges(
+    { ...effective, nickname: "Later edit" },
+    undoStore.current[contextKey],
+  );
+  const afterUndo = { ...effective, nickname: "Later edit", ...reverted };
+  check(
+    afterUndo.species === 152 &&
+      afterUndo.form === 0 &&
+      afterUndo.nickname === "Later edit" &&
+      afterUndo.ball === 2 &&
+      afterUndo.alphaMode === "Compatible",
+    "Undo after full-nullable Apply retains identity and later unrelated edits",
+  );
+  const creationPlan = {
+    ...nullablePlan,
+    options: {
+      species: 4,
+      form: 0,
+      level: 25,
+      nature: 15,
+      ball: 2,
+      shiny: false,
+      creationSeed: "18446744073709551610",
+    },
+  };
+  const creationBefore = {
+    species: 4,
+    form: 0,
+    level: 10,
+    nature: 15,
+    ball: 2,
+    heldItem: null,
+    friendship: null,
+    moves: null,
+    nickname: "Creation draft",
+  };
+  const creationAfter = {
+    ...creationBefore,
+    ...helpers.planDraft(creationPlan),
+  };
+  check(
+    creationAfter.species === 4 &&
+      creationAfter.form === 0 &&
+      creationAfter.level === 25 &&
+      creationAfter.shiny === "NonShiny",
+    "creation plan still fills required identity from options",
+  );
+  check(
+    creationAfter.heldItem === null &&
+      creationAfter.friendship === null &&
+      creationAfter.moves === null &&
+      creationAfter.nickname === "Creation draft",
+    "incoming nulls preserve existing creation automatic fields and other overrides",
+  );
   check(
     !helpers
       .alphaUnavailableMessage({

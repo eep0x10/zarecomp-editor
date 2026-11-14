@@ -28,7 +28,7 @@ internal static class ApiDocs
     ];
     internal static object Document() => new
     {
-        openapi = "3.1.0", info = new { title = "Recomp Pokémon local API", version = "2.1.0" },
+        openapi = "3.1.0", info = new { title = "Recomp Pokémon local API", version = "2.1.1" },
         security = new[] { new Dictionary<string, string[]> { ["bearerAuth"] = [] } },
         components = new { securitySchemes = new { bearerAuth = new { type = "http", scheme = "bearer" } }, schemas = Schemas() },
         paths = Routes.GroupBy(r => r.Path).ToDictionary(g => g.Key, g => g.ToDictionary(r => r.Method, r => (object)new

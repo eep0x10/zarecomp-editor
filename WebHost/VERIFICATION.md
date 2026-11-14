@@ -1,3 +1,9 @@
+# 2.1.1 — Alpha inspector correction
+
+49 client regressions, TypeScript/Vite and host build passed. A real serialized API patch fixture reproduced the 2.1.0 failure before the null-preserves correction. Browser desktop/390px confirmed identity, loaded artwork, prior nickname draft and Undo after Apply; the synthetic save hash stayed unchanged. See [focused evidence](../docs/audits/2026-11-13-alpha-preview.md). The Engine/transactions are unchanged; final portable/remote-CI results are separate release evidence.
+
+# Historical 2.1.0 checkpoint
+
 # Local verification status â€” 2.1.0
 
 Final local verification passed **61 Alpha, 44 generated-save HTTP, 67 Engine and 39 client regression checks**. The final Alpha suite includes twelve fixed seeds each for Gallade ancestral automatic gender and gift ability-slot/RNG correlation, plus ancestral-only Annihilape. See the [2.1.0 audit](../docs/audits/2026-11-13-alpha-review.md). The previous 32 deterministic sprite/24 live-image results remain historical at this local checkpoint; published CI is separate evidence.

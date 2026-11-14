@@ -86,7 +86,13 @@ export type AlphaUndo = {
   creationSeed?: string | null;
 };
 export function planDraft(plan: AlphaPlan): Patch {
-  const next = { ...(plan.patch || plan.options?.details || {}) };
+  // The API serializes nullable PokemonPatch members. Null means "preserve",
+  // so only actual plan changes may override the existing client draft.
+  const next: Patch = Object.fromEntries(
+    Object.entries(plan.patch || plan.options?.details || {}).filter(
+      ([, value]) => value != null,
+    ),
+  ) as Patch;
   const options = plan.options;
   if (options) {
     for (const name of ["species", "form", "level", "nature", "ball"])
