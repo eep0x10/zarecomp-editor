@@ -1,6 +1,6 @@
 # ZA Recomp Editor — Português (Brasil)
 
-**Editor portátil de saves de Pokémon Legends: Z-A para o ZA Recomp — versão 2.1.1.** Equipe, boxes, criação e edição detalhada em uma única bancada web, com tema escuro, acrílico e backup automático. O cabeçalho mostra a versão do host em execução.
+**Editor portátil de saves de Pokémon Legends: Z-A para o ZA Recomp — versão 2.2.0.** Equipe, boxes, criação e edição detalhada em uma única bancada web, com tema escuro, acrílico e backup automático. O cabeçalho mostra a versão do host em execução.
 
 **Correção 2.1.1:** aplicar um plano Alpha agora preserva a identidade e a imagem do Pokémon no painel. Campos nulos da API significam “manter o valor atual”; somente alterações reais entram no rascunho. [Evidência da correção](docs/audits/2026-11-13-alpha-preview.md).
 
@@ -73,7 +73,11 @@ O plano Alpha também funciona na criação. Compatível propõe encontro dispon
 
 ## Optimize e idiomas
 
-Optimize sugere **somente naturezas**, com motivo e revisão em rascunho. Não muda IVs, EVs, golpes ou nível. Não há uma natureza competitiva universalmente melhor; função da equipe, Mega Evolução e mecânicas de Z-A influenciam a escolha.
+![Optimize: sete opções combináveis — demonstração sintética](docs/screenshots/web/team-optimize-2.2.0.jpg)
+
+Optimize abre um painel na própria tela. Combine **nature recomendada (Mint), Alpha, seis IVs 31, shiny, tamanho máximo, amizade 255 e nível 100**. Gere uma prévia sem gravar, confira as alterações/relatório de cada integrante e aplique o plano completo aos rascunhos. **Salvar com backup** continua separado; rascunhos das boxes e outras edições da equipe são preservados. Plano desatualizado ou integrante indisponível impede aplicação parcial.
+
+A recomendação fica fixa pelos dados da espécie/forma, sem alternar por golpes atuais, treinamento, nível ou otimizações anteriores. Ela atua na nature efetiva via Mint e preserva a original. É um perfil inicial estável e transparente, sem prometer uma escolha competitiva universal. Alpha promove pelo menos três IVs naturais úteis para 31 conforme nature/perfil, sem reduzir os existentes; a opção separada de IVs máximos coloca os seis em 31. Alpha Compatível pode propor mudanças necessárias de encontro/nível/golpes; Personalizado é explícito e mantém os avisos reais. Shiny quadrado já existente é preservado.
 
 Interface em **PT-BR, inglês e espanhol**. Nomes de golpes/natures e relatórios PKHeX permanecem em inglês. O acrílico tem alternativa opaca; a interface respeita movimento reduzido. Em telas estreitas, a equipe vira faixa e as boxes se expandem dentro da mesma página.
 

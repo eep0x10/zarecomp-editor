@@ -18,6 +18,7 @@ public sealed record AlphaPlanAddRequest(string ExpectedHash, AddOptions Options
 public sealed record EditRequest(string ExpectedHash, string OperationId, TeamEdit[] TeamEdits, TeamEdit[] BoxEdits);
 public sealed record AddRequest(string ExpectedHash, string OperationId, AddOptions Options);
 public sealed record SuggestRequest(string ExpectedHash, TeamPokemon[] Team, string Language = "pt-BR");
+public sealed record TeamOptimizeRequest(string ExpectedHash,TeamEdit[] TeamEdits,TeamOptimizeOptions Options,AlphaMode AlphaMode=AlphaMode.Compatible,string Language="pt-BR");
 public sealed record Preferences(string? LastSavePath = null, string Language = "pt-BR");
 internal sealed class ApiFailure(int status, string code, string safeDetail) : Exception(safeDetail)
 {

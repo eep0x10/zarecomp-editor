@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.2.0 — 2026-11-14
+
+- Add an inline team optimizer with seven combinable actions: stable recommended Mint nature, Alpha, six perfect IVs, shiny, maximum size, friendship 255 and level 100. Preview the complete batch before applying drafts; saving remains an explicit backed-up transaction.
+- Stabilize nature recommendations using canonical species/form data rather than the current moveset. Preserve original nature, existing square shinies, relevant draft edits and box drafts.
+- Prioritize useful natural perfect IVs for Alpha without lowering existing values; retain explicit Compatible/Custom policies and truthful reports. Reject unavailable or stale batch plans instead of applying partially.
+- Show nature effects once in the colored effect line, with compact name-only option labels.
+
 ## 2.1.1 — 2026-11-13
 
 - Preserve Pokémon identity, artwork and unchanged inspector fields after applying an Alpha plan. Nullable API patch fields mean “preserve”, rather than empty UI overrides; real zero/false/empty values remain valid edits.

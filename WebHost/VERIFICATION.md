@@ -1,3 +1,7 @@
+# 2.2.0 — Team optimization
+
+45 Optimize Engine/API + 61 Alpha + 44 HTTP checks passed on generated data; 71 client and 52 legacy Engine checks passed separately. Root desktop/390px exercised all seven actions, explicit backed-up save/reopen, party/box draft preservation, exact original backup, compact nature effects and repeated optimization with zero changes. See [API contract](OPTIMIZE-API.md) and [UI acceptance](../docs/design/team-optimize-2.2.md). Production source/static review passed; final portable/remote-CI evidence is separate release metadata. Personal saves and the actual game were not modified.
+
 # 2.1.1 — Alpha inspector correction
 
 49 client regressions, TypeScript/Vite and host build passed. A real serialized API patch fixture reproduced the 2.1.0 failure before the null-preserves correction. Browser desktop/390px confirmed identity, loaded artwork, prior nickname draft and Undo after Apply; the synthetic save hash stayed unchanged. See [focused evidence](../docs/audits/2026-11-13-alpha-preview.md). The Engine/transactions are unchanged; final portable/remote-CI results are separate release evidence.

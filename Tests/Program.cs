@@ -141,9 +141,11 @@ try{service.SaveEdits(path,[new(0,Level:80)],[new(boxSlot,Level:101)]);}catch(Ar
 Check(invalidMixed&&service.Inspect(path).Hash==mixedHash,"Invalid mixed batch changes nothing");
 Check(NatureAdvisor.GetMoveCategory(1)==1 && NatureAdvisor.GetMoveCategory(53)==2 && NatureAdvisor.GetMoveCategory(45)==0,"Move category primary data physical special status");
 var template=service.InspectTeam(path)[0];
-Check(NatureAdvisor.Suggest(template with {Moves=[53,0,0,0],MoveCategories=[2,0,0,0]}).Nature==15,"Special moves suggest Modest");
-Check(NatureAdvisor.Suggest(template with {Moves=[1,0,0,0],MoveCategories=[1,0,0,0]}).Nature==3,"Physical moves suggest Adamant");
-Check(NatureAdvisor.Suggest(template with {Moves=[1,53,0,0],MoveCategories=[1,2,0,0],BaseStats=[80,100,90,100,100,80]}).Nature is 11 or 14,"Mixed moves avoid reducing either attacking stat");
+int canonicalNature=NatureAdvisor.Suggest(template).Nature;
+Check(NatureAdvisor.Suggest(template with {Moves=[53,0,0,0],MoveCategories=[2,0,0,0]}).Nature==canonicalNature,"Nature remains canonical when moves change to special");
+Check(NatureAdvisor.Suggest(template with {Moves=[1,0,0,0],MoveCategories=[1,0,0,0],Nature=24,Level=1,BaseStats=[80,100,90,100,100,80]}).Nature==canonicalNature,"Forged client stats, current nature and level do not change recommendation");
+bool invalidNatureSpecies=false;try{NatureAdvisor.Suggest(template with{Species=int.MaxValue});}catch(ArgumentException){invalidNatureSpecies=true;}
+Check(invalidNatureSpecies,"Unavailable species recommendation rejects safely");
 var make=typeof(SaveService).GetMethod("CreatePokemon",System.Reflection.BindingFlags.NonPublic|System.Reflection.BindingFlags.Static)!;
 foreach (var sample in new[] { (4,0), (120,0), (150,0), (384,0), (26,1), (670,5), (718,0), (1007,0) })
 {

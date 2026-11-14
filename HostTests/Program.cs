@@ -47,7 +47,11 @@ else source = Path.GetFullPath(args[0]);
 if (args[0] == "--alpha-probe") { AlphaTests.Probe(source); return; }
 string Hash(string path) => Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(path)));
 string sourceHash = Hash(source);
-if(args[0]=="--generated")AlphaTests.Run(source);
+if(args[0]=="--generated")
+{
+    AlphaTests.Run(source);
+    OptimizeTests.Run(source);
+}
 string saveDirectory = Path.Combine(root, "save_0"); Directory.CreateDirectory(saveDirectory);
 string path = Path.Combine(saveDirectory, "main"); File.Copy(source, path);
 File.WriteAllText(Path.Combine(saveDirectory, "metadata.txt"), "synthetic preservation probe");

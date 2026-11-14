@@ -31,3 +31,10 @@ public sealed record TeamEdit(int Slot, int? Level=null, int? Nature=null, bool?
 }
 public sealed record TeamEditResult(string SavePath, string BackupDirectory, string Hash, IReadOnlyList<TeamPokemon> Team, IReadOnlyList<string> Warnings);
 public sealed record NatureSuggestion(int Slot, int Nature, string Reason);
+public sealed record TeamOptimizeOptions(bool BestNatures=false,bool Alpha=false,bool MaxIVs=false,bool Shiny=false,bool MaxSize=false,bool MaxFriendship=false,bool Level100=false);
+public sealed record TeamOptimizeEdit(int Slot,IReadOnlyDictionary<string,object> Details);
+public sealed record TeamOptimizeItem(int Slot,string Name,int Species,int Form,bool Available,string Code,
+    PokemonDetails? Before,PokemonDetails? Preview,IReadOnlyDictionary<string,object>? Patch,
+    IReadOnlyList<AlphaChange> Changes,IReadOnlyList<string> Warnings,int? Nature,string? NatureReason);
+public sealed record TeamOptimizePlan(bool Available,string Code,string Hash,IReadOnlyList<TeamOptimizeEdit> TeamEdits,
+    IReadOnlyList<TeamOptimizeItem> Items,IReadOnlyList<string> Warnings,IReadOnlyList<NatureSuggestion> Natures);

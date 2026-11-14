@@ -54,7 +54,7 @@ export function NatureChoice({
       >
         {choices.map((c) => (
           <option key={c.id} value={c.id}>
-            {c.name} · {natureEffect(c.id, t)}
+            {c.name}
           </option>
         ))}
       </select>

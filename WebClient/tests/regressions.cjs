@@ -474,6 +474,10 @@ async function main() {
   await bind("alpha", {
     alphaPlan: null,
     alphaPlanning: false,
+    alphaUndo: { current: {} },
+    creating: false,
+    activeKey: "party:0",
+    editContext: "party:0",
     update: (p) => (offPatch = p),
     setMessage: () => {},
     t: (x) => x,
@@ -651,6 +655,239 @@ async function main() {
   check(
     !drafts[context],
     "reverting edits removes a redundant policy-only draft",
+  );
+  const team = sourceModule("teamOptimize.ts");
+  const oldDrafts = {
+    "party:0": { level: 50, nickname: "Kept", statNature: 10 },
+    "party:1": { level: 50 },
+    "box:4": { ball: 2, shiny: "Star" },
+  };
+  const originalDrafts = JSON.stringify(oldDrafts);
+  const snapshot = {
+    sessionId: "s",
+    hash: "h",
+    revision: 8,
+    signature: team.draftSignature(oldDrafts),
+    slots: [0, 1],
+    options: { ...team.optimizeDefaults, level100: true },
+    alphaMode: "Compatible",
+  };
+  const current = { sessionId: "s", hash: "h", revision: 8 };
+  const batch = {
+    available: true,
+    hash: "h",
+    warnings: [],
+    natures: [],
+    items: [0, 1].map((slot) => ({ slot, available: true, changes: [] })),
+    teamEdits: [
+      { slot: 0, details: { nickname: "Kept" } },
+      { slot: 1, details: {} },
+    ],
+  };
+  const optimized = team.applyTeamPlan(oldDrafts, batch, snapshot, current);
+  check(
+    !Object.hasOwn(optimized["party:0"], "level") && !optimized["party:1"],
+    "canonical empty deltas clear draft50 when optimization restores disk100",
+  );
+  check(
+    !Object.hasOwn(optimized["party:0"], "statNature"),
+    "canonical Mint delta clears draft10 when recommendation restores disk15",
+  );
+  check(
+    optimized["party:0"].nickname === "Kept" &&
+      optimized["box:4"] === oldDrafts["box:4"],
+    "canonical party draft retains unrelated nickname and preserves box draft",
+  );
+  check(
+    JSON.stringify(oldDrafts) === originalDrafts,
+    "team application never mutates input drafts",
+  );
+  const rejectPlan = (candidate, context = current, snap = snapshot) => {
+    assert.throws(() =>
+      team.applyTeamPlan(oldDrafts, candidate, snap, context),
+    );
+    return JSON.stringify(oldDrafts) === originalDrafts;
+  };
+  check(
+    rejectPlan({ ...batch, available: false, teamEdits: [] }),
+    "unavailable batch applies no partial changes",
+  );
+  check(
+    rejectPlan({
+      ...batch,
+      items: [batch.items[0], { ...batch.items[1], available: false }],
+    }),
+    "any unavailable member blocks the complete batch",
+  );
+  check(
+    rejectPlan({ ...batch, teamEdits: [batch.teamEdits[0]] }),
+    "missing canonical party slot is rejected",
+  );
+  check(
+    rejectPlan({
+      ...batch,
+      teamEdits: [batch.teamEdits[0], batch.teamEdits[0]],
+    }),
+    "duplicate canonical party slot is rejected",
+  );
+  check(
+    rejectPlan({ ...batch, items: [batch.items[0]] }),
+    "incomplete item coverage is rejected",
+  );
+  for (const changed of [
+    { ...current, hash: "new" },
+    { ...current, sessionId: "other" },
+    { ...current, revision: 9 },
+  ])
+    check(
+      rejectPlan(batch, changed),
+      "live session/hash/revision changes reject stale batch",
+    );
+  check(
+    rejectPlan(batch, current, { ...snapshot, signature: "changed" }),
+    "changed draft signature rejects stale batch",
+  );
+  check(
+    Object.keys(team.optimizeDefaults).length === 7 &&
+      team.optimizeDefaults.bestNatures &&
+      Object.values(team.optimizeDefaults).filter(Boolean).length === 1,
+    "seven independent options default to Mint recommendation only",
+  );
+  assert.deepEqual(
+    team.partyEdits({
+      "box:0": { level: 5 },
+      "party:2": { species: null, friendship: 0, isAlpha: false },
+      "party:0": { nickname: "" },
+    }),
+    [
+      { slot: 0, details: { nickname: "" } },
+      { slot: 2, details: { friendship: 0, isAlpha: false } },
+    ],
+  );
+  check(
+    true,
+    "request projects sorted party-only drafts and preserves false/zero while filtering nulls",
+  );
+  const noNatureChange = team.applyTeamPlan(
+    oldDrafts,
+    {
+      ...batch,
+      teamEdits: [
+        { slot: 0, details: { nickname: "Kept", statNature: 15 } },
+        { slot: 1, details: {} },
+      ],
+    },
+    snapshot,
+    current,
+  );
+  check(
+    noNatureChange["party:0"].statNature === 15 &&
+      !Object.hasOwn(noNatureChange["party:0"], "nature"),
+    "recommended Mint changes effective nature without overriding original nature",
+  );
+  let receivedTeamPlan, requestBody, requestPath;
+  const requestState = { current: 0 },
+    requestRevision = { current: 2 },
+    requestSnapshot = { current: null };
+  const requestDrafts = { current: oldDrafts };
+  const teamRequestContext = {
+    session: { id: "s", hash: "h", team: [{ slot: 0 }, { slot: 1 }] },
+    creating: false,
+    operation: { current: false },
+    conflict: false,
+    teamOptions: team.optimizeDefaults,
+    teamMode: "Compatible",
+    locale: "pt-BR",
+    cancelTeamPreview: () => requestState.current++,
+    clearValidationContext: () => requestRevision.current++,
+    teamGeneration: requestState,
+    teamRequest: { current: null },
+    teamSnapshot: requestSnapshot,
+    revision: requestRevision,
+    latestDrafts: requestDrafts,
+    draftSignature: team.draftSignature,
+    partyEdits: team.partyEdits,
+    setTeamPlanning: () => {},
+    setTeamNotice: () => {},
+    setError: () => {},
+    setTeamPlan: (p) => (receivedTeamPlan = p),
+    sessionId: { current: "s" },
+    sessionHash: { current: "h" },
+    t: (x) => x,
+    api: async (url, body) => {
+      requestPath = url;
+      requestBody = body;
+      return batch;
+    },
+    fail: (e) => {
+      throw e;
+    },
+    ApiError: class extends Error {},
+  };
+  const teamRequestRun = bind("generateTeamPlan", teamRequestContext);
+  await teamRequestRun();
+  check(
+    requestPath === "/sessions/s/team-optimize-plan" &&
+      receivedTeamPlan === batch,
+    "team preview uses readonly plan endpoint and does not apply drafts",
+  );
+  check(
+    requestBody.language === "pt-BR" &&
+      requestBody.alphaMode === "Compatible" &&
+      requestBody.teamEdits.length === 2 &&
+      Object.keys(requestBody.options).length === 7 &&
+      JSON.stringify(oldDrafts) === originalDrafts,
+    "preview sends exact seven-option contract with existing party drafts only",
+  );
+  let resolveTeam;
+  const pendingApi = () =>
+    new Promise((resolve) => {
+      resolveTeam = resolve;
+    });
+  receivedTeamPlan = null;
+  const cancelledRequest = bind("generateTeamPlan", {
+    ...teamRequestContext,
+    api: pendingApi,
+  })();
+  requestState.current++;
+  resolveTeam(batch);
+  await cancelledRequest;
+  check(
+    receivedTeamPlan === null,
+    "cancelled request cannot restore an obsolete team preview",
+  );
+  let staleNotice = "";
+  const staleRequest = bind("generateTeamPlan", {
+    ...teamRequestContext,
+    api: pendingApi,
+    setTeamNotice: (value) => (staleNotice = value),
+  })();
+  requestRevision.current++;
+  resolveTeam(batch);
+  await staleRequest;
+  check(
+    receivedTeamPlan === null && staleNotice.includes("Inputs changed"),
+    "late team response after an edit is discarded with regeneration feedback",
+  );
+  const changedHashRequest = bind("generateTeamPlan", {
+    ...teamRequestContext,
+    api: pendingApi,
+  })();
+  teamRequestContext.sessionHash.current = "newhash";
+  resolveTeam(batch);
+  await changedHashRequest;
+  check(
+    receivedTeamPlan === null,
+    "late team response after save hash change cannot become applicable",
+  );
+  const optionsSource = fs.readFileSync(
+    path.join(client, "src/PokemonChoices.tsx"),
+    "utf8",
+  );
+  check(
+    !optionsSource.includes("{c.name} �") &&
+      optionsSource.includes("nature-effect"),
+    "nature options show names once and preserve separate colored effect",
   );
   console.log(
     "SUCCESS " +

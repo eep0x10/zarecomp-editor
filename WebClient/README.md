@@ -1,6 +1,6 @@
 # ZA Workbench client
 
-React/TypeScript client for the embedded local .NET 10 host, version 2.1.0. Node.js 24/npm are build tools; portable users run the self-contained Windows EXE. Show the version supplied by host bootstrap in the interface so a stale portable build is identifiable.
+React/TypeScript client for the embedded local .NET 10 host, version 2.2.0. Node.js 24/npm are build tools; portable users run the self-contained Windows EXE. Show the version supplied by host bootstrap in the interface so a stale portable build is identifiable.
 
 From the repository root:
 
@@ -11,6 +11,12 @@ npm test --prefix WebClient
 ```
 
 The production build writes `WebHost/wwwroot`. Finish the frontend build before building/publishing the host: those files are embedded at compilation. `./build.ps1` performs both stages and creates `dist/RecompPokemon.exe`. The development proxy defaults to loopback port 5075; use the embedded host for authenticated integration verification.
+
+## Team Optimize 2.2.0
+
+Seven independent options open in an inline panel. Preview is a non-writing API call; Apply validates session/hash/revision/draft signature and the complete returned slot set before replacing canonical party drafts, including empty patches that clear reverted values. Box drafts stay intact. Cancel and late responses cannot apply changes. Nature recommendation changes only Mint and is stable by canonical species/form; select options show names once and a single colored effect line below.
+
+71 client checks, TypeScript/Vite and root desktop/390px interaction verification passed. See [API contract](../WebHost/OPTIMIZE-API.md) and [delivery evidence](../docs/design/team-optimize-2.2.md).
 
 ## Current interaction contract
 

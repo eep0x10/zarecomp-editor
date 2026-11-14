@@ -1,6 +1,6 @@
 # ZA Recomp Editor — Español
 
-**Editor portátil de partidas de Pokémon Legends: Z-A para ZA Recomp — versión 2.1.1.** Equipo, cajas, creación y edición detallada en una única interfaz web local, oscura y acrílica, con copia de seguridad automática. El encabezado muestra la versión del host en ejecución.
+**Editor portátil de partidas de Pokémon Legends: Z-A para ZA Recomp — versión 2.2.0.** Equipo, cajas, creación y edición detallada en una única interfaz web local, oscura y acrílica, con copia de seguridad automática. El encabezado muestra la versión del host en ejecución.
 
 **Corrección 2.1.1:** aplicar un plan Alfa conserva la identidad y la imagen del Pokémon. Los campos nulos de la API significan “mantener el valor actual”; solo se aplican cambios reales. [Evidencia de la corrección](docs/audits/2026-11-13-alpha-preview.md).
 
@@ -71,7 +71,11 @@ El plan Alfa también admite creación. Compatible propone un encuentro disponib
 
 ## Optimize e idiomas
 
-Optimize propone **solo naturalezas**, con motivos y revisión editable. No cambia IVs, EVs, movimientos ni niveles. El papel del equipo, la megaevolución y las mecánicas de Z-A afectan a la mejor elección.
+![Optimize: siete opciones combinables — demostración sintética](docs/screenshots/web/team-optimize-2.2.0.jpg)
+
+Optimize abre un panel integrado. Combina **naturaleza recomendada (menta), Alfa, seis IVs 31, variocolor, tamaño máximo, amistad 255 y nivel 100**. Genera una vista previa sin escribir, revisa cambios/informe por integrante y aplica el plan completo a los borradores. **Guardar con copia** sigue siendo independiente; se conservan los borradores de cajas y otras ediciones del equipo. Un plan obsoleto o integrante no disponible impide la aplicación parcial.
+
+La recomendación queda fija según los datos de especie/forma, sin alternar por movimientos, entrenamiento, nivel ni optimizaciones anteriores. Se aplica como naturaleza efectiva mediante menta, conservando la original. Es un perfil inicial estable y transparente, sin prometer una opción competitiva universal. Alfa eleva al menos tres IVs naturales útiles a 31 según naturaleza/perfil sin reducir los existentes; la opción de IVs máximos pone los seis en 31. Alfa Compatible puede proponer cambios necesarios de encuentro/nivel/movimientos; Personalizado es explícito y muestra los problemas reales. Se conserva el variocolor cuadrado existente.
 
 Interfaz en PT-BR, inglés y español. Movimientos/naturalezas del catálogo e informes PKHeX permanecen en inglés. Se respeta movimiento reducido; el acrílico tiene alternativa opaca. En pantallas estrechas, el equipo se convierte en una franja y las cajas se expanden dentro de la misma página.
 

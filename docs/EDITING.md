@@ -2,7 +2,7 @@
 
 [Main README](../README.md) · [Português](#português) · [Español](#español)
 
-Version 2.1.0 uses one local-browser workspace opened by the portable Windows EXE. The header shows the running host version. The same inspector handles existing Pokémon and creation; the final write actions remain distinct. No application dialogs are required.
+Version 2.2.0 uses one local-browser workspace opened by the portable Windows EXE. The header shows the running host version. The same inspector handles existing Pokémon and creation; the final write actions remain distinct. No application dialogs are required.
 
 | Workflow | Before writing | When the save changes |
 | --- | --- | --- |
@@ -10,6 +10,15 @@ Version 2.1.0 uses one local-browser workspace opened by the portable Windows EX
 | Add Pokémon | Required choices plus enabled optional overrides describe a new Pokémon in the same inspector | **Add with backup** validates and writes immediately; cancel creation writes nothing |
 
 Close ZA Recomp before either write. Confirm the selected main file and trainer. Examples and screenshots use synthetic data; no game or personal save is bundled.
+
+## Optimize the whole party
+
+Open Optimize, select one or more of its seven actions and generate a preview. Each member shows before/after values and its actual compatibility report. An unavailable member blocks the whole plan; choose a supported Alpha mode or correct the draft. Applying replaces the reviewed party drafts with canonical patches relative to the saved file, including clearing edits restored to their stored value. Box drafts remain unchanged. Changing options, drafts, session or save hash invalidates the preview. Save with backup commits the final draft batch separately.
+
+- Recommended nature uses a stable species/form profile and updates effective Mint nature only. Current moves, trained stats, level and previous recommendations cannot change its result.
+- Alpha raises at least three useful natural IVs to 31, preserves existing perfect IVs, and enforces size/Hyper Training dependencies. All six IVs 31 is a separate option. Compatible/Custom retain the earlier explicit encounter/report rules.
+- Shiny makes non-shiny members star shiny and preserves existing square shinies. Maximum size uses Scale 255 with native/HOME scalar rules. Friendship 255 targets the current trainer; level 100 does not silently heal status or erase unrelated metadata.
+- Preview and Apply write nothing. Keep the real PKHeX findings visible; this workflow does not certify online acceptance.
 
 ## Edit an existing Pokémon
 

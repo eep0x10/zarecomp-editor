@@ -1,6 +1,6 @@
 # ZA Recomp Editor
 
-**A portable Pokémon Legends: Z-A save workbench for ZA Recomp — version 2.1.1.** Browse your party and boxes, edit detailed Pokémon data and create custom additions in one dark acrylic workspace. The Windows EXE opens a private local browser interface; its header shows the running host version.
+**A portable Pokémon Legends: Z-A save workbench for ZA Recomp — version 2.2.0.** Browse your party and boxes, edit detailed Pokémon data and create custom additions in one dark acrylic workspace. The Windows EXE opens a private local browser interface; its header shows the running host version.
 
 **2.1.1 fix:** applying an Alpha plan now preserves the Pokémon identity and artwork in the inspector. Null API fields mean “keep the current value”; only actual planned changes are applied. [Fix evidence](docs/audits/2026-11-13-alpha-preview.md).
 
@@ -80,7 +80,11 @@ The Alpha planner also supports creation. Compatible mode proposes an available 
 
 ## Optimize and languages
 
-Optimize previews editable **nature suggestions**, with reasons based on stats and physical/special moves. It does not change IVs, EVs, moves or levels. There is no universally best competitive nature: team role, Mega Evolution and Z-A mechanics matter.
+![Team Optimize: seven combinable options — synthetic demonstration](docs/screenshots/web/team-optimize-2.2.0.jpg)
+
+Optimize opens an inline selection panel. Combine **recommended nature (Mint), Alpha, all six IVs 31, shiny, maximum size, friendship 255 and level 100**. Generate a non-writing preview, review each party member's changes/report, then apply the entire available plan to drafts. **Save with backup** remains the separate write action; box drafts and unrelated party edits are preserved. A stale plan or unavailable member prevents partial application.
+
+Nature recommendations are fixed by canonical species/form data and do not alternate with current moves, trained stats, level or prior optimization. They apply to the effective Mint nature while preserving the original nature. This is a transparent stable starting profile, not a universal competitive set. Alpha promotes at least three useful natural IVs to 31 according to the effective nature/profile, without lowering existing IVs; the separate all-IVs option sets all six. Compatible Alpha may disclose required encounter/level/move changes; Custom remains an explicit alternative with actual compatibility findings. Existing square shiny status is retained.
 
 Interface languages: **PT-BR, English and Spanish**. Move/nature catalogue names and upstream PKHeX reports stay in English. Acrylic uses browser backdrop blur with opaque fallback; reduced-motion preferences are respected. Missing artwork does not prevent editing.
 

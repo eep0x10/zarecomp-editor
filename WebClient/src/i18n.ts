@@ -1,5 +1,88 @@
 export type Locale = "pt-BR" | "en" | "es";
 const words: Record<string, [string, string]> = {
+  "Choose optimizations": ["Escolher otimizações", "Elegir optimizaciones"],
+  "Optimization options": ["Opções de otimização", "Opciones de optimización"],
+  "Recommended nature (Mint)": [
+    "Natureza recomendada (Mint)",
+    "Naturaleza recomendada (Menta)",
+  ],
+  "Alpha with at least 3 perfect IVs": [
+    "Alpha com ao menos 3 IVs perfeitos",
+    "Alfa con al menos 3 IVs perfectos",
+  ],
+  "All IVs at 31": ["Todos os IVs em 31", "Todos los IVs en 31"],
+  "All shiny": ["Todos shiny", "Todos variocolor"],
+  "Maximum size": ["Tamanho máximo", "Tamaño máximo"],
+  "Maximum friendship (255)": ["Amizade máxima (255)", "Amistad máxima (255)"],
+  "Level 100": ["Nível 100", "Nivel 100"],
+  "Choose one or more changes. Preview first, apply to drafts, then save with backup.":
+    [
+      "Escolha uma ou mais alterações. Confira a prévia, aplique aos rascunhos e depois salve com backup.",
+      "Elige uno o varios cambios. Revisa la vista previa, aplícalos a los borradores y después guarda con copia.",
+    ],
+  "Recommendations are stable for each species/form and apply as a Mint. Original nature is preserved.":
+    [
+      "A recomendação é estável por espécie/forma e é aplicada como Mint. A natureza original é preservada.",
+      "La recomendación es estable por especie/forma y se aplica como menta. Se conserva la naturaleza original.",
+    ],
+  "Custom Alpha preserves origin and may remain incompatible. The actual PKHeX report will be shown.":
+    [
+      "Alpha personalizado preserva a origem e pode continuar incompatível. O relatório real do PKHeX será mostrado.",
+      "Alfa personalizado conserva el origen y puede seguir siendo incompatible. Se mostrará el informe real de PKHeX.",
+    ],
+  "Planning team changes…": [
+    "Planejando alterações da equipe…",
+    "Planificando cambios del equipo…",
+  ],
+  "Preview team changes": [
+    "Prévia das alterações da equipe",
+    "Vista previa de cambios del equipo",
+  ],
+  "Cancel preview": ["Cancelar prévia", "Cancelar vista previa"],
+  "Select at least one option.": [
+    "Selecione ao menos uma opção.",
+    "Selecciona al menos una opción.",
+  ],
+  "Pokémon reviewed": ["Pokémon revisados", "Pokémon revisados"],
+  "with proposed changes": [
+    "com alterações propostas",
+    "con cambios propuestos",
+  ],
+  "Nothing was applied. At least one Pokémon has no available plan. Adjust the options or review Alpha mode before trying again.":
+    [
+      "Nada foi aplicado. Ao menos um Pokémon não tem plano disponível. Ajuste as opções ou confira o modo Alpha antes de tentar novamente.",
+      "No se aplicó nada. Al menos un Pokémon no tiene un plan disponible. Ajusta las opciones o revisa el modo Alfa antes de intentarlo de nuevo.",
+    ],
+  Available: ["Disponível", "Disponible"],
+  Unavailable: ["Indisponível", "No disponible"],
+  "Apply team plan to drafts": [
+    "Aplicar plano da equipe aos rascunhos",
+    "Aplicar plan del equipo a los borradores",
+  ],
+  "Close optimizer": ["Fechar otimização", "Cerrar optimización"],
+  "Inputs changed. Generate a new preview before applying.": [
+    "Os dados mudaram. Gere uma nova prévia antes de aplicar.",
+    "Los datos cambiaron. Genera otra vista previa antes de aplicar.",
+  ],
+  "The team preview could not be applied. No drafts were changed. Generate a new preview.":
+    [
+      "Não foi possível aplicar a prévia da equipe. Nenhum rascunho foi alterado. Gere uma nova prévia.",
+      "No se pudo aplicar la vista previa del equipo. No se modificó ningún borrador. Genera otra vista previa.",
+    ],
+  "Pokémon updated in drafts. Save with backup when ready.": [
+    "Pokémon atualizados nos rascunhos. Salve com backup quando estiver pronto.",
+    "Pokémon actualizados en los borradores. Guarda con copia cuando esté listo.",
+  ],
+  "Apply or cancel the team preview before saving.": [
+    "Aplique ou cancele a prévia da equipe antes de salvar.",
+    "Aplica o cancela la vista previa del equipo antes de guardar.",
+  ],
+  "Alpha disabled. Other adjustments remain in the draft; validate the encounter before saving.":
+    [
+      "Alpha desativado. Os outros ajustes permanecem no rascunho; valide o encontro antes de salvar.",
+      "Alfa desactivado. Los otros ajustes permanecen en el borrador; valida el encuentro antes de guardar.",
+    ],
+
   "This species/form has no Alpha encounter. Choose another species/form or use Custom Alpha, which preserves origin and reports incompatibilities.":
     [
       "Esta espécie/forma não possui encontro Alpha. Escolha outra espécie/forma ou use Alpha personalizado, que preserva a origem e informa incompatibilidades.",

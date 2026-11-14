@@ -2,7 +2,7 @@
   <PropertyGroup>
     <OutputType>WinExe</OutputType><TargetFramework>net10.0-windows</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable>
-    <AssemblyName>RecompPokemon</AssemblyName><Version>2.1.1</Version>
+    <AssemblyName>RecompPokemon</AssemblyName><Version>2.2.0</Version>
     <Product>Recomp Pokémon</Product><Description>Portable local Pokémon save workbench</Description>
     <EnableDefaultContentItems>false</EnableDefaultContentItems>
   </PropertyGroup>

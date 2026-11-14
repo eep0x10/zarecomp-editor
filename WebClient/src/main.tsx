@@ -39,6 +39,16 @@ import { translate, type Locale } from "./i18n";
 import "./style.css";
 import { SecondaryFields } from "./EditorFields";
 import { localizeError } from "./errors";
+import { TeamOptimizePanel } from "./TeamOptimizePanel";
+import {
+  optimizeDefaults,
+  partyEdits,
+  draftSignature,
+  applyTeamPlan,
+  type OptimizeOptions,
+  type TeamOptimizePlan,
+  type TeamPlanSnapshot,
+} from "./teamOptimize";
 import { AlphaPlanReview } from "./AlphaPlanReview";
 import {
   planDraft,
@@ -182,9 +192,19 @@ function App() {
     [tab, setTab] = useState("Attributes"),
     [filter, setFilter] = useState(""),
     [boxesOpen, setBoxesOpen] = useState(false);
-  const [suggestionRows, setSuggestionRows] = useState<
-    { slot: number; name: string; nature: string; reason: string }[]
-  >([]);
+  const [teamPanelOpen, setTeamPanelOpen] = useState(false),
+    [teamOptions, setTeamOptions] = useState<OptimizeOptions>({
+      ...optimizeDefaults,
+    }),
+    [teamMode, setTeamMode] = useState<AlphaMode>("Compatible"),
+    [teamPlan, setTeamPlan] = useState<TeamOptimizePlan | null>(null),
+    [teamPlanning, setTeamPlanning] = useState(false),
+    [teamNotice, setTeamNotice] = useState("");
+  const teamRequest = useRef<AbortController | null>(null),
+    teamSnapshot = useRef<TeamPlanSnapshot | null>(null),
+    teamGeneration = useRef(0),
+    latestDrafts = useRef(drafts);
+  latestDrafts.current = drafts;
   const [busy, setBusy] = useState(""),
     [message, setMessage] = useState(""),
     [error, setError] = useState(""),
@@ -333,6 +353,8 @@ function App() {
       boxRequest.current?.abort();
       metadataRequest.current?.abort();
       speciesRequest.current?.abort();
+      teamGeneration.current++;
+      teamRequest.current?.abort();
     };
   }, []);
   function acceptSession(s: Session) {
@@ -344,7 +366,7 @@ function App() {
     setAlphaPlan(null);
     setAlphaPlanning(false);
     setCreationSeed(null);
-    setSuggestionRows([]);
+    closeTeamOptimizer();
     setDrafts({});
     setCreating(false);
     setDetails(null);
@@ -361,6 +383,53 @@ function App() {
       location.pathname + location.search,
     );
   }
+  function cancelTeamPreview() {
+    teamGeneration.current++;
+    teamRequest.current?.abort();
+    teamSnapshot.current = null;
+    setTeamPlan(null);
+    setTeamPlanning(false);
+    setTeamNotice("");
+  }
+  function closeTeamOptimizer() {
+    cancelTeamPreview();
+    setTeamPanelOpen(false);
+  }
+  function openTeamOptimizer() {
+    if (!session || creating) return;
+    if (teamPanelOpen) {
+      closeTeamOptimizer();
+      return;
+    }
+    clearValidationContext();
+    setTeamPanelOpen(true);
+    requestAnimationFrame(() => {
+      const panel = root.current?.querySelector<HTMLElement>(
+        ".team-optimize-panel",
+      );
+      if (!panel) return;
+      if (matchMedia("(max-width:900px)").matches)
+        panel.scrollIntoView({ block: "start" });
+      else root.current?.querySelector(".inspector")?.scrollTo({ top: 0 });
+      panel.querySelector<HTMLElement>("h3")?.focus({ preventScroll: true });
+    });
+  }
+  useEffect(() => {
+    const snapshot = teamSnapshot.current;
+    if (
+      snapshot &&
+      (snapshot.sessionId !== session?.id ||
+        snapshot.hash !== session?.hash ||
+        snapshot.revision !== revision.current ||
+        snapshot.signature !== draftSignature(drafts) ||
+        creating)
+    ) {
+      cancelTeamPreview();
+      setTeamNotice(
+        t("Inputs changed. Generate a new preview before applying."),
+      );
+    }
+  }, [drafts, session?.id, session?.hash, creating, revision.current]);
   function guard(action: () => void) {
     if (draftCount || creating) {
       setPending(() => action);
@@ -683,6 +752,7 @@ function App() {
     delete alphaUndo.current.new;
     mintIntent.current.delete("new");
     setAlphaChoice("Compatible");
+    closeTeamOptimizer();
     setCreating(true);
     setSpeciesOpen(true);
     requestAnimationFrame(() =>
@@ -772,7 +842,9 @@ function App() {
     update({ isAlpha: false, alphaMode: null });
     setMessage(
       t(
-        "Alpha disabled. Other adjustments remain; use Revert Alpha adjustments to restore the planned fields.",
+        alphaUndo.current[editContext]
+          ? "Alpha disabled. Other adjustments remain; use Revert Alpha adjustments to restore the planned fields."
+          : "Alpha disabled. Other adjustments remain in the draft; validate the encounter before saving.",
       ),
     );
   }
@@ -867,6 +939,10 @@ function App() {
   }
   async function commit() {
     if (!session || operation.current || conflict) return;
+    if (teamPlan || teamPlanning) {
+      setError(t("Apply or cancel the team preview before saving."));
+      return;
+    }
     if (alphaPlan || alphaPlanning) {
       setError(t("Apply or cancel the Alpha plan before saving."));
       return;
@@ -1001,70 +1077,113 @@ function App() {
   function openApi() {
     guard(() => location.assign("/api-docs"));
   }
-  async function optimize() {
-    if (!session) return;
-    setBusy("Loading…");
+  async function generateTeamPlan() {
+    if (
+      !session ||
+      creating ||
+      operation.current ||
+      conflict ||
+      !Object.values(teamOptions).some(Boolean)
+    )
+      return;
+    cancelTeamPreview();
+    clearValidationContext();
+    const generation = teamGeneration.current,
+      ac = new AbortController();
+    teamRequest.current = ac;
+    const snapshot: TeamPlanSnapshot = {
+      sessionId: session.id,
+      hash: session.hash,
+      revision: revision.current,
+      signature: draftSignature(latestDrafts.current),
+      slots: session.team.map((p) => p.slot),
+      options: { ...teamOptions },
+      alphaMode: teamMode,
+    };
+    teamSnapshot.current = snapshot;
+    setTeamPlanning(true);
+    setTeamNotice("");
     setError("");
     try {
-      const team = await Promise.all(
-        session.team.map(async (p) => {
-          const d = drafts[keyOf(true, p.slot)] || {};
-          const species = Number(d.species ?? p.species),
-            form = Number(d.form ?? p.form);
-          const metadata =
-            d.species != null || d.form != null
-              ? await api<any>(`/catalogs/species/${species}/forms/${form}`)
-              : null;
-          return {
-            slot: p.slot,
-            name: p.name,
-            baseStats: metadata?.baseStats ?? p.baseStats,
-            moveCategories: p.moveCategories,
-            species: Number(d.species ?? p.species),
-            form: Number(d.form ?? p.form),
-            level: Number(d.level ?? p.level),
-            moves: d.moves ?? p.moves,
-            nature: d.statNature ?? d.nature ?? p.nature,
-            shiny: d.shiny ? d.shiny !== "NonShiny" : p.shiny,
-          };
-        }),
+      const plan = await api<TeamOptimizePlan>(
+        `/sessions/${session.id}/team-optimize-plan`,
+        {
+          expectedHash: session.hash,
+          teamEdits: partyEdits(latestDrafts.current),
+          options: teamOptions,
+          alphaMode: teamMode,
+          language: locale,
+        },
+        ac.signal,
       );
-      const suggestions = await api<any[]>(
-        `/sessions/${session.id}/suggestions`,
-        { expectedHash: session.hash, team, language: locale },
-      );
-      setDrafts((all) => {
-        const next = { ...all };
-        for (const s of suggestions) {
-          const key = keyOf(true, s.slot);
-          next[key] = { ...next[key], nature: s.nature, statNature: s.nature };
-        }
-        return next;
-      });
-      setSuggestionRows(
-        suggestions.map((s) => {
-          const pokemon = team.find((p) => p.slot === s.slot);
-          return {
-            slot: s.slot,
-            name:
-              catalogs.species?.find((c) => c.id === pokemon?.species)?.name ||
-              pokemon?.name ||
-              "#" + s.slot,
-            nature: english(
-              catalogs.natures?.find((c) => c.id === s.nature)?.name ||
-                "#" + s.nature,
-            ),
-            reason: s.reason,
-          };
-        }),
-      );
-      setMessage(
-        suggestions.length + " " + t("Nature suggestions added to drafts."),
-      );
+      if (ac.signal.aborted || generation !== teamGeneration.current) return;
+      if (
+        sessionId.current !== snapshot.sessionId ||
+        sessionHash.current !== snapshot.hash ||
+        revision.current !== snapshot.revision ||
+        draftSignature(latestDrafts.current) !== snapshot.signature
+      ) {
+        cancelTeamPreview();
+        setTeamNotice(
+          t("Inputs changed. Generate a new preview before applying."),
+        );
+        return;
+      }
+      if (plan.hash !== snapshot.hash)
+        throw new ApiError(409, "stale_hash", "");
+      setTeamPlan(plan);
     } catch (e) {
+      if (ac.signal.aborted || generation !== teamGeneration.current) return;
       fail(e);
     } finally {
-      setBusy("");
+      if (generation === teamGeneration.current) setTeamPlanning(false);
+    }
+  }
+  function applyTeamOptimization() {
+    const snapshot = teamSnapshot.current;
+    if (!session || !snapshot || !teamPlan) return;
+    try {
+      const next = applyTeamPlan(latestDrafts.current, teamPlan, snapshot, {
+        sessionId: session.id,
+        hash: session.hash,
+        revision: revision.current,
+      });
+      const selectedPreview = selection?.party
+        ? teamPlan.items.find((item) => item.slot === selection.slot)
+            ?.preview || null
+        : preview;
+      for (const item of teamPlan.items) {
+        if (snapshot.options.bestNatures)
+          mintIntent.current.add("party:" + item.slot);
+        if (snapshot.options.alpha)
+          delete alphaUndo.current["party:" + item.slot];
+      }
+      clearValidationContext();
+      setDrafts(next);
+      latestDrafts.current = next;
+      cancelTeamPreview();
+      setTeamPanelOpen(false);
+      setPreview(selectedPreview);
+      requestAnimationFrame(() =>
+        root.current
+          ?.querySelector<HTMLButtonElement>(".optimize")
+          ?.focus({ preventScroll: true }),
+      );
+      if (snapshot.options.alpha && selection?.party)
+        setAlphaChoice(snapshot.alphaMode);
+      setMotion((n) => n + 1);
+      setMessage(
+        teamPlan.items.filter((item) => item.changes.length).length +
+          " " +
+          t("Pokémon updated in drafts. Save with backup when ready."),
+      );
+    } catch {
+      cancelTeamPreview();
+      setTeamNotice(
+        t(
+          "The team preview could not be applied. No drafts were changed. Generate a new preview.",
+        ),
+      );
     }
   }
   const choiceName = (list: string, id: number) =>
@@ -1323,13 +1442,14 @@ function App() {
             </div>
             <button
               className="optimize"
-              disabled={!session || !!busy}
-              onClick={optimize}
+              disabled={!session || !session.team.length || creating || !!busy}
+              onClick={openTeamOptimizer}
+              aria-expanded={teamPanelOpen}
             >
               <Sparkles size={19} />
               <span>
                 <strong>{t("Optimize team")}</strong>
-                <small>{t("Suggest natures")}</small>
+                <small>{t("Choose optimizations")}</small>
               </span>
             </button>
           </aside>
@@ -1438,6 +1558,43 @@ function App() {
             className="glass inspector"
             aria-busy={!!busy || (!!selection && !details && !creating)}
           >
+            {teamPanelOpen && session && !creating && (
+              <TeamOptimizePanel
+                options={teamOptions}
+                setOptions={(options) => {
+                  cancelTeamPreview();
+                  setTeamOptions(options);
+                }}
+                mode={teamMode}
+                setMode={(mode) => {
+                  cancelTeamPreview();
+                  setTeamMode(mode);
+                }}
+                plan={teamPlan}
+                planning={teamPlanning}
+                notice={teamNotice}
+                blocked={!!busy || conflict}
+                stale={
+                  !!teamSnapshot.current &&
+                  (teamSnapshot.current.hash !== session.hash ||
+                    teamSnapshot.current.revision !== revision.current ||
+                    teamSnapshot.current.signature !== draftSignature(drafts))
+                }
+                generate={generateTeamPlan}
+                apply={applyTeamOptimization}
+                cancel={cancelTeamPreview}
+                close={() => {
+                  closeTeamOptimizer();
+                  root.current
+                    ?.querySelector<HTMLButtonElement>(".optimize")
+                    ?.focus({ preventScroll: true });
+                }}
+                locale={locale}
+                catalogs={catalogs}
+                reduced={reduced}
+                t={t}
+              />
+            )}
             {!hasPokemon ? (
               <div className="empty-inspector">
                 <SlidersHorizontal size={42} />
@@ -2050,7 +2207,9 @@ function App() {
               conflict ||
               !session ||
               !!alphaPlan ||
-              alphaPlanning
+              alphaPlanning ||
+              !!teamPlan ||
+              teamPlanning
             }
             onClick={commit}
           >
@@ -2075,27 +2234,6 @@ function App() {
           {error ? <TriangleAlert size={17} /> : <Info size={17} />}
           <div className="receipt-copy">
             {error || message}
-            {!error && suggestionRows.length > 0 && draftCount > 0 && (
-              <details className="nature-suggestions">
-                <summary>
-                  {t("View nature suggestions")} ({suggestionRows.length})
-                </summary>
-                <ul>
-                  {suggestionRows.map((row) => (
-                    <li key={row.slot}>
-                      <strong>
-                        {row.name} <span aria-hidden="true">→</span>{" "}
-                        {row.nature}
-                      </strong>
-                      <p>{row.reason}</p>
-                    </li>
-                  ))}
-                </ul>
-                <small>
-                  {t("Suggestion only; no universally best nature.")}
-                </small>
-              </details>
-            )}
             {backup && (
               <small>
                 {t("Backup")}: <code>{backup}</code>
@@ -2133,7 +2271,7 @@ function App() {
               setError("");
               setMessage("");
               setBackup("");
-              setSuggestionRows([]);
+              cancelTeamPreview();
             }}
           >
             <X size={16} />
