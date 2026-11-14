@@ -75,7 +75,7 @@ Check((await Send("GET", "/api/v1/bootstrap", requestHost: "evil.example")).Stat
 Check((await Send("POST", "/api/v1/heartbeat", origin: null)).StatusCode == HttpStatusCode.Forbidden, "missing mutation Origin rejected");
 var bootstrapResponse = await Send("GET", "/api/v1/bootstrap");
 var bootstrap = await Body(bootstrapResponse);
-Check(bootstrap.GetProperty("version").GetString() == "2.1.0", "bootstrap contract");
+Check(bootstrap.GetProperty("version").GetString() == typeof(WorkbenchHost).Assembly.GetName().Version!.ToString(3), "bootstrap version matches the embedded host assembly");
 bool formsContract = true;
 foreach (var species in Catalog.Species)
 {
